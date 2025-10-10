@@ -1,5 +1,4 @@
 "use client";
-
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -9,7 +8,11 @@ import {
   DollarSign,
   Settings,
   X,
+  ChevronDown,
+  ChevronRight,
+  Disc,
 } from "lucide-react";
+import { useState, useEffect } from "react";
 
 interface SidebarProps {
   isOpen: boolean;
@@ -18,14 +21,93 @@ interface SidebarProps {
 
 export default function Sidebar({ isOpen, onClose }: SidebarProps) {
   const pathname = usePathname();
+  const [feedsOpen, setFeedsOpen] = useState(false);
+  const [mounted, setMounted] = useState(false);
+
+  // Handle hydration
+  useEffect(() => {
+    setMounted(true);
+    setFeedsOpen(pathname.startsWith("/feeds"));
+  }, [pathname]);
 
   const menuItems = [
     { name: "Dashboard", path: "/dashboard", icon: LayoutDashboard },
-    { name: "Feeds", path: "/feeds", icon: Wheat },
+    {
+      name: "Feeds",
+      path: "/feeds",
+      icon: Wheat,
+      hasSubmenu: true,
+      submenu: [
+        { name: "Feed Information", path: "/feeds/information" },
+        { name: "Feed Consumption", path: "/feeds/consumption" },
+      ],
+    },
     { name: "Kukhura", path: "/poultry", icon: Bird },
     { name: "Sales", path: "/sales", icon: DollarSign },
     { name: "Settings", path: "/settings", icon: Settings },
   ];
+
+  // Prevent hydration mismatch by not rendering dynamic content until mounted
+  if (!mounted) {
+    return (
+      <>
+        {isOpen && (
+          <div
+            className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+            onClick={onClose}
+          />
+        )}
+        <aside
+          className={`fixed top-16 left-0 h-[calc(100vh-4rem)] w-64 bg-white shadow-lg z-40 transition-transform duration-300 overflow-y-auto ${
+            isOpen ? "translate-x-0" : "-translate-x-full"
+          } lg:translate-x-0`}
+        >
+          <button
+            onClick={onClose}
+            className="lg:hidden absolute top-4 right-4 p-2 hover:bg-gray-100 rounded-lg"
+            aria-label="Close menu"
+          >
+            <X className="w-5 h-5" />
+          </button>
+          <nav className="pt-6">
+            <ul className="space-y-1">
+              {menuItems.map((item) => {
+                const Icon = item.icon;
+                if (item.hasSubmenu && item.submenu) {
+                  return (
+                    <li key={item.path}>
+                      <button
+                        onClick={() => setFeedsOpen(!feedsOpen)}
+                        className="w-full flex items-center justify-between px-6 py-3 transition-colors border-l-4 border-transparent text-gray-700 hover:bg-[#e8f8f7] hover:border-[#1ab189]"
+                      >
+                        <div className="flex items-center gap-3">
+                          <Icon className="w-5 h-5" />
+                          <span>{item.name}</span>
+                        </div>
+                        <ChevronRight className="w-4 h-4" />
+                      </button>
+                    </li>
+                  );
+                }
+                return (
+                  <li key={item.path}>
+                    <Link
+                      href={item.path}
+                      onClick={onClose}
+                      className="flex items-center gap-3 px-6 py-3 transition-colors border-l-4 border-transparent text-gray-700 hover:bg-[#e8f8f7] hover:border-[#1ab189]"
+                    >
+                      <Icon className="w-5 h-5" />
+                      <span>{item.name}</span>
+                    </Link>
+                  </li>
+                );
+              })}
+            </ul>
+          </nav>
+        </aside>
+      </>
+    );
+  }
 
   return (
     <>
@@ -39,7 +121,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
 
       {/* Sidebar */}
       <aside
-        className={`fixed top-16 left-0 h-[calc(100vh-4rem)] w-64 bg-white shadow-lg z-40 transition-transform duration-300 ${
+        className={`fixed top-16 left-0 h-[calc(100vh-4rem)] w-64 bg-white shadow-lg z-40 transition-transform duration-300 overflow-y-auto ${
           isOpen ? "translate-x-0" : "-translate-x-full"
         } lg:translate-x-0`}
       >
@@ -58,6 +140,62 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
             {menuItems.map((item) => {
               const Icon = item.icon;
               const isActive = pathname === item.path;
+              const isSubmenuActive = item.submenu?.some(
+                (sub) => pathname === sub.path
+              );
+
+              if (item.hasSubmenu && item.submenu) {
+                return (
+                  <li key={item.path}>
+                    {/* Parent menu item with dropdown */}
+                    <button
+                      onClick={() => setFeedsOpen(!feedsOpen)}
+                      className={`w-full flex items-center justify-between px-6 py-3 transition-colors border-l-4 ${
+                        isActive && !isSubmenuActive
+                          ? "bg-[#e8f8f7] border-[#1ab189] text-[#1ab189] font-semibold"
+                          : isSubmenuActive
+                          ? "bg-gray-50 border-transparent text-gray-700"
+                          : "border-transparent text-gray-700 hover:bg-[#e8f8f7] hover:border-[#1ab189]"
+                      }`}
+                    >
+                      <div className="flex items-center gap-3">
+                        <Icon className="w-5 h-5" />
+                        <span>{item.name}</span>
+                      </div>
+                      {feedsOpen ? (
+                        <ChevronDown className="w-4 h-4" />
+                      ) : (
+                        <ChevronRight className="w-4 h-4" />
+                      )}
+                    </button>
+
+                    {/* Submenu items */}
+                    {feedsOpen && (
+                      <ul className="bg-gray-50">
+                        {item.submenu.map((subItem) => {
+                          const isSubActive = pathname === subItem.path;
+                          return (
+                            <li key={subItem.path}>
+                              <Link
+                                href={subItem.path}
+                                onClick={onClose}
+                                className={`flex items-center gap-3 pl-14 pr-6 py-2.5 transition-colors border-l-4 ${
+                                  isSubActive
+                                    ? "bg-[#d4f4ed] border-[#1ab189] text-[#1ab189] font-medium"
+                                    : "border-transparent text-gray-600 hover:bg-[#e8f8f7] hover:text-[#1ab189]"
+                                }`}
+                              >
+                                <Disc className="w-2 h-2 fill-current" />
+                                <span className="text-sm">{subItem.name}</span>
+                              </Link>
+                            </li>
+                          );
+                        })}
+                      </ul>
+                    )}
+                  </li>
+                );
+              }
 
               return (
                 <li key={item.path}>
