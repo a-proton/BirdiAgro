@@ -1,4 +1,5 @@
 "use client";
+
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import {
@@ -13,6 +14,7 @@ import {
   Disc,
 } from "lucide-react";
 import { useState, useEffect } from "react";
+import { motion, AnimatePresence } from "framer-motion";
 
 interface SidebarProps {
   isOpen: boolean;
@@ -23,12 +25,20 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
   const pathname = usePathname();
   const [feedsOpen, setFeedsOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
+  const [isDesktop, setIsDesktop] = useState(false);
 
-  // Handle hydration
+  // Detect desktop vs mobile
   useEffect(() => {
     setMounted(true);
     setFeedsOpen(pathname.startsWith("/feeds"));
+
+    const handleResize = () => setIsDesktop(window.innerWidth >= 1024);
+    handleResize();
+    window.addEventListener("resize", handleResize);
+    return () => window.removeEventListener("resize", handleResize);
   }, [pathname]);
+
+  if (!mounted) return null;
 
   const menuItems = [
     { name: "Dashboard", path: "/dashboard", icon: LayoutDashboard },
@@ -47,92 +57,40 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
     { name: "Settings", path: "/settings", icon: Settings },
   ];
 
-  // Prevent hydration mismatch by not rendering dynamic content until mounted
-  if (!mounted) {
-    return (
-      <>
-        {isOpen && (
-          <div
-            className="fixed inset-0 bg-black/50 z-40 lg:hidden"
+  return (
+    <>
+      {/* Overlay for mobile */}
+      <AnimatePresence>
+        {!isDesktop && isOpen && (
+          <motion.div
+            key="overlay"
+            initial={{ opacity: 0 }}
+            animate={{ opacity: 0.5 }}
+            exit={{ opacity: 0 }}
+            transition={{ duration: 0.25 }}
+            className="fixed inset-0 bg-black z-40"
             onClick={onClose}
           />
         )}
-        <aside
-          className={`fixed top-16 left-0 h-[calc(100vh-4rem)] w-64 bg-white shadow-lg z-40 transition-transform duration-300 overflow-y-auto ${
-            isOpen ? "translate-x-0" : "-translate-x-full"
-          } lg:translate-x-0`}
-        >
+      </AnimatePresence>
+
+      {/* Sidebar */}
+      <motion.aside
+        initial={{ x: "-100%" }}
+        animate={{ x: isOpen || isDesktop ? 0 : "-100%" }}
+        transition={{ type: "spring", stiffness: 100, damping: 20 }}
+        className="fixed top-16 left-0 h-[calc(100vh-4rem)] w-64 bg-white shadow-xl z-50 overflow-y-auto"
+      >
+        {/* Mobile close button */}
+        {!isDesktop && (
           <button
             onClick={onClose}
-            className="lg:hidden absolute top-4 right-4 p-2 hover:bg-gray-100 rounded-lg"
+            className="absolute top-4 right-4 p-2 hover:bg-gray-100 rounded-lg transition"
             aria-label="Close menu"
           >
             <X className="w-5 h-5" />
           </button>
-          <nav className="pt-6">
-            <ul className="space-y-1">
-              {menuItems.map((item) => {
-                const Icon = item.icon;
-                if (item.hasSubmenu && item.submenu) {
-                  return (
-                    <li key={item.path}>
-                      <button
-                        onClick={() => setFeedsOpen(!feedsOpen)}
-                        className="w-full flex items-center justify-between px-6 py-3 transition-colors border-l-4 border-transparent text-gray-700 hover:bg-[#e8f8f7] hover:border-[#1ab189]"
-                      >
-                        <div className="flex items-center gap-3">
-                          <Icon className="w-5 h-5" />
-                          <span>{item.name}</span>
-                        </div>
-                        <ChevronRight className="w-4 h-4" />
-                      </button>
-                    </li>
-                  );
-                }
-                return (
-                  <li key={item.path}>
-                    <Link
-                      href={item.path}
-                      onClick={onClose}
-                      className="flex items-center gap-3 px-6 py-3 transition-colors border-l-4 border-transparent text-gray-700 hover:bg-[#e8f8f7] hover:border-[#1ab189]"
-                    >
-                      <Icon className="w-5 h-5" />
-                      <span>{item.name}</span>
-                    </Link>
-                  </li>
-                );
-              })}
-            </ul>
-          </nav>
-        </aside>
-      </>
-    );
-  }
-
-  return (
-    <>
-      {/* Overlay for mobile */}
-      {isOpen && (
-        <div
-          className="fixed inset-0 bg-black/50 z-40 lg:hidden"
-          onClick={onClose}
-        />
-      )}
-
-      {/* Sidebar */}
-      <aside
-        className={`fixed top-16 left-0 h-[calc(100vh-4rem)] w-64 bg-white shadow-lg z-40 transition-transform duration-300 overflow-y-auto ${
-          isOpen ? "translate-x-0" : "-translate-x-full"
-        } lg:translate-x-0`}
-      >
-        {/* Close button for mobile */}
-        <button
-          onClick={onClose}
-          className="lg:hidden absolute top-4 right-4 p-2 hover:bg-gray-100 rounded-lg"
-          aria-label="Close menu"
-        >
-          <X className="w-5 h-5" />
-        </button>
+        )}
 
         {/* Navigation */}
         <nav className="pt-6">
@@ -144,17 +102,15 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                 (sub) => pathname === sub.path
               );
 
+              // Parent menu with submenu
               if (item.hasSubmenu && item.submenu) {
                 return (
                   <li key={item.path}>
-                    {/* Parent menu item with dropdown */}
                     <button
                       onClick={() => setFeedsOpen(!feedsOpen)}
-                      className={`w-full flex items-center justify-between px-6 py-3 transition-colors border-l-4 ${
-                        isActive && !isSubmenuActive
+                      className={`w-full flex items-center justify-between px-6 py-3 rounded-lg transition-all duration-200 border-l-4 ${
+                        isActive || isSubmenuActive
                           ? "bg-[#e8f8f7] border-[#1ab189] text-[#1ab189] font-semibold"
-                          : isSubmenuActive
-                          ? "bg-gray-50 border-transparent text-gray-700"
                           : "border-transparent text-gray-700 hover:bg-[#e8f8f7] hover:border-[#1ab189]"
                       }`}
                     >
@@ -162,47 +118,70 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                         <Icon className="w-5 h-5" />
                         <span>{item.name}</span>
                       </div>
-                      {feedsOpen ? (
-                        <ChevronDown className="w-4 h-4" />
-                      ) : (
+                      <motion.div
+                        animate={{ rotate: feedsOpen ? 90 : 0 }}
+                        transition={{ duration: 0.2 }}
+                      >
                         <ChevronRight className="w-4 h-4" />
-                      )}
+                      </motion.div>
                     </button>
 
-                    {/* Submenu items */}
-                    {feedsOpen && (
-                      <ul className="bg-gray-50">
-                        {item.submenu.map((subItem) => {
-                          const isSubActive = pathname === subItem.path;
-                          return (
-                            <li key={subItem.path}>
-                              <Link
-                                href={subItem.path}
-                                onClick={onClose}
-                                className={`flex items-center gap-3 pl-14 pr-6 py-2.5 transition-colors border-l-4 ${
-                                  isSubActive
-                                    ? "bg-[#d4f4ed] border-[#1ab189] text-[#1ab189] font-medium"
-                                    : "border-transparent text-gray-600 hover:bg-[#e8f8f7] hover:text-[#1ab189]"
-                                }`}
+                    {/* Submenu animation */}
+                    <AnimatePresence>
+                      {feedsOpen && (
+                        <motion.ul
+                          key="submenu"
+                          initial={{ height: 0, opacity: 0 }}
+                          animate={{ height: "auto", opacity: 1 }}
+                          exit={{ height: 0, opacity: 0 }}
+                          transition={{ duration: 0.3, ease: "easeInOut" }}
+                          className="bg-gray-50 overflow-hidden"
+                        >
+                          {item.submenu.map((subItem) => {
+                            const isSubActive = pathname === subItem.path;
+                            return (
+                              <motion.li
+                                key={subItem.path}
+                                initial={{ opacity: 0, x: -10 }}
+                                animate={{ opacity: 1, x: 0 }}
+                                exit={{ opacity: 0, x: -10 }}
+                                transition={{ duration: 0.2 }}
                               >
-                                <Disc className="w-2 h-2 fill-current" />
-                                <span className="text-sm">{subItem.name}</span>
-                              </Link>
-                            </li>
-                          );
-                        })}
-                      </ul>
-                    )}
+                                <Link
+                                  href={subItem.path}
+                                  onClick={onClose}
+                                  className={`flex items-center gap-3 pl-14 pr-6 py-2.5 transition-colors border-l-4 ${
+                                    isSubActive
+                                      ? "bg-[#d4f4ed] border-[#1ab189] text-[#1ab189] font-medium"
+                                      : "border-transparent text-gray-600 hover:bg-[#e8f8f7] hover:text-[#1ab189]"
+                                  }`}
+                                >
+                                  <Disc className="w-2 h-2 fill-current" />
+                                  <span className="text-sm">
+                                    {subItem.name}
+                                  </span>
+                                </Link>
+                              </motion.li>
+                            );
+                          })}
+                        </motion.ul>
+                      )}
+                    </AnimatePresence>
                   </li>
                 );
               }
 
+              // Single menu item
               return (
-                <li key={item.path}>
+                <motion.li
+                  key={item.path}
+                  whileHover={{ scale: 1.02 }}
+                  transition={{ type: "spring", stiffness: 200 }}
+                >
                   <Link
                     href={item.path}
                     onClick={onClose}
-                    className={`flex items-center gap-3 px-6 py-3 transition-colors border-l-4 ${
+                    className={`flex items-center gap-3 px-6 py-3 rounded-lg transition-all duration-200 border-l-4 ${
                       isActive
                         ? "bg-[#e8f8f7] border-[#1ab189] text-[#1ab189] font-semibold"
                         : "border-transparent text-gray-700 hover:bg-[#e8f8f7] hover:border-[#1ab189]"
@@ -211,12 +190,12 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                     <Icon className="w-5 h-5" />
                     <span>{item.name}</span>
                   </Link>
-                </li>
+                </motion.li>
               );
             })}
           </ul>
         </nav>
-      </aside>
+      </motion.aside>
     </>
   );
 }
