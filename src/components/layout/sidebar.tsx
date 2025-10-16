@@ -1,20 +1,18 @@
 "use client";
 
 import Link from "next/link";
-import Image from "next/image";
 import { usePathname } from "next/navigation";
-import {
-  LayoutDashboard,
-  Wheat,
-  Bird,
-  DollarSign,
-  Settings,
-  X,
-  ChevronRight,
-  Disc,
-} from "lucide-react";
+import { X, ChevronRight } from "lucide-react";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
+
+interface MenuItem {
+  name: string;
+  path: string;
+  icon: string; // now just a static path string
+  hasSubmenu?: boolean;
+  submenu?: { name: string; path: string; icon?: string }[];
+}
 
 interface SidebarProps {
   isOpen: boolean;
@@ -23,43 +21,56 @@ interface SidebarProps {
 
 export default function Sidebar({ isOpen, onClose }: SidebarProps) {
   const pathname = usePathname();
-  const [feedsOpen, setFeedsOpen] = useState(false);
   const [mounted, setMounted] = useState(false);
   const [isDesktop, setIsDesktop] = useState(false);
+  const [openSubmenus, setOpenSubmenus] = useState<Record<string, boolean>>({});
 
-  // Detect desktop vs mobile
   useEffect(() => {
     setMounted(true);
-    setFeedsOpen(pathname.startsWith("/feeds"));
-
     const handleResize = () => setIsDesktop(window.innerWidth >= 1024);
     handleResize();
     window.addEventListener("resize", handleResize);
     return () => window.removeEventListener("resize", handleResize);
+  }, []);
+
+  useEffect(() => {
+    const newOpenSubmenus: Record<string, boolean> = {};
+    menuItems.forEach((item) => {
+      if (item.hasSubmenu && item.submenu) {
+        const isActive = item.submenu.some((sub) => pathname === sub.path);
+        if (isActive) newOpenSubmenus[item.path] = true;
+      }
+    });
+    setOpenSubmenus(newOpenSubmenus);
   }, [pathname]);
 
-  if (!mounted) return null;
+  const toggleSubmenu = (path: string) => {
+    setOpenSubmenus((prev) => ({ ...prev, [path]: !prev[path] }));
+  };
 
-  const menuItems = [
-    { name: "Dashboard", path: "/dashboard", icon: LayoutDashboard },
+  const menuItems: MenuItem[] = [
+    { name: "Dashboard", path: "/dashboard", icon: "/icons/dashboard.png" },
     {
       name: "Feeds",
       path: "/feeds",
-      icon: Wheat,
+      icon: "/icons/feeds.png",
       hasSubmenu: true,
       submenu: [
         { name: "Feed Information", path: "/feeds/information" },
         { name: "Feed Consumption", path: "/feeds/consumption" },
       ],
     },
-    { name: "Kukhura", path: "/poultry", icon: Bird },
-    { name: "Sales", path: "/sales", icon: DollarSign },
-    { name: "Settings", path: "/settings", icon: Settings },
+    { name: "Kukhura", path: "/poultry", icon: "/icons/chicken.jpg" },
+    { name: "Sales", path: "/sales", icon: "/icons/sales.png" },
+    { name: "Settings", path: "/settings", icon: "/icons/settings.png" },
+    { name: "Expenses", path: "/expenses", icon: "/icons/expenses.png" },
+    { name: "Reports", path: "/reports", icon: "/icons/reports.png" },
   ];
+
+  if (!mounted) return null;
 
   return (
     <>
-      {/* Overlay for mobile */}
       <AnimatePresence>
         {!isDesktop && isOpen && (
           <motion.div
@@ -74,7 +85,6 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
         )}
       </AnimatePresence>
 
-      {/* Sidebar */}
       <motion.aside
         initial={{ x: "-100%" }}
         animate={{ x: isOpen || isDesktop ? 0 : "-100%" }}
@@ -82,70 +92,77 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
         className="fixed top-0 left-0 h-screen w-64 bg-white shadow-xl z-50 overflow-y-auto"
         aria-label="Sidebar"
       >
-        <div className="h-full px-3 py-4">
-          {/* Logo Section */}
-          <div className="flex items-center ps-2.5 mb-5">
-            <div className="h-8 w-8 relative rounded-lg overflow-hidden">
-              <Image
-                src="/chicken icon.jpg"
+        <div className="h-full px-4 py-5">
+          {/* Logo with image */}
+          <div className="flex items-center mb-6">
+            <div className="w-8 h-8 rounded overflow-hidden bg-gray-100 flex items-center justify-center">
+              <img
+                src="/icons/chicken.jpg"
                 alt="Kukhura Farm Logo"
                 width={32}
                 height={32}
                 className="object-contain"
+                onError={(e) => {
+                  const target = e.target as HTMLImageElement;
+                  target.style.display = "none"; // hide if broken
+                }}
               />
             </div>
-            <span className="self-center text-xl font-semibold whitespace-nowrap ms-3 text-gray-900">
+            <span className="text-xl font-bold text-gray-900 ms-3">
               Kukhura Farm
             </span>
           </div>
 
-          {/* Mobile close button */}
           {!isDesktop && (
             <button
               onClick={onClose}
-              className="absolute top-4 right-4 p-2 hover:bg-gray-100 rounded-lg transition"
+              className="absolute top-4 right-4 p-2 hover:bg-gray-100 rounded-lg"
               aria-label="Close menu"
             >
               <X className="w-5 h-5 text-gray-500" />
             </button>
           )}
 
-          {/* Navigation */}
           <nav>
-            <ul className="space-y-2 font-medium">
+            <ul className="space-y-1">
               {menuItems.map((item) => {
-                const Icon = item.icon;
                 const isActive = pathname === item.path;
                 const isSubmenuActive = item.submenu?.some(
                   (sub) => pathname === sub.path
                 );
+                const isExpanded = openSubmenus[item.path] || false;
 
-                // Parent menu with submenu
                 if (item.hasSubmenu && item.submenu) {
                   return (
                     <li key={item.path}>
                       <button
-                        onClick={() => setFeedsOpen(!feedsOpen)}
-                        className={`w-full flex items-center justify-between p-2 rounded-lg transition-all duration-75 group ${
+                        onClick={() => toggleSubmenu(item.path)}
+                        className={`w-full flex items-center justify-between px-3 py-2.5 rounded-lg text-left transition-colors ${
                           isActive || isSubmenuActive
-                            ? "bg-[#e8f8f7] text-[#1ab189]"
-                            : "text-gray-900 hover:bg-[#e8f8f7]"
+                            ? "bg-[#e8f8f7] text-[#1ab189] font-medium"
+                            : "text-gray-800 hover:bg-gray-100"
                         }`}
                       >
                         <div className="flex items-center">
-                          <Icon
-                            className={`w-5 h-5 shrink-0 transition-colors duration-75 ${
+                          <img
+                            src={item.icon}
+                            alt=""
+                            width={20}
+                            height={20}
+                            className={`me-3 opacity-60 ${
                               isActive || isSubmenuActive
-                                ? "text-[#1ab189]"
-                                : "text-gray-500 group-hover:text-[#1ab189]"
+                                ? "opacity-100"
+                                : "group-hover:opacity-100"
                             }`}
+                            onError={(e) => {
+                              (e.target as HTMLImageElement).style.opacity =
+                                "0";
+                            }}
                           />
-                          <span className="flex-1 ms-3 whitespace-nowrap text-left">
-                            {item.name}
-                          </span>
+                          <span>{item.name}</span>
                         </div>
                         <motion.div
-                          animate={{ rotate: feedsOpen ? 90 : 0 }}
+                          animate={{ rotate: isExpanded ? 90 : 0 }}
                           transition={{ duration: 0.2 }}
                         >
                           <ChevronRight
@@ -158,15 +175,14 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                         </motion.div>
                       </button>
 
-                      {/* Submenu animation */}
                       <AnimatePresence>
-                        {feedsOpen && (
+                        {isExpanded && (
                           <motion.ul
                             key="submenu"
                             initial={{ height: 0, opacity: 0 }}
                             animate={{ height: "auto", opacity: 1 }}
                             exit={{ height: 0, opacity: 0 }}
-                            transition={{ duration: 0.3, ease: "easeInOut" }}
+                            transition={{ duration: 0.3 }}
                             className="overflow-hidden space-y-1 mt-1"
                           >
                             {item.submenu.map((subItem) => {
@@ -182,13 +198,19 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                                   <Link
                                     href={subItem.path}
                                     onClick={onClose}
-                                    className={`flex items-center gap-3 pl-11 pr-2 py-2 rounded-lg transition-colors group ${
+                                    className={`flex items-center gap-3 px-3 py-2 rounded-lg transition-colors ${
                                       isSubActive
                                         ? "bg-[#d4f4ed] text-[#1ab189]"
                                         : "text-gray-600 hover:bg-[#e8f8f7] hover:text-[#1ab189]"
                                     }`}
                                   >
-                                    <Disc className="w-2 h-2 fill-current" />
+                                    <img
+                                      src="/icons/disc.png"
+                                      alt=""
+                                      width={8}
+                                      height={8}
+                                      className="opacity-60"
+                                    />
                                     <span className="text-sm">
                                       {subItem.name}
                                     </span>
@@ -203,32 +225,34 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                   );
                 }
 
-                // Single menu item
                 return (
                   <motion.li
                     key={item.path}
-                    whileHover={{ scale: 1.02 }}
-                    transition={{ type: "spring", stiffness: 200 }}
+                    whileHover={{ x: 4 }}
+                    transition={{ type: "spring", stiffness: 300 }}
                   >
                     <Link
                       href={item.path}
                       onClick={onClose}
-                      className={`flex items-center p-2 rounded-lg transition-all duration-75 group ${
+                      className={`flex items-center px-3 py-2.5 rounded-lg transition-colors ${
                         isActive
-                          ? "bg-[#e8f8f7] text-[#1ab189]"
-                          : "text-gray-900 hover:bg-[#e8f8f7]"
+                          ? "bg-[#e8f8f7] text-[#1ab189] font-medium"
+                          : "text-gray-800 hover:bg-gray-100"
                       }`}
                     >
-                      <Icon
-                        className={`w-5 h-5 shrink-0 transition-colors duration-75 ${
-                          isActive
-                            ? "text-[#1ab189]"
-                            : "text-gray-500 group-hover:text-[#1ab189]"
+                      <img
+                        src={item.icon}
+                        alt=""
+                        width={20}
+                        height={20}
+                        className={`me-3 opacity-60 ${
+                          isActive ? "opacity-100" : "group-hover:opacity-100"
                         }`}
+                        onError={(e) => {
+                          (e.target as HTMLImageElement).style.opacity = "0";
+                        }}
                       />
-                      <span className="flex-1 ms-3 whitespace-nowrap">
-                        {item.name}
-                      </span>
+                      <span>{item.name}</span>
                     </Link>
                   </motion.li>
                 );

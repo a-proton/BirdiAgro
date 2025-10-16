@@ -1,16 +1,31 @@
+"use client";
+
 import { Plus, TrendingUp } from "lucide-react";
+import { useState } from "react";
+import AddSalesModal from "./AddSalesModal";
 
 export default function SalesPage() {
+  const [isModalOpen, setIsModalOpen] = useState(false);
+
   return (
     <div className="space-y-6">
-      {/* Page Header */}
-      <div>
-        <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
-          Sales Management
-        </h1>
-        <p className="text-gray-600 mt-1">
-          Track and manage your sales transactions
-        </p>
+      {/* Page Header  */}
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div>
+          <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
+            Sales Management
+          </h1>
+          <p className="text-gray-600 mt-1">
+            Track and manage your sales transactions
+          </p>
+        </div>
+        <button
+          onClick={() => setIsModalOpen(true)}
+          className="inline-flex items-center gap-2 px-4 py-2 bg-[#1ab189] text-white rounded-lg hover:bg-[#158f6f] transition-colors self-start sm:self-auto"
+        >
+          <Plus className="w-4 h-4" />
+          Add Sale
+        </button>
       </div>
 
       {/* Stats Grid */}
@@ -49,67 +64,60 @@ export default function SalesPage() {
           </div>
         </div>
 
-        {/* Pending Orders */}
+        {/* Total Overall Sales */}
         <div className="bg-white rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow">
           <div className="flex items-center justify-between mb-4">
             <span className="text-sm font-medium text-gray-600 uppercase tracking-wide">
-              Pending Orders
+              Total Overall Sales
             </span>
-            <div className="w-10 h-10 bg-amber-50 text-amber-600 rounded-lg flex items-center justify-center text-xl">
-              📦
+            <div className="w-10 h-10 bg-blue-50 text-blue-700 rounded-lg flex items-center justify-center text-xl">
+              📊
             </div>
           </div>
-          <div className="text-3xl font-bold text-gray-900 mb-2">24</div>
+          <div className="text-3xl font-bold text-gray-900 mb-2">Rs 2.45L</div>
           <div className="flex items-center gap-1 text-sm text-green-600">
             <TrendingUp className="w-4 h-4" />
-            <span>3 new orders</span>
+            <span>+22% this year</span>
           </div>
         </div>
       </div>
 
       {/* Recent Sales Table */}
       <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-        <div className="px-6 py-4 border-b border-gray-200 flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+        <div className="px-6 py-4 border-b border-gray-200">
           <h2 className="text-lg font-semibold text-gray-900">Recent Sales</h2>
-          <button className="inline-flex items-center gap-2 px-4 py-2 bg-[#1ab189] text-white rounded-lg hover:bg-[#158f6f] transition-colors">
-            <Plus className="w-4 h-4" />
-            New Sale
-          </button>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead className="bg-gray-50">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
-                  Order ID
+                  SN
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
-                  Customer
+                  Batch Name
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
                   Product
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
-                  Quantity
+                  Total Amount
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
-                  Amount
+                  Total KG
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
                   Date
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
-                  Status
                 </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
               <tr className="hover:bg-gray-50 transition-colors">
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                  #ORD-1234
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  1
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  Ram Hotel
+                  Batch-001
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                   Broiler Chicken
@@ -117,97 +125,22 @@ export default function SalesPage() {
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                   50 kg
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
                   Rs 15,000
                 </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                   2024-01-15
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <span className="px-3 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">
-                    Delivered
-                  </span>
-                </td>
-              </tr>
-              <tr className="hover:bg-gray-50 transition-colors">
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                  #ORD-1235
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  Sita Restaurant
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  Fresh Eggs
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  500 pcs
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  Rs 7,500
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                  2024-01-15
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <span className="px-3 py-1 text-xs font-medium rounded-full bg-blue-100 text-blue-800">
-                    Processing
-                  </span>
-                </td>
-              </tr>
-              <tr className="hover:bg-gray-50 transition-colors">
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                  #ORD-1236
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  Hari Suppliers
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  Broiler Chicken
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  100 kg
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  Rs 30,000
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                  2024-01-14
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <span className="px-3 py-1 text-xs font-medium rounded-full bg-green-100 text-green-800">
-                    Delivered
-                  </span>
-                </td>
-              </tr>
-              <tr className="hover:bg-gray-50 transition-colors">
-                <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                  #ORD-1237
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  Krishna Store
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  Fresh Eggs
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  1000 pcs
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  Rs 15,000
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                  2024-01-14
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap">
-                  <span className="px-3 py-1 text-xs font-medium rounded-full bg-amber-100 text-amber-800">
-                    Pending
-                  </span>
                 </td>
               </tr>
             </tbody>
           </table>
         </div>
       </div>
+
+      <AddSalesModal
+        isOpen={isModalOpen}
+        onClose={() => setIsModalOpen(false)}
+      />
     </div>
   );
 }

@@ -1,6 +1,6 @@
-import FeedInventoryCards from "@/components/feeds/information/FeedInventoryCards";
-import FeedInventoryTable from "@/components/feeds/information/FeedInventoryTable";
-import AddFeedModal from "@/components/feeds/information/AddFeedModal";
+import FeedInventoryCards from "./_components/FeedInventoryCards";
+import FeedInventoryTable from "./_components/FeedInventoryTable";
+import AddFeedModal from "./_components/AddFeedModal";
 
 export default function FeedsPage() {
   return (

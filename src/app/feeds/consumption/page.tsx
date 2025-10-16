@@ -1,6 +1,6 @@
-import DailyConsumptionCards from "@/components/feeds/consumption/DailyConsumptionCards";
-import FeedConsumptionTable from "@/components/feeds/consumption/FeedConsumptionTable";
-import AddConsumptionModal from "@/components/feeds/consumption/AddConsumptionModal";
+import DailyConsumptionCards from "./_components/DailyConsumptionCards";
+import FeedConsumptionTable from "./_components/FeedConsumptionTable";
+import AddConsumptionModal from "./_components/AddConsumptionModal";
 
 export default function FeedConsumptionPage() {
   return (
