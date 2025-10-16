@@ -9,7 +9,7 @@ import { motion, AnimatePresence } from "framer-motion";
 interface MenuItem {
   name: string;
   path: string;
-  icon: string; // now just a static path string
+  icon: string;
   hasSubmenu?: boolean;
   submenu?: { name: string; path: string; icon?: string }[];
 }
