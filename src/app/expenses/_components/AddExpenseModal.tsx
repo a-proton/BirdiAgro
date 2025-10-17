@@ -15,15 +15,13 @@ export default function AddExpenseModal({
   const [show, setShow] = useState(false);
   const [activeTab, setActiveTab] = useState<Tab>("kukhura");
 
-  // Kukhura tab state
   const [kukhuraData, setKukhuraData] = useState({
     expenseTitle: "",
     amount: "",
     date: new Date().toISOString().split("T")[0],
-    paymentMethod: "cash", // 'cash' | 'bank' | 'mobile'
+    paymentMethod: "cash",
   });
 
-  // Others tab state
   const [othersData, setOthersData] = useState({
     expenseTitle: "",
     amount: "",
@@ -102,7 +100,7 @@ export default function AddExpenseModal({
       >
         <div className="flex items-center justify-between p-6 border-b border-gray-200">
           <h2 className="text-xl font-semibold text-gray-900">
-            Add New Expense
+            नयाँ खर्च थप्नुहोस्
           </h2>
           <button
             onClick={handleClose}
@@ -123,7 +121,7 @@ export default function AddExpenseModal({
               }`}
               onClick={() => setActiveTab("kukhura")}
             >
-              Kukhura
+              कुखुरा
             </button>
             <button
               className={`px-6 py-3 font-medium text-sm ${
@@ -133,7 +131,7 @@ export default function AddExpenseModal({
               }`}
               onClick={() => setActiveTab("others")}
             >
-              Others
+              अन्य
             </button>
           </div>
         </div>
@@ -143,14 +141,14 @@ export default function AddExpenseModal({
             <>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Expense Title
+                  खर्चको शीर्षक
                 </label>
                 <input
                   type="text"
                   name="expenseTitle"
                   required
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189]"
-                  placeholder="e.g., Feed, Medicine"
+                  placeholder="जस्तै: खानेपानी, औषधि"
                   value={kukhuraData.expenseTitle}
                   onChange={handleKukhuraChange}
                 />
@@ -158,7 +156,7 @@ export default function AddExpenseModal({
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Amount (Rs)
+                  रकम (रु)
                 </label>
                 <input
                   type="number"
@@ -172,7 +170,7 @@ export default function AddExpenseModal({
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Date
+                  मिति
                 </label>
                 <input
                   type="date"
@@ -186,7 +184,7 @@ export default function AddExpenseModal({
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Payment Method
+                  भुक्तानी विधि
                 </label>
                 <select
                   name="paymentMethod"
@@ -194,9 +192,9 @@ export default function AddExpenseModal({
                   value={kukhuraData.paymentMethod}
                   onChange={handleKukhuraChange}
                 >
-                  <option value="cash">Cash</option>
-                  <option value="bank">Bank Transfer</option>
-                  <option value="mobile">Mobile Wallet</option>
+                  <option value="cash">नगद</option>
+                  <option value="bank">बैंक ट्रान्सफर</option>
+                  <option value="mobile">मोबाइल वालेट</option>
                 </select>
               </div>
             </>
@@ -204,14 +202,14 @@ export default function AddExpenseModal({
             <>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Expense Title
+                  खर्चको शीर्षक
                 </label>
                 <input
                   type="text"
                   name="expenseTitle"
                   required
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189]"
-                  placeholder="e.g., Equipment, Transport"
+                  placeholder="जस्तै: उपकरण, यातायात"
                   value={othersData.expenseTitle}
                   onChange={handleOthersChange}
                 />
@@ -219,7 +217,7 @@ export default function AddExpenseModal({
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Amount (Rs)
+                  रकम (रु)
                 </label>
                 <input
                   type="number"
@@ -233,7 +231,7 @@ export default function AddExpenseModal({
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Date
+                  मिति
                 </label>
                 <input
                   type="date"
@@ -247,7 +245,7 @@ export default function AddExpenseModal({
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Payment Method
+                  भुक्तानी विधि
                 </label>
                 <select
                   name="paymentMethod"
@@ -255,9 +253,9 @@ export default function AddExpenseModal({
                   value={othersData.paymentMethod}
                   onChange={handleOthersChange}
                 >
-                  <option value="cash">Cash</option>
-                  <option value="bank">Bank Transfer</option>
-                  <option value="mobile">Mobile Wallet</option>
+                  <option value="cash">नगद</option>
+                  <option value="bank">बैंक ट्रान्सफर</option>
+                  <option value="mobile">मोबाइल वालेट</option>
                 </select>
               </div>
             </>
@@ -269,13 +267,13 @@ export default function AddExpenseModal({
               onClick={handleClose}
               className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
             >
-              Cancel
+              रद्द गर्नुहोस्
             </button>
             <button
               type="submit"
               className="flex-1 px-4 py-2 bg-[#1ab189] text-white rounded-lg hover:bg-[#158f6f]"
             >
-              Save Expense
+              खर्च सुरक्षित गर्नुहोस्
             </button>
           </div>
         </form>

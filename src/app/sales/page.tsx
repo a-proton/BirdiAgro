@@ -3,6 +3,23 @@
 import { Plus, TrendingUp } from "lucide-react";
 import { useState } from "react";
 import AddSalesModal from "./_components/AddSalesModal";
+import Image from "next/image";
+interface StatIconProps {
+  src: string;
+  alt: string;
+}
+
+function StatIcon({ src, alt }: StatIconProps) {
+  return (
+    <Image
+      src={src}
+      alt={alt}
+      height={20}
+      width={20}
+      className="w-6 h-6 object-contain"
+    />
+  );
+}
 
 export default function SalesPage() {
   const [isModalOpen, setIsModalOpen] = useState(false);
@@ -13,10 +30,10 @@ export default function SalesPage() {
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
-            Sales Management
+            बिक्री व्यवस्थापन
           </h1>
           <p className="text-gray-600 mt-1">
-            Track and manage your sales transactions
+            आफ्नो बिक्री कारोबार ट्र्याक र व्यवस्थापन गर्नुहोस्
           </p>
         </div>
         <button
@@ -24,7 +41,7 @@ export default function SalesPage() {
           className="inline-flex items-center gap-2 px-4 py-2 bg-[#1ab189] text-white rounded-lg hover:bg-[#158f6f] transition-colors self-start sm:self-auto"
         >
           <Plus className="w-4 h-4" />
-          Add Sale
+          बिक्री थप्नुहोस्
         </button>
       </div>
 
@@ -34,16 +51,16 @@ export default function SalesPage() {
         <div className="bg-white rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow">
           <div className="flex items-center justify-between mb-4">
             <span className="text-sm font-medium text-gray-600 uppercase tracking-wide">
-              Today's Sales
+              आजको बिक्री
             </span>
-            <div className="w-10 h-10 bg-[#e8f8f7] text-[#1ab189] rounded-lg flex items-center justify-center text-xl">
-              💰
+            <div className="w-10 h-10 bg-[#e8f8f7] text-[#1ab189] rounded-lg flex items-center justify-center">
+              <StatIcon src="/icons/money-bag.png" alt="Money Icon" />
             </div>
           </div>
-          <div className="text-3xl font-bold text-gray-900 mb-2">Rs 45,200</div>
+          <div className="text-3xl font-bold text-gray-900 mb-2">रु 45,200</div>
           <div className="flex items-center gap-1 text-sm text-green-600">
             <TrendingUp className="w-4 h-4" />
-            <span>8% from yesterday</span>
+            <span>हिजोको तुलनामा ८%</span>
           </div>
         </div>
 
@@ -51,16 +68,18 @@ export default function SalesPage() {
         <div className="bg-white rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow">
           <div className="flex items-center justify-between mb-4">
             <span className="text-sm font-medium text-gray-600 uppercase tracking-wide">
-              This Month
+              यस महिना
             </span>
-            <div className="w-10 h-10 bg-green-50 text-green-700 rounded-lg flex items-center justify-center text-xl">
-              📈
+            <div className="w-10 h-10 bg-green-50 text-green-700 rounded-lg flex items-center justify-center">
+              <StatIcon src="/icons/trending.png" alt="Chart Up Icon" />
             </div>
           </div>
-          <div className="text-3xl font-bold text-gray-900 mb-2">Rs 12.5L</div>
+          <div className="text-3xl font-bold text-gray-900 mb-2">
+            रु १२.५ लाख
+          </div>
           <div className="flex items-center gap-1 text-sm text-green-600">
             <TrendingUp className="w-4 h-4" />
-            <span>15% from last month</span>
+            <span>पछिल्लो महिनाको तुलनामा १५%</span>
           </div>
         </div>
 
@@ -68,16 +87,18 @@ export default function SalesPage() {
         <div className="bg-white rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow">
           <div className="flex items-center justify-between mb-4">
             <span className="text-sm font-medium text-gray-600 uppercase tracking-wide">
-              Total Overall Sales
+              कुल बिक्री
             </span>
-            <div className="w-10 h-10 bg-blue-50 text-blue-700 rounded-lg flex items-center justify-center text-xl">
-              📊
+            <div className="w-10 h-10 bg-blue-50 text-blue-700 rounded-lg flex items-center justify-center">
+              <StatIcon src="/icons/total-sales.png" alt="Analytics Icon" />
             </div>
           </div>
-          <div className="text-3xl font-bold text-gray-900 mb-2">Rs 2.45L</div>
+          <div className="text-3xl font-bold text-gray-900 mb-2">
+            रु २.४५ लाख
+          </div>
           <div className="flex items-center gap-1 text-sm text-green-600">
             <TrendingUp className="w-4 h-4" />
-            <span>+22% this year</span>
+            <span>यस वर्षमा +२२%</span>
           </div>
         </div>
       </div>
@@ -85,51 +106,51 @@ export default function SalesPage() {
       {/* Recent Sales Table */}
       <div className="bg-white rounded-lg shadow-sm overflow-hidden">
         <div className="px-6 py-4 border-b border-gray-200">
-          <h2 className="text-lg font-semibold text-gray-900">Recent Sales</h2>
+          <h2 className="text-lg font-semibold text-gray-900">हालैको बिक्री</h2>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full">
             <thead className="bg-gray-50">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
-                  SN
+                  क्रम संख्या
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
-                  Batch Name
+                  ब्याच नाम
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
-                  Product
+                  उत्पादन
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
-                  Total Amount
+                  कुल रकम
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
-                  Total KG
+                  कुल किलोग्राम
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
-                  Date
+                  मिति
                 </th>
               </tr>
             </thead>
             <tbody className="divide-y divide-gray-200">
               <tr className="hover:bg-gray-50 transition-colors">
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  1
+                  १
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  Batch-001
+                  ब्याच-००१
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  Broiler Chicken
+                  ब्रॉइलर कुखुरा
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  50 kg
+                  ५० कि.ग्रा
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                  Rs 15,000
+                  रु १५,०००
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  2024-01-15
+                  २०२४-०१-१५
                 </td>
               </tr>
             </tbody>

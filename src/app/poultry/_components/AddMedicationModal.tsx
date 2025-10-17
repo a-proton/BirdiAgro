@@ -23,7 +23,7 @@ function AddMedicationModal({ isOpen, onClose }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log("Medication record:", formData);
+    console.log("औषधि रेकर्ड:", formData);
     handleClose();
   };
 
@@ -50,7 +50,7 @@ function AddMedicationModal({ isOpen, onClose }) {
       >
         <div className="flex items-center justify-between p-6 border-b border-gray-200">
           <h2 className="text-xl font-semibold text-gray-900">
-            Add Medication
+            औषधि थप्नुहोस्
           </h2>
           <button
             onClick={handleClose}
@@ -65,7 +65,7 @@ function AddMedicationModal({ isOpen, onClose }) {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Select Batch
+                ब्याच छान्नुहोस्
               </label>
               <select
                 required
@@ -75,22 +75,22 @@ function AddMedicationModal({ isOpen, onClose }) {
                   setFormData({ ...formData, batch: e.target.value })
                 }
               >
-                <option value="">Select a batch</option>
-                <option value="Batch-001">Batch-001</option>
-                <option value="Batch-002">Batch-002</option>
-                <option value="Batch-003">Batch-003</option>
+                <option value="">ब्याच छान्नुहोस्</option>
+                <option value="Batch-001">ब्याच-००१</option>
+                <option value="Batch-002">ब्याच-००२</option>
+                <option value="Batch-003">ब्याच-००३</option>
               </select>
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Medication Name
+                औषधिको नाम
               </label>
               <input
                 type="text"
                 required
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189] focus:border-transparent"
-                placeholder="e.g., Amoxicillin"
+                placeholder="जस्तै: Amoxicillin"
                 value={formData.medicationName}
                 onChange={(e) =>
                   setFormData({ ...formData, medicationName: e.target.value })
@@ -100,7 +100,7 @@ function AddMedicationModal({ isOpen, onClose }) {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Medication Date
+                औषधि मिति
               </label>
               <input
                 type="date"
@@ -115,14 +115,14 @@ function AddMedicationModal({ isOpen, onClose }) {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Duration (days)
+                अवधि (दिन)
               </label>
               <input
                 type="number"
                 required
                 min="1"
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189] focus:border-transparent"
-                placeholder="e.g., 7"
+                placeholder="जस्तै: ७"
                 value={formData.duration}
                 onChange={(e) =>
                   setFormData({ ...formData, duration: e.target.value })
@@ -137,13 +137,13 @@ function AddMedicationModal({ isOpen, onClose }) {
               onClick={handleClose}
               className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
             >
-              Cancel
+              रद्द गर्नुहोस्
             </button>
             <button
               type="submit"
               className="flex-1 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
             >
-              Add Medication
+              औषधि थप्नुहोस्
             </button>
           </div>
         </form>

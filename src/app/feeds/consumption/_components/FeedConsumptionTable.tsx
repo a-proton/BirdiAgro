@@ -51,7 +51,7 @@ export default function FeedConsumptionTable() {
     <div className="bg-white rounded-lg shadow-sm overflow-hidden">
       <div className="px-6 py-4 border-b border-gray-200">
         <h2 className="text-lg font-semibold text-gray-900">
-          Feed Inventory & Consumption Status
+          दाना सूची र खपत स्थिति
         </h2>
       </div>
       <div className="overflow-x-auto">
@@ -59,22 +59,22 @@ export default function FeedConsumptionTable() {
           <thead className="bg-gray-50">
             <tr>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
-                Feed Type
+                दाना प्रकार
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
-                Quantity (kg)
+                मात्रा (किलो)
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
-                Buckets
+                बाल्टिनहरू
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
-                Daily Consumption
+                दैनिक खपत
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
-                Days Remaining
+                बाँकी दिनहरू
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
-                Estimated Finish Date
+                अनुमानित समाप्ति मिति
               </th>
             </tr>
           </thead>
@@ -85,13 +85,13 @@ export default function FeedConsumptionTable() {
                   {item.feedType}
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  {item.quantityKg.toLocaleString()} kg
+                  {item.quantityKg.toLocaleString()} (किलो)
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                  {item.quantityBuckets} buckets
+                  {item.quantityBuckets} बाल्टिनहरू
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  {item.dailyConsumption} kg/day
+                  {item.dailyConsumption} किलो प्रति दिन
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm">
                   <span
@@ -99,7 +99,7 @@ export default function FeedConsumptionTable() {
                       item.daysRemaining
                     )}`}
                   >
-                    {item.daysRemaining} days
+                    {item.daysRemaining} दिनहरू
                   </span>
                 </td>
                 <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">

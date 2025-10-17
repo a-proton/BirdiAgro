@@ -9,12 +9,11 @@ function AddBatchModal({ isOpen, onClose }) {
     batchName: "",
     dateOfArrival: new Date().toISOString().split("T")[0],
     numberOfChicks: "",
-    breed: "",
+    price: "",
     supplier: "",
     paymentProof: null,
   });
 
-  // Sync internal `show` state with `isOpen` prop for smooth transitions
   useEffect(() => {
     if (isOpen) {
       const timer = setTimeout(() => setShow(true), 10);
@@ -26,19 +25,25 @@ function AddBatchModal({ isOpen, onClose }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log("New batch:", formData);
+    console.log("नयाँ ब्याच:", formData);
     handleClose();
   };
 
   const handleClose = () => {
     setShow(false);
-    // Wait for exit animation to finish before calling onClose
     setTimeout(() => {
       onClose();
+      setFormData({
+        batchName: "",
+        dateOfArrival: new Date().toISOString().split("T")[0],
+        numberOfChicks: "",
+        price: "",
+        supplier: "",
+        paymentProof: null,
+      });
     }, 300);
   };
 
-  // Only unmount after fade-out completes
   if (!isOpen && !show) return null;
 
   return (
@@ -56,7 +61,9 @@ function AddBatchModal({ isOpen, onClose }) {
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between p-6 border-b border-gray-200">
-          <h2 className="text-xl font-semibold text-gray-900">Add New Batch</h2>
+          <h2 className="text-xl font-semibold text-gray-900">
+            नयाँ ब्याच थप्नुहोस्
+          </h2>
           <button
             onClick={handleClose}
             className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
@@ -70,13 +77,13 @@ function AddBatchModal({ isOpen, onClose }) {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Batch Name
+                ब्याचको नाम
               </label>
               <input
                 type="text"
                 required
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189] focus:border-transparent"
-                placeholder="e.g., Batch-001"
+                placeholder="उदाहरण: ब्याच-००१"
                 value={formData.batchName}
                 onChange={(e) =>
                   setFormData({ ...formData, batchName: e.target.value })
@@ -86,7 +93,7 @@ function AddBatchModal({ isOpen, onClose }) {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Date of Arrival
+                आगमन मिति
               </label>
               <input
                 type="date"
@@ -101,14 +108,14 @@ function AddBatchModal({ isOpen, onClose }) {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Number of Chicks
+                कुखुराको संख्या
               </label>
               <input
                 type="number"
                 required
                 min="1"
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189] focus:border-transparent"
-                placeholder="e.g., 500"
+                placeholder="उदाहरण: ५००"
                 value={formData.numberOfChicks}
                 onChange={(e) =>
                   setFormData({ ...formData, numberOfChicks: e.target.value })
@@ -118,30 +125,30 @@ function AddBatchModal({ isOpen, onClose }) {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Price
+                मूल्य
               </label>
               <input
                 type="number"
                 required
                 min="1"
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189] focus:border-transparent"
-                placeholder="e.g., Rs 50000"
-                value={formData.numberOfChicks}
+                placeholder="उदाहरण: रु ५०,०००"
+                value={formData.price}
                 onChange={(e) =>
-                  setFormData({ ...formData, numberOfChicks: e.target.value })
+                  setFormData({ ...formData, price: e.target.value })
                 }
               />
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Supplier
+                आपूर्तिकर्ता
               </label>
               <input
                 type="text"
                 required
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189] focus:border-transparent"
-                placeholder="e.g., Nepal Hatchery Pvt Ltd"
+                placeholder="उदाहरण: नेपाल ह्याचरी प्रा. लि."
                 value={formData.supplier}
                 onChange={(e) =>
                   setFormData({ ...formData, supplier: e.target.value })
@@ -151,7 +158,7 @@ function AddBatchModal({ isOpen, onClose }) {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Payment Proof (PDF/Image)
+                भुक्तानी प्रमाण (PDF/Image)
               </label>
               <input
                 type="file"
@@ -173,13 +180,13 @@ function AddBatchModal({ isOpen, onClose }) {
               onClick={handleClose}
               className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
             >
-              Cancel
+              रद्द गर्नुहोस्
             </button>
             <button
               type="submit"
               className="flex-1 px-4 py-2 bg-[#1ab189] text-white rounded-lg hover:bg-[#158f6f] transition-colors"
             >
-              Add Batch
+              ब्याच थप्नुहोस्
             </button>
           </div>
         </form>

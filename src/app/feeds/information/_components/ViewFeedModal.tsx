@@ -16,7 +16,6 @@ export default function ViewFeedModal({
   onClose,
 }: ViewFeedModalProps) {
   const [show, setShow] = useState(false);
-  const [loading, setLoading] = useState(false); // Added loading state for consistency, though not strictly needed here
 
   useEffect(() => {
     if (isOpen) {
@@ -47,13 +46,10 @@ export default function ViewFeedModal({
           }`}
         >
           <div className="flex items-center justify-between p-6 border-b border-gray-200">
-            <h2 className="text-xl font-semibold text-gray-900">
-              Feed Details
-            </h2>
+            <h2 className="text-xl font-semibold text-gray-900">दाना विवरण</h2>
             <button
               onClick={handleClose}
               className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
-              disabled={loading} // Disable close button while loading
             >
               <X className="w-5 h-5 text-gray-500" />
             </button>
@@ -63,7 +59,7 @@ export default function ViewFeedModal({
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-medium text-gray-500 mb-1">
-                  Feed Name
+                  दानाको नाम
                 </label>
                 <p className="text-base text-gray-900 font-medium">
                   {feed.feedName}
@@ -72,7 +68,7 @@ export default function ViewFeedModal({
 
               <div>
                 <label className="block text-sm font-medium text-gray-500 mb-1">
-                  Feed Type
+                  दाना प्रकार
                 </label>
                 <span className="inline-block px-3 py-1 text-sm font-medium rounded-full bg-blue-100 text-blue-800">
                   {feed.feedType}
@@ -81,7 +77,7 @@ export default function ViewFeedModal({
 
               <div>
                 <label className="block text-sm font-medium text-gray-500 mb-1">
-                  Quantity
+                  मात्रा
                 </label>
                 <p className="text-base text-gray-900 font-medium">
                   {feed.quantity}
@@ -90,14 +86,14 @@ export default function ViewFeedModal({
 
               <div>
                 <label className="block text-sm font-medium text-gray-500 mb-1">
-                  Date of Order
+                  अर्डर मिति
                 </label>
                 <p className="text-base text-gray-900">{feed.dateOfOrder}</p>
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-500 mb-1">
-                  Price
+                  मूल्य
                 </label>
                 <p className="text-base text-gray-900 font-medium">
                   {feed.price}
@@ -106,21 +102,21 @@ export default function ViewFeedModal({
 
               <div>
                 <label className="block text-sm font-medium text-gray-500 mb-1">
-                  Supplier
+                  वितरक
                 </label>
                 <p className="text-base text-gray-900">{feed.supplier}</p>
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-500 mb-1">
-                  Mode of Payment
+                  भुक्तानी प्रकार
                 </label>
                 <p className="text-base text-gray-900">{feed.modeOfPayment}</p>
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-500 mb-1">
-                  Payment Proof
+                  भुक्तानी प्रमाण
                 </label>
                 <a
                   href="#"
@@ -135,9 +131,8 @@ export default function ViewFeedModal({
               <button
                 onClick={handleClose}
                 className="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
-                disabled={loading} // Disable button while loading
               >
-                Close
+                बन्द गर्नुहोस्
               </button>
             </div>
           </div>

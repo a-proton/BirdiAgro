@@ -23,7 +23,6 @@ export default function AddFeedModal() {
     setShow(false);
     setTimeout(() => {
       setIsOpen(false);
-      // Reset form
       setFormData({
         feedName: "",
         feedType: "B0",
@@ -72,7 +71,7 @@ export default function AddFeedModal() {
         className="inline-flex items-center gap-2 px-4 py-2 bg-[#1ab189] text-white rounded-lg hover:bg-[#158f6f] transition-colors"
       >
         <Plus className="w-4 h-4" />
-        Add Feed
+        दाना थप्नुहोस्
       </button>
     );
   }
@@ -84,7 +83,7 @@ export default function AddFeedModal() {
         className="inline-flex items-center gap-2 px-4 py-2 bg-[#1ab189] text-white rounded-lg hover:bg-[#158f6f] transition-colors"
       >
         <Plus className="w-4 h-4" />
-        Add Feed
+        दाना थप्नुहोस्
       </button>
 
       <div
@@ -100,7 +99,7 @@ export default function AddFeedModal() {
         >
           <div className="flex items-center justify-between p-6 border-b border-gray-200">
             <h2 className="text-xl font-semibold text-gray-900">
-              Add New Feed
+              नयाँ दाना थप्नुहोस्
             </h2>
             <button
               onClick={handleClose}
@@ -114,7 +113,7 @@ export default function AddFeedModal() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Feed Name
+                  दानाको नाम
                 </label>
                 <input
                   type="text"
@@ -123,13 +122,13 @@ export default function AddFeedModal() {
                   onChange={handleChange}
                   required
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189] focus:border-transparent"
-                  placeholder="Enter feed name"
+                  placeholder="दानाको नाम प्रविष्ट गर्नुहोस्"
                 />
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Feed Type
+                  दाना प्रकार
                 </label>
                 <select
                   name="feedType"
@@ -138,15 +137,15 @@ export default function AddFeedModal() {
                   required
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189] focus:border-transparent"
                 >
-                  <option value="B0">B0 - Starter</option>
-                  <option value="B1">B1 - Grower</option>
-                  <option value="B2">B2 - Layer</option>
+                  <option value="B0">B0 - स्टार्टर</option>
+                  <option value="B1">B1 - ग्रोअर</option>
+                  <option value="B2">B2 - लेयर</option>
                 </select>
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Quantity
+                  मात्रा
                 </label>
                 <input
                   type="text"
@@ -155,13 +154,13 @@ export default function AddFeedModal() {
                   onChange={handleChange}
                   required
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189] focus:border-transparent"
-                  placeholder="e.g., 10 sacks (500 kg)"
+                  placeholder="उदाहरण: १० बोरा (५०० किलो)"
                 />
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Date of Order
+                  अर्डर मिति
                 </label>
                 <input
                   type="date"
@@ -175,7 +174,7 @@ export default function AddFeedModal() {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Price
+                  मूल्य
                 </label>
                 <input
                   type="text"
@@ -184,13 +183,13 @@ export default function AddFeedModal() {
                   onChange={handleChange}
                   required
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189] focus:border-transparent"
-                  placeholder="e.g., Rs 45,000"
+                  placeholder="उदाहरण: Rs 45,000"
                 />
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Supplier
+                  वितरक
                 </label>
                 <input
                   type="text"
@@ -199,13 +198,13 @@ export default function AddFeedModal() {
                   onChange={handleChange}
                   required
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189] focus:border-transparent"
-                  placeholder="Enter supplier name"
+                  placeholder="वितरकको नाम प्रविष्ट गर्नुहोस्"
                 />
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Mode of Payment
+                  भुक्तानी प्रकार
                 </label>
                 <select
                   name="modeOfPayment"
@@ -214,16 +213,16 @@ export default function AddFeedModal() {
                   required
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189] focus:border-transparent"
                 >
-                  <option value="Bank Transfer">Bank Transfer</option>
-                  <option value="Cash">Cash</option>
-                  <option value="Cheque">Cheque</option>
-                  <option value="Online Payment">Online Payment</option>
+                  <option value="Bank Transfer">बैंक ट्रान्सफर</option>
+                  <option value="Cash">नगद</option>
+                  <option value="Cheque">चेक</option>
+                  <option value="Online Payment">अनलाइन भुक्तानी</option>
                 </select>
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Payment Proof (PDF/Image)
+                  भुक्तानी प्रमाण (PDF/Image)
                 </label>
                 <input
                   type="file"
@@ -235,7 +234,7 @@ export default function AddFeedModal() {
                 />
                 {formData.paymentProof && (
                   <p className="mt-2 text-sm text-gray-600">
-                    Selected: {formData.paymentProof.name}
+                    चयन गरिएको: {formData.paymentProof.name}
                   </p>
                 )}
               </div>
@@ -247,13 +246,13 @@ export default function AddFeedModal() {
                 onClick={handleClose}
                 className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
               >
-                Cancel
+                रद्द गर्नुहोस्
               </button>
               <button
                 type="submit"
                 className="flex-1 px-4 py-2 bg-[#1ab189] text-white rounded-lg hover:bg-[#158f6f] transition-colors"
               >
-                Add Feed
+                दाना थप्नुहोस्
               </button>
             </div>
           </form>

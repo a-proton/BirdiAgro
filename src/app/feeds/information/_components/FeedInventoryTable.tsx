@@ -18,56 +18,56 @@ export interface FeedRecord {
 const feedRecords: FeedRecord[] = [
   {
     id: 1,
-    feedName: "Starter Premium Mix",
+    feedName: "स्टार्टर प्रिमियम मिक्स",
     feedType: "B0",
-    quantity: "10 sacks (500 kg)",
+    quantity: "10 बोरा (500 kg)",
     dateOfOrder: "2024-10-01",
     price: "Rs 45,000",
-    supplier: "Nepal Feeds Pvt Ltd",
+    supplier: "नेपाल फिड्स प्रा. लि.",
     modeOfPayment: "Bank Transfer",
     paymentProof: "receipt_001.pdf",
   },
   {
     id: 2,
-    feedName: "Grower Complete Feed",
+    feedName: "ग्रोअर कम्प्लीट फिड",
     feedType: "B1",
-    quantity: "15 sacks (750 kg)",
+    quantity: "15 बोरा (750 kg)",
     dateOfOrder: "2024-10-03",
     price: "Rs 63,000",
-    supplier: "Himalayan Agro",
+    supplier: "हिमालयन एग्रो",
     modeOfPayment: "Cash",
     paymentProof: "receipt_002.pdf",
   },
   {
     id: 3,
-    feedName: "Layer Optimum",
+    feedName: "लेयर अप्टिमम",
     feedType: "B2",
-    quantity: "12 sacks (600 kg)",
+    quantity: "12 बोरा (600 kg)",
     dateOfOrder: "2024-10-05",
     price: "Rs 57,600",
-    supplier: "Nepal Feeds Pvt Ltd",
+    supplier: "नेपाल फिड्स प्रा. लि.",
     modeOfPayment: "Cheque",
     paymentProof: "receipt_003.pdf",
   },
   {
     id: 4,
-    feedName: "Broiler Starter",
+    feedName: "ब्रोइलर स्टार्टर",
     feedType: "B0",
-    quantity: "8 sacks (400 kg)",
+    quantity: "8 बोरा (400 kg)",
     dateOfOrder: "2024-10-06",
     price: "Rs 36,000",
-    supplier: "Pokhara Feed Industries",
+    supplier: "पोखरा फिड इन्डस्ट्रीज",
     modeOfPayment: "Bank Transfer",
     paymentProof: "receipt_004.pdf",
   },
   {
     id: 5,
-    feedName: "Finisher Pro",
+    feedName: "फिनिशर प्रो",
     feedType: "B1",
-    quantity: "20 sacks (1000 kg)",
+    quantity: "20 बोरा (1000 kg)",
     dateOfOrder: "2024-10-08",
     price: "Rs 82,000",
-    supplier: "Himalayan Agro",
+    supplier: "हिमालयन एग्रो",
     modeOfPayment: "Online Payment",
     paymentProof: "receipt_005.pdf",
   },
@@ -93,7 +93,7 @@ export default function FeedInventoryTable() {
       <div className="bg-white rounded-lg shadow-sm overflow-hidden">
         <div className="px-6 py-4 border-b border-gray-200">
           <h2 className="text-lg font-semibold text-gray-900">
-            Feed Inventory Records
+            दाना सूची रेकर्डहरू
           </h2>
         </div>
         <div className="overflow-x-auto">
@@ -101,34 +101,34 @@ export default function FeedInventoryTable() {
             <thead className="bg-gray-50">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
-                  SN
+                  क्र.सं
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
-                  Feed Name
+                  दानाको नाम
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
-                  Feed Type
+                  दाना प्रकार
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
-                  Quantity
+                  मात्रा
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
-                  Date of Order
+                  अर्डर मिति
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
-                  Price
+                  मूल्य
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
-                  Supplier
+                  वितरक
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
-                  Mode of Payment
+                  भुक्तानी प्रकार
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
-                  Payment Proof
+                  भुक्तानी प्रमाण
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
-                  Actions
+                  कार्यहरू
                 </th>
               </tr>
             </thead>
@@ -177,16 +177,16 @@ export default function FeedInventoryTable() {
                       <button
                         onClick={() => handleView(feed)}
                         className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors"
-                        title="View Details"
+                        title="विवरण हेर्नुहोस्"
                       >
-                        View
+                        हेर्नुहोस्
                       </button>
                       <button
                         onClick={() => handleEdit(feed)}
                         className="p-2 text-[#1ab189] hover:bg-[#e8f8f7] rounded-lg transition-colors"
-                        title="Edit"
+                        title="सम्पादन गर्नुहोस्"
                       >
-                        Edit
+                        सम्पादन
                       </button>
                     </div>
                   </td>

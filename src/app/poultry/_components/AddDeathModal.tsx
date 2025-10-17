@@ -24,7 +24,7 @@ function AddDeathModal({ isOpen, onClose }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log("Death record:", formData);
+    console.log("मृत्युको रेकर्ड:", formData);
     handleClose();
   };
 
@@ -50,7 +50,9 @@ function AddDeathModal({ isOpen, onClose }) {
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between p-6 border-b border-gray-200">
-          <h2 className="text-xl font-semibold text-gray-900">Record Death</h2>
+          <h2 className="text-xl font-semibold text-gray-900">
+            मृत्यु रेकर्ड गर्नुहोस्
+          </h2>
           <button
             onClick={handleClose}
             className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
@@ -64,7 +66,7 @@ function AddDeathModal({ isOpen, onClose }) {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Select Batch
+                ब्याच छान्नुहोस्
               </label>
               <select
                 required
@@ -74,16 +76,16 @@ function AddDeathModal({ isOpen, onClose }) {
                   setFormData({ ...formData, batch: e.target.value })
                 }
               >
-                <option value="">Select a batch</option>
-                <option value="Batch-001">Batch-001</option>
-                <option value="Batch-002">Batch-002</option>
-                <option value="Batch-003">Batch-003</option>
+                <option value="">ब्याच छान्नुहोस्</option>
+                <option value="Batch-001">ब्याच-००१</option>
+                <option value="Batch-002">ब्याच-००२</option>
+                <option value="Batch-003">ब्याच-००३</option>
               </select>
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Date of Death
+                मृत्यु मिति
               </label>
               <input
                 type="date"
@@ -98,14 +100,14 @@ function AddDeathModal({ isOpen, onClose }) {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Number of Deaths
+                मृत्यु भएको संख्या
               </label>
               <input
                 type="number"
                 required
                 min="1"
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189] focus:border-transparent"
-                placeholder="e.g., 5"
+                placeholder="उदाहरण: ५"
                 value={formData.numberOfDeaths}
                 onChange={(e) =>
                   setFormData({ ...formData, numberOfDeaths: e.target.value })
@@ -115,7 +117,7 @@ function AddDeathModal({ isOpen, onClose }) {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Cause of Death
+                मृत्युको कारण
               </label>
               <select
                 required
@@ -125,23 +127,23 @@ function AddDeathModal({ isOpen, onClose }) {
                   setFormData({ ...formData, cause: e.target.value })
                 }
               >
-                <option value="">Select cause</option>
-                <option value="Disease">Disease</option>
-                <option value="Natural">Natural</option>
-                <option value="Accident">Accident</option>
-                <option value="Unknown">Unknown</option>
-                <option value="Other">Other</option>
+                <option value="">कारण छान्नुहोस्</option>
+                <option value="Disease">रोग</option>
+                <option value="Natural">प्राकृतिक</option>
+                <option value="Accident">दुर्घटना</option>
+                <option value="Unknown">अज्ञात</option>
+                <option value="Other">अन्य</option>
               </select>
             </div>
 
             <div className="md:col-span-2">
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Additional Notes
+                थप विवरण
               </label>
               <textarea
                 rows="3"
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189] focus:border-transparent"
-                placeholder="Any additional details..."
+                placeholder="थप विवरण लेख्नुहोस्..."
                 value={formData.notes}
                 onChange={(e) =>
                   setFormData({ ...formData, notes: e.target.value })
@@ -156,13 +158,13 @@ function AddDeathModal({ isOpen, onClose }) {
               onClick={handleClose}
               className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
             >
-              Cancel
+              रद्द गर्नुहोस्
             </button>
             <button
               type="submit"
               className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
             >
-              Record Death
+              मृत्यु रेकर्ड गर्नुहोस्
             </button>
           </div>
         </form>

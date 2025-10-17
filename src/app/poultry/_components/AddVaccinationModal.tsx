@@ -7,7 +7,7 @@ function AddVaccinationModal({ isOpen, onClose }) {
   const [show, setShow] = useState(false);
   const [formData, setFormData] = useState({
     batch: "",
-    vaccineName: "",
+    week: "",
     vaccinationDate: new Date().toISOString().split("T")[0],
   });
 
@@ -22,7 +22,7 @@ function AddVaccinationModal({ isOpen, onClose }) {
 
   const handleSubmit = (e) => {
     e.preventDefault();
-    console.log("Vaccination record:", formData);
+    console.log("खोप रेकर्ड:", formData);
     handleClose();
   };
 
@@ -48,9 +48,7 @@ function AddVaccinationModal({ isOpen, onClose }) {
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between p-6 border-b border-gray-200">
-          <h2 className="text-xl font-semibold text-gray-900">
-            Add Vaccination
-          </h2>
+          <h2 className="text-xl font-semibold text-gray-900">खोप थप्नुहोस्</h2>
           <button
             onClick={handleClose}
             className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
@@ -64,7 +62,7 @@ function AddVaccinationModal({ isOpen, onClose }) {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Select Batch
+                ब्याच छान्नुहोस्
               </label>
               <select
                 required
@@ -74,36 +72,36 @@ function AddVaccinationModal({ isOpen, onClose }) {
                   setFormData({ ...formData, batch: e.target.value })
                 }
               >
-                <option value="">Select a batch</option>
-                <option value="Batch-001">Batch-001</option>
-                <option value="Batch-002">Batch-002</option>
-                <option value="Batch-003">Batch-003</option>
+                <option value="">ब्याच छान्नुहोस्</option>
+                <option value="Batch-001">ब्याच-००१</option>
+                <option value="Batch-002">ब्याच-००२</option>
+                <option value="Batch-003">ब्याच-००३</option>
               </select>
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Select Week
+                हप्ता छान्नुहोस्
               </label>
               <select
                 required
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189] focus:border-transparent"
-                value={formData.batch}
+                value={formData.week}
                 onChange={(e) =>
-                  setFormData({ ...formData, batch: e.target.value })
+                  setFormData({ ...formData, week: e.target.value })
                 }
               >
-                <option value="">Select a week</option>
-                <option value="Batch-001"> Week 1</option>
-                <option value="Batch-002">Week 2 </option>
-                <option value="Batch-003">Week 3</option>
-                <option value="Batch-003">Week 4</option>
+                <option value="">हप्ता छान्नुहोस्</option>
+                <option value="Week-1">हप्ता १</option>
+                <option value="Week-2">हप्ता २</option>
+                <option value="Week-3">हप्ता ३</option>
+                <option value="Week-4">हप्ता ४</option>
               </select>
             </div>
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                Vaccination Date
+                खोप मिति
               </label>
               <input
                 type="date"
@@ -126,13 +124,13 @@ function AddVaccinationModal({ isOpen, onClose }) {
               onClick={handleClose}
               className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
             >
-              Cancel
+              रद्द गर्नुहोस्
             </button>
             <button
               type="submit"
               className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
             >
-              Add Vaccination
+              खोप थप्नुहोस्
             </button>
           </div>
         </form>

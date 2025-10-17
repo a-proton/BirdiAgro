@@ -8,7 +8,7 @@ export default function FeedConsumptionPage() {
       {/* Page Header */}
       <div className="flex items-center justify-between">
         <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
-          Feed Consumption
+          दाना खपत
         </h1>
         <AddConsumptionModal />
       </div>

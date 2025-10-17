@@ -56,7 +56,6 @@ export default function PoultryManagementTable() {
   const [isAddVaccinationOpen, setIsAddVaccinationOpen] = useState(false);
   const [isAddMedicationOpen, setIsAddMedicationOpen] = useState(false);
 
-  // For the detail popup
   const [viewItem, setViewItem] = useState<{
     type: string;
     name: string;
@@ -66,7 +65,7 @@ export default function PoultryManagementTable() {
   const [isPopupVisible, setIsPopupVisible] = useState(false);
 
   const handleDelete = (id: number) => {
-    if (window.confirm("Are you sure you want to delete this batch?")) {
+    if (window.confirm("के तपाईं पक्का यो ब्याच हटाउन चाहनुहुन्छ?")) {
       setBatches(batches.filter((batch) => batch.id !== id));
     }
   };
@@ -94,35 +93,35 @@ export default function PoultryManagementTable() {
           className="inline-flex items-center gap-2 px-4 py-2 bg-[#1ab189] text-white rounded-lg hover:bg-[#158f6f] transition-colors"
         >
           <Plus className="w-4 h-4" />
-          Add Batch
+          ब्याच थप्नुहोस्
         </button>
         <button
           onClick={() => setIsAddDeathOpen(true)}
           className="inline-flex items-center gap-2 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
         >
           <Plus className="w-4 h-4" />
-          Add Death
+          मृत्युदर थप्नुहोस्
         </button>
         <button
           onClick={() => setIsAddVaccinationOpen(true)}
           className="inline-flex items-center gap-2 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
         >
           <Plus className="w-4 h-4" />
-          Add Vaccination
+          खोप थप्नुहोस्
         </button>
         <button
           onClick={() => setIsAddMedicationOpen(true)}
           className="inline-flex items-center gap-2 px-4 py-2 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors"
         >
           <Plus className="w-4 h-4" />
-          Add Medication
+          औषधि थप्नुहोस्
         </button>
       </div>
 
       {/* Batch Details Table */}
       <div className="bg-white rounded-lg shadow-sm overflow-hidden">
         <div className="px-6 py-4 border-b border-gray-200">
-          <h2 className="text-lg font-semibold text-gray-900">Batch Details</h2>
+          <h2 className="text-lg font-semibold text-gray-900">ब्याच विवरण</h2>
         </div>
         <div className="overflow-x-auto">
           <table className="w-full">
@@ -132,22 +131,22 @@ export default function PoultryManagementTable() {
                   SN
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
-                  Batch Name
+                  ब्याच नाम
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
-                  Date of Arrival
+                  आगमन मिति
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
-                  Vaccination Date
+                  खोप मिति
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
-                  Medication Date
+                  औषधि मिति
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
-                  Payment Proof
+                  भुक्तानी प्रमाण
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
-                  Actions
+                  क्रियाकलाप
                 </th>
               </tr>
             </thead>
@@ -181,7 +180,7 @@ export default function PoultryManagementTable() {
                               })
                             }
                             className="text-blue-600 hover:text-blue-800"
-                            title="View vaccine details"
+                            title="खोप विवरण हेर्नुहोस्"
                           >
                             <Eye className="w-4 h-4" />
                           </button>
@@ -204,7 +203,7 @@ export default function PoultryManagementTable() {
                               })
                             }
                             className="text-blue-600 hover:text-blue-800"
-                            title="View medication details"
+                            title="औषधि विवरण हेर्नुहोस्"
                           >
                             <Eye className="w-4 h-4" />
                           </button>
@@ -223,16 +222,16 @@ export default function PoultryManagementTable() {
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
                     <div className="flex items-center gap-2">
                       <button className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
-                        View
+                        हेर्नुहोस्
                       </button>
                       <button className="p-2 text-[#1ab189] hover:bg-[#e8f8f7] rounded-lg transition-colors">
-                        Edit
+                        सम्पादन गर्नुहोस्
                       </button>
                       <button
                         onClick={() => handleDelete(batch.id)}
                         className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
                       >
-                        Delete
+                        हटाउनुहोस्
                       </button>
                     </div>
                   </td>
@@ -261,10 +260,9 @@ export default function PoultryManagementTable() {
         onClose={() => setIsAddMedicationOpen(false)}
       />
 
-      {/* Detail Popup with Backdrop */}
+      {/* Detail Popup */}
       {isPopupOpen && (
         <>
-          {/* Backdrop */}
           <div
             className={`fixed inset-0 bg-black transition-opacity duration-300 ${
               isPopupVisible ? "opacity-50" : "opacity-0"
@@ -273,7 +271,6 @@ export default function PoultryManagementTable() {
             onClick={closePopup}
           ></div>
 
-          {/* Popup */}
           <div
             className={`fixed inset-0 flex items-center justify-center z-50 p-4 transition-opacity duration-300 ${
               isPopupVisible ? "opacity-100" : "opacity-0"
@@ -285,22 +282,20 @@ export default function PoultryManagementTable() {
               }`}
             >
               <h3 className="text-lg font-semibold text-gray-900 mb-3">
-                {viewItem?.type === "vaccine"
-                  ? "Vaccination Detail"
-                  : "Medication Detail"}
+                {viewItem?.type === "vaccine" ? "खोप विवरण" : "औषधि विवरण"}
               </h3>
               <p className="text-gray-700 mb-1">
-                <span className="font-medium">Name:</span> {viewItem?.name}
+                <span className="font-medium">नाम:</span> {viewItem?.name}
               </p>
               <p className="text-gray-700">
-                <span className="font-medium">Date:</span> {viewItem?.date}
+                <span className="font-medium">मिति:</span> {viewItem?.date}
               </p>
               <div className="mt-4 flex justify-end">
                 <button
                   onClick={closePopup}
                   className="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300"
                 >
-                  Close
+                  बन्द गर्नुहोस्
                 </button>
               </div>
             </div>

@@ -15,7 +15,6 @@ export default function AddSalesModal({
   const [show, setShow] = useState(false);
   const [activeTab, setActiveTab] = useState<Tab>("kukhura");
 
-  // Kukhura tab state
   const [kukhuraData, setKukhuraData] = useState({
     batchName: "",
     salesDate: new Date().toISOString().split("T")[0],
@@ -25,7 +24,6 @@ export default function AddSalesModal({
     soldTo: "",
   });
 
-  // Others tab state
   const [othersData, setOthersData] = useState({
     productName: "",
     totalPcs: "",
@@ -48,7 +46,6 @@ export default function AddSalesModal({
     setShow(false);
     setTimeout(() => {
       onClose();
-      // Reset form on close
       setActiveTab("kukhura");
       setKukhuraData({
         batchName: "",
@@ -87,7 +84,6 @@ export default function AddSalesModal({
     }));
   };
 
-  // Auto-calculate total amount for Kukhura
   const kukhuraTotalAmount = (() => {
     const kgs = parseFloat(kukhuraData.totalKgs) || 0;
     const price = parseFloat(kukhuraData.pricePerKg) || 0;
@@ -122,7 +118,9 @@ export default function AddSalesModal({
         onClick={(e) => e.stopPropagation()}
       >
         <div className="flex items-center justify-between p-6 border-b border-gray-200">
-          <h2 className="text-xl font-semibold text-gray-900">Add New Sale</h2>
+          <h2 className="text-xl font-semibold text-gray-900">
+            नयाँ बिक्री थप्नुहोस्
+          </h2>
           <button
             onClick={handleClose}
             className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
@@ -142,7 +140,7 @@ export default function AddSalesModal({
               }`}
               onClick={() => setActiveTab("kukhura")}
             >
-              Kukhura
+              कुखुरा
             </button>
             <button
               className={`px-6 py-3 font-medium text-sm ${
@@ -152,7 +150,7 @@ export default function AddSalesModal({
               }`}
               onClick={() => setActiveTab("others")}
             >
-              Others
+              अन्य
             </button>
           </div>
         </div>
@@ -162,14 +160,14 @@ export default function AddSalesModal({
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Select Batch
+                  ब्याच चयन गर्नुहोस्
                 </label>
                 <input
                   type="text"
                   name="batchName"
                   required
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189]"
-                  placeholder="e.g., Batch-001"
+                  placeholder="जस्तै: ब्याच-००१"
                   value={kukhuraData.batchName}
                   onChange={handleKukhuraChange}
                 />
@@ -177,7 +175,7 @@ export default function AddSalesModal({
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Sales Date
+                  बिक्री मिति
                 </label>
                 <input
                   type="date"
@@ -192,7 +190,7 @@ export default function AddSalesModal({
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Total Kgs
+                    कुल किलोग्राम
                   </label>
                   <input
                     type="number"
@@ -206,7 +204,7 @@ export default function AddSalesModal({
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Price per Kg (Rs)
+                    प्रति किग्रा मूल्य (रु)
                   </label>
                   <input
                     type="number"
@@ -222,21 +220,21 @@ export default function AddSalesModal({
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Total Amount:{" "}
-                  <span className="font-bold">Rs {kukhuraTotalAmount}</span>
+                  कुल रकम:{" "}
+                  <span className="font-bold">रु {kukhuraTotalAmount}</span>
                 </label>
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Sold To
+                  ग्राहकको नाम
                 </label>
                 <input
                   type="text"
                   name="soldTo"
                   required
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189]"
-                  placeholder="Customer name"
+                  placeholder="ग्राहकको नाम"
                   value={kukhuraData.soldTo}
                   onChange={handleKukhuraChange}
                 />
@@ -255,7 +253,7 @@ export default function AddSalesModal({
                   htmlFor="amountReceived"
                   className="ml-2 text-sm text-gray-700"
                 >
-                  Amount Received
+                  रकम प्राप्त भएको
                 </label>
               </div>
             </div>
@@ -263,14 +261,14 @@ export default function AddSalesModal({
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Name of Product
+                  उत्पादनको नाम
                 </label>
                 <input
                   type="text"
                   name="productName"
                   required
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189]"
-                  placeholder="e.g., Fresh Eggs"
+                  placeholder="जस्तै: ताजा अण्डा"
                   value={othersData.productName}
                   onChange={handleOthersChange}
                 />
@@ -279,7 +277,7 @@ export default function AddSalesModal({
               <div className="grid grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Total Pcs
+                    कुल संख्या
                   </label>
                   <input
                     type="number"
@@ -292,7 +290,7 @@ export default function AddSalesModal({
                 </div>
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
-                    Total Kgs
+                    कुल किलोग्राम
                   </label>
                   <input
                     type="number"
@@ -308,7 +306,7 @@ export default function AddSalesModal({
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Total Amount (Rs)
+                  कुल रकम (रु)
                 </label>
                 <input
                   type="number"
@@ -323,14 +321,14 @@ export default function AddSalesModal({
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Sold To
+                  ग्राहकको नाम
                 </label>
                 <input
                   type="text"
                   name="soldTo"
                   required
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189]"
-                  placeholder="Customer name"
+                  placeholder="ग्राहकको नाम"
                   value={othersData.soldTo}
                   onChange={handleOthersChange}
                 />
@@ -349,7 +347,7 @@ export default function AddSalesModal({
                   htmlFor="othersAmountReceived"
                   className="ml-2 text-sm text-gray-700"
                 >
-                  Amount Received
+                  रकम प्राप्त भएको
                 </label>
               </div>
             </div>
@@ -361,13 +359,13 @@ export default function AddSalesModal({
               onClick={handleClose}
               className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
             >
-              Cancel
+              रद्द गर्नुहोस्
             </button>
             <button
               type="submit"
               className="flex-1 px-4 py-2 bg-[#1ab189] text-white rounded-lg hover:bg-[#158f6f]"
             >
-              Save Sale
+              बिक्री सुरक्षित गर्नुहोस्
             </button>
           </div>
         </form>

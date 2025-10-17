@@ -4,7 +4,6 @@ import { Plus, Trash2, Edit3 } from "lucide-react";
 import { useState } from "react";
 
 export default function SettingsPage() {
-  // Mock user data - replace with real data fetching
   const [users, setUsers] = useState([
     {
       id: 1,
@@ -41,7 +40,7 @@ export default function SettingsPage() {
 
   const handleDeleteUser = (id: number) => {
     if (users.length <= 1) {
-      alert("Cannot delete the last user!");
+      alert("अन्तिम प्रयोगकर्ता मेटाउन सकिँदैन!");
       return;
     }
     setUsers(users.filter((user) => user.id !== id));
@@ -52,23 +51,25 @@ export default function SettingsPage() {
       {/* Page Header */}
       <div>
         <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
-          Settings
+          सेटिङ्स
         </h1>
         <p className="text-gray-600 mt-1">
-          Manage users and system preferences
+          प्रयोगकर्ता र प्रणाली प्राथमिकताहरू व्यवस्थापन गर्नुहोस्
         </p>
       </div>
 
       {/* Add User Section */}
       <div className="bg-white rounded-lg shadow-sm p-6">
         <div className="flex items-center justify-between mb-4">
-          <h2 className="text-lg font-semibold text-gray-900">Add New User</h2>
+          <h2 className="text-lg font-semibold text-gray-900">
+            नयाँ प्रयोगकर्ता थप्नुहोस्
+          </h2>
 
           <button
             onClick={() => setIsAdding(!isAdding)}
-            className="iinline-flex items-center gap-2 px-4 py-2 bg-[#1ab189] text-white rounded-lg hover:bg-[#158f6f] transition-colors self-start sm:self-auto"
+            className="inline-flex items-center gap-2 px-4 py-2 bg-[#1ab189] text-white rounded-lg hover:bg-[#158f6f] transition-colors self-start sm:self-auto"
           >
-            {isAdding ? "Cancel" : "Add User"}
+            {isAdding ? "रद्द गर्नुहोस्" : "प्रयोगकर्ता थप्नुहोस्"}
           </button>
         </div>
 
@@ -77,7 +78,7 @@ export default function SettingsPage() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Full Name
+                  पूर्ण नाम
                 </label>
                 <input
                   type="text"
@@ -87,12 +88,12 @@ export default function SettingsPage() {
                     setNewUser({ ...newUser, name: e.target.value })
                   }
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189]"
-                  placeholder="John Doe"
+                  placeholder="जस्तै: राम थापा"
                 />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Email
+                  इमेल
                 </label>
                 <input
                   type="email"
@@ -102,12 +103,12 @@ export default function SettingsPage() {
                     setNewUser({ ...newUser, email: e.target.value })
                   }
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189]"
-                  placeholder="john@example.com"
+                  placeholder="ram@example.com"
                 />
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Role
+                  भूमिका
                 </label>
                 <select
                   value={newUser.role}
@@ -116,13 +117,13 @@ export default function SettingsPage() {
                   }
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189]"
                 >
-                  <option value="Admin">Admin</option>
-                  <option value="Staff">Staff</option>
+                  <option value="Admin">व्यवस्थापक</option>
+                  <option value="Staff">स्टाफ</option>
                 </select>
               </div>
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
-                  Password
+                  पासवर्ड
                 </label>
                 <input
                   type="password"
@@ -142,7 +143,7 @@ export default function SettingsPage() {
                 className="px-4 py-2 bg-[#1ab189] text-white rounded-lg hover:bg-[#158f6f] flex items-center gap-1"
               >
                 <Plus className="w-4 h-4" />
-                Create User
+                प्रयोगकर्ता सिर्जना गर्नुहोस्
               </button>
             </div>
           </form>
@@ -153,7 +154,7 @@ export default function SettingsPage() {
       <div className="bg-white rounded-lg shadow-sm overflow-hidden">
         <div className="px-6 py-4 border-b border-gray-200">
           <h2 className="text-lg font-semibold text-gray-900">
-            Existing Users
+            हालका प्रयोगकर्ता
           </h2>
         </div>
         <div className="overflow-x-auto">
@@ -161,16 +162,16 @@ export default function SettingsPage() {
             <thead className="bg-gray-50">
               <tr>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
-                  Name
+                  नाम
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
-                  Email
+                  इमेल
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
-                  Role
+                  भूमिका
                 </th>
                 <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
-                  Actions
+                  कार्यहरू
                 </th>
               </tr>
             </thead>
@@ -191,7 +192,7 @@ export default function SettingsPage() {
                           : "bg-blue-100 text-blue-800"
                       }`}
                     >
-                      {user.role}
+                      {user.role === "Admin" ? "व्यवस्थापक" : "स्टाफ"}
                     </span>
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">

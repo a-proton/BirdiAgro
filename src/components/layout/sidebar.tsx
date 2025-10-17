@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 import { X, ChevronRight } from "lucide-react";
 import { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "framer-motion";
-
+import Image from "next/image";
 interface MenuItem {
   name: string;
   path: string;
@@ -49,22 +49,22 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
   };
 
   const menuItems: MenuItem[] = [
-    { name: "Dashboard", path: "/dashboard", icon: "/icons/dashboard.png" },
+    { name: "ड्यासबोर्ड", path: "/dashboard", icon: "/icons/dashboard.png" },
     {
-      name: "Feeds",
+      name: "खाद्य",
       path: "/feeds",
       icon: "/icons/feeds.png",
       hasSubmenu: true,
       submenu: [
-        { name: "Feed Information", path: "/feeds/information" },
-        { name: "Feed Consumption", path: "/feeds/consumption" },
+        { name: "खाद्य जानकारी", path: "/feeds/information" },
+        { name: "खाद्य खपत", path: "/feeds/consumption" },
       ],
     },
-    { name: "Kukhura", path: "/poultry", icon: "/icons/chicken.jpg" },
-    { name: "Sales", path: "/sales", icon: "/icons/sales.png" },
-    { name: "Settings", path: "/settings", icon: "/icons/settings.png" },
-    { name: "Expenses", path: "/expenses", icon: "/icons/expenses.png" },
-    { name: "Reports", path: "/reports", icon: "/icons/reports.png" },
+    { name: "कुखुरा", path: "/poultry", icon: "/icons/chicken.jpg" },
+    { name: "बिक्री", path: "/sales", icon: "/icons/sales.png" },
+    { name: "सेटिङ्स", path: "/settings", icon: "/icons/settings.png" },
+    { name: "खर्च", path: "/expenses", icon: "/icons/expenses.png" },
+    { name: "प्रतिवेदन", path: "/reports", icon: "/icons/reports.png" },
   ];
 
   if (!mounted) return null;
@@ -96,7 +96,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
           {/* Logo with image */}
           <div className="flex items-center mb-6">
             <div className="w-8 h-8 rounded overflow-hidden bg-gray-100 flex items-center justify-center">
-              <img
+              <Image
                 src="/icons/chicken.jpg"
                 alt="Kukhura Farm Logo"
                 width={32}
@@ -144,7 +144,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                         }`}
                       >
                         <div className="flex items-center">
-                          <img
+                          <Image
                             src={item.icon}
                             alt=""
                             width={20}
@@ -204,7 +204,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                                         : "text-gray-600 hover:bg-[#e8f8f7] hover:text-[#1ab189]"
                                     }`}
                                   >
-                                    <img
+                                    <Image
                                       src="/icons/disc.png"
                                       alt=""
                                       width={8}
@@ -240,7 +240,7 @@ export default function Sidebar({ isOpen, onClose }: SidebarProps) {
                           : "text-gray-800 hover:bg-gray-100"
                       }`}
                     >
-                      <img
+                      <Image
                         src={item.icon}
                         alt=""
                         width={20}

@@ -59,7 +59,7 @@ export default function AddConsumptionModal() {
         className="inline-flex items-center gap-2 px-4 py-2 bg-[#1ab189] text-white rounded-lg hover:bg-[#158f6f] transition-colors"
       >
         <Plus className="w-4 h-4" />
-        Add Daily Consumption
+        दैनिक खपत थप्नुहोस्
       </button>
     );
   }
@@ -71,7 +71,7 @@ export default function AddConsumptionModal() {
         className="inline-flex items-center gap-2 px-4 py-2 bg-[#1ab189] text-white rounded-lg hover:bg-[#158f6f] transition-colors"
       >
         <Plus className="w-4 h-4" />
-        Add Daily Consumption
+        दैनिक खपत थप्नुहोस्
       </button>
 
       <div
@@ -87,7 +87,7 @@ export default function AddConsumptionModal() {
         >
           <div className="flex items-center justify-between p-6 border-b border-gray-200">
             <h2 className="text-xl font-semibold text-gray-900">
-              Add Daily Consumption
+              दैनिक खपत थप्नुहोस्
             </h2>
             <button
               onClick={handleClose}
@@ -101,7 +101,7 @@ export default function AddConsumptionModal() {
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Select Batch
+                  ब्याच चयन गर्नुहोस्
                 </label>
                 <select
                   name="batch"
@@ -110,17 +110,17 @@ export default function AddConsumptionModal() {
                   required
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189] focus:border-transparent"
                 >
-                  <option value="">Select a batch</option>
-                  <option value="Batch-001">Batch-001 (Week 1-4)</option>
-                  <option value="Batch-002">Batch-002 (Week 5-8)</option>
-                  <option value="Batch-003">Batch-003 (Week 9-12)</option>
-                  <option value="Batch-004">Batch-004 (Week 13-16)</option>
+                  <option value="">ब्याच चयन गर्नुहोस्</option>
+                  <option value="Batch-001">ब्याच-001 (साता १-४)</option>
+                  <option value="Batch-002">ब्याच-002 (साता ५-८)</option>
+                  <option value="Batch-003">ब्याच-003 (साता ९-१२)</option>
+                  <option value="Batch-004">ब्याच-004 (साता १३-१६)</option>
                 </select>
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Feed Type
+                  दानाको प्रकार
                 </label>
                 <select
                   name="feedType"
@@ -129,15 +129,15 @@ export default function AddConsumptionModal() {
                   required
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189] focus:border-transparent"
                 >
-                  <option value="B0">B0 - Starter</option>
-                  <option value="B1">B1 - Grower</option>
-                  <option value="B2">B2 - Layer</option>
+                  <option value="B0">B0 - स्टार्टर</option>
+                  <option value="B1">B1 - ग्रोअर</option>
+                  <option value="B2">B2 - लेयर</option>
                 </select>
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Feed Name
+                  दानाको नाम
                 </label>
                 <input
                   type="text"
@@ -146,13 +146,13 @@ export default function AddConsumptionModal() {
                   onChange={handleChange}
                   required
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189] focus:border-transparent"
-                  placeholder="e.g., Starter Premium Mix"
+                  placeholder="उदाहरण: पोशाक"
                 />
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Quantity Used (kg)
+                  प्रयोग गरिएको मात्रा (किलो)
                 </label>
                 <input
                   type="number"
@@ -163,13 +163,13 @@ export default function AddConsumptionModal() {
                   step="0.1"
                   min="0"
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189] focus:border-transparent"
-                  placeholder="e.g., 25.5"
+                  placeholder="उदाहरण: २५.५"
                 />
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  Date
+                  मिति
                 </label>
                 <input
                   type="date"
@@ -188,13 +188,13 @@ export default function AddConsumptionModal() {
                 onClick={handleClose}
                 className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
               >
-                Cancel
+                रद्द गर्नुहोस्
               </button>
               <button
                 type="submit"
                 className="flex-1 px-4 py-2 bg-[#1ab189] text-white rounded-lg hover:bg-[#158f6f] transition-colors"
               >
-                Record Consumption
+                खपत रेकर्ड गर्नुहोस्
               </button>
             </div>
           </form>

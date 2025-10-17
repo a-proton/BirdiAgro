@@ -13,27 +13,25 @@ type Report = {
 };
 
 export default function ReportsPage() {
-  // Mock existing reports - replace with real data fetching
   const [reports, setReports] = useState<Report[]>([
     {
       id: "rep-001",
-      title: "Monthly Sales Report",
+      title: "मासिक बिक्री रिपोर्ट",
       type: "Sales",
       generatedAt: "2025-10-15T10:30:00",
-      period: "Oct 1–15, 2025",
+      period: "अक्टोबर 1–15, 2025",
       status: "Completed",
     },
     {
       id: "rep-002",
-      title: "Weekly Expense Summary",
+      title: "साप्ताहिक खर्च सारांश",
       type: "Expenses",
       generatedAt: "2025-10-10T14:20:00",
-      period: "Oct 1–7, 2025",
+      period: "अक्टोबर 1–7, 2025",
       status: "Completed",
     },
   ]);
 
-  // Generate report form state
   const [isGenerating, setIsGenerating] = useState(false);
   const [reportConfig, setReportConfig] = useState({
     type: "Summary" as "Sales" | "Expenses" | "Summary",
@@ -47,11 +45,10 @@ export default function ReportsPage() {
     e.preventDefault();
     setIsGenerating(true);
 
-    // Simulate API call delay
     setTimeout(() => {
       const newReport: Report = {
         id: `rep-${Date.now()}`,
-        title: `${reportConfig.type} Report`,
+        title: `${reportConfig.type} रिपोर्ट`,
         type: reportConfig.type,
         generatedAt: new Date().toISOString(),
         period: `${formatDate(reportConfig.startDate)} – ${formatDate(
@@ -61,7 +58,7 @@ export default function ReportsPage() {
       };
       setReports([newReport, ...reports]);
       setIsGenerating(false);
-      // Reset form
+
       setReportConfig({
         type: "Summary",
         startDate: new Date(new Date().setDate(new Date().getDate() - 7))
@@ -73,16 +70,15 @@ export default function ReportsPage() {
   };
 
   const handleDownload = (id: string) => {
-    alert(`Downloading report ${id}... (Implement PDF/API download)`);
+    alert(`रिपोर्ट ${id} डाउनलोड हुँदैछ... (PDF/API लागू गर्नुहोस्)`);
   };
 
   const handleDelete = (id: string) => {
-    if (confirm("Delete this report?")) {
+    if (confirm("के तपाईं यो रिपोर्ट मेटाउन चाहनुहुन्छ?")) {
       setReports(reports.filter((r) => r.id !== id));
     }
   };
 
-  // Helper to format date as "Oct 15"
   const formatDate = (dateString: string) => {
     const options: Intl.DateTimeFormatOptions = {
       month: "short",
@@ -93,22 +89,22 @@ export default function ReportsPage() {
 
   return (
     <div className="space-y-6">
-      {/* Page Header */}
+      {/* पेज हेडर */}
       <div>
         <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
-          Reports
+          रिपोर्टहरू
         </h1>
         <p className="text-gray-600 mt-1">
-          Generate and manage financial reports
+          वित्तीय रिपोर्टहरू सिर्जना गर्नुहोस् र व्यवस्थापन गर्नुहोस्
         </p>
       </div>
 
-      {/* Generate Report Card */}
+      {/* नयाँ रिपोर्ट सिर्जना कार्ड */}
       <div className="bg-white rounded-lg shadow-sm p-6">
         <div className="flex items-center gap-2 mb-4">
           <FileText className="w-5 h-5 text-[#1ab189]" />
           <h2 className="text-lg font-semibold text-gray-900">
-            Generate New Report
+            नयाँ रिपोर्ट सिर्जना गर्नुहोस्
           </h2>
         </div>
 
@@ -116,7 +112,7 @@ export default function ReportsPage() {
           <div className="grid grid-cols-1 md:grid-cols-3 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Report Type
+                रिपोर्ट प्रकार
               </label>
               <select
                 value={reportConfig.type}
@@ -128,14 +124,14 @@ export default function ReportsPage() {
                 }
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189]"
               >
-                <option value="Summary">Summary</option>
-                <option value="Sales">Sales</option>
-                <option value="Expenses">Expenses</option>
+                <option value="Summary">सारांश</option>
+                <option value="Sales">बिक्री</option>
+                <option value="Expenses">खर्च</option>
               </select>
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                Start Date
+                सुरु मिति
               </label>
               <div className="relative">
                 <input
@@ -154,7 +150,7 @@ export default function ReportsPage() {
             </div>
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
-                End Date
+                अन्तिम मिति
               </label>
               <div className="relative">
                 <input
@@ -181,48 +177,49 @@ export default function ReportsPage() {
             {isGenerating ? (
               <>
                 <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                Generating...
+                सिर्जना हुँदैछ...
               </>
             ) : (
               <>
                 <Plus className="w-4 h-4" />
-                Generate Report
+                रिपोर्ट सिर्जना गर्नुहोस्
               </>
             )}
           </button>
         </form>
       </div>
 
-      {/* Existing Reports List */}
+      {/* सिर्जना भएका रिपोर्टहरू */}
       <div className="bg-white rounded-lg shadow-sm overflow-hidden">
         <div className="px-6 py-4 border-b border-gray-200">
           <h2 className="text-lg font-semibold text-gray-900">
-            Generated Reports
+            सिर्जना भएका रिपोर्टहरू
           </h2>
         </div>
         <div className="overflow-x-auto">
           {reports.length === 0 ? (
             <div className="px-6 py-12 text-center text-gray-500">
-              No reports generated yet. Create your first report above.
+              अहिलेसम्म कुनै रिपोर्ट सिर्जना भएको छैन। माथिको फारमबाट पहिलो
+              रिपोर्ट सिर्जना गर्नुहोस्।
             </div>
           ) : (
             <table className="w-full">
               <thead className="bg-gray-50">
                 <tr>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
-                    Report
+                    रिपोर्ट
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
-                    Period
+                    अवधिः
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
-                    Generated
+                    सिर्जना मिति
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
-                    Status
+                    स्थिति
                   </th>
                   <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
-                    Actions
+                    क्रियाकलाप
                   </th>
                 </tr>
               </thead>
@@ -234,14 +231,14 @@ export default function ReportsPage() {
                         {report.title}
                       </div>
                       <div className="text-sm text-gray-500">
-                        {report.type} Report
+                        {report.type} रिपोर्ट
                       </div>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
                       {report.period}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                      {new Date(report.generatedAt).toLocaleDateString()}
+                      {new Date(report.generatedAt).toLocaleDateString("ne-NP")}
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap">
                       <span
@@ -251,7 +248,9 @@ export default function ReportsPage() {
                             : "bg-yellow-100 text-yellow-800"
                         }`}
                       >
-                        {report.status}
+                        {report.status === "Completed"
+                          ? "पूरा भयो"
+                          : "प्रक्रियामा"}
                       </span>
                     </td>
                     <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
@@ -259,14 +258,14 @@ export default function ReportsPage() {
                         <button
                           onClick={() => handleDownload(report.id)}
                           className="p-1.5 text-gray-500 hover:text-[#1ab189] rounded hover:bg-gray-100"
-                          title="Download"
+                          title="डाउनलोड"
                         >
                           <Download className="w-4 h-4" />
                         </button>
                         <button
                           onClick={() => handleDelete(report.id)}
                           className="p-1.5 text-gray-500 hover:text-red-500 rounded hover:bg-gray-100"
-                          title="Delete"
+                          title="मेटाउन"
                         >
                           <Trash2 className="w-4 h-4" />
                         </button>
