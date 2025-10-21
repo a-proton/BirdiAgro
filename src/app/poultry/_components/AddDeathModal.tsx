@@ -3,9 +3,22 @@
 import { useState, useEffect } from "react";
 import { X } from "lucide-react";
 
-function AddDeathModal({ isOpen, onClose }) {
+interface AddDeathModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+interface DeathFormData {
+  batch: string;
+  dateOfDeath: string;
+  numberOfDeaths: string;
+  cause: string;
+  notes: string;
+}
+
+export default function AddDeathModal({ isOpen, onClose }: AddDeathModalProps) {
   const [show, setShow] = useState(false);
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<DeathFormData>({
     batch: "",
     dateOfDeath: new Date().toISOString().split("T")[0],
     numberOfDeaths: "",
@@ -22,7 +35,7 @@ function AddDeathModal({ isOpen, onClose }) {
     }
   }, [isOpen]);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     console.log("मृत्युको रेकर्ड:", formData);
     handleClose();
@@ -141,14 +154,14 @@ function AddDeathModal({ isOpen, onClose }) {
                 थप विवरण
               </label>
               <textarea
-                rows="3"
+                rows={3}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189] focus:border-transparent"
                 placeholder="थप विवरण लेख्नुहोस्..."
                 value={formData.notes}
                 onChange={(e) =>
                   setFormData({ ...formData, notes: e.target.value })
                 }
-              ></textarea>
+              />
             </div>
           </div>
 
@@ -172,5 +185,3 @@ function AddDeathModal({ isOpen, onClose }) {
     </div>
   );
 }
-
-export default AddDeathModal;

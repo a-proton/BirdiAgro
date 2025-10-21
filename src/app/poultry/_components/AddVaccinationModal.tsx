@@ -3,9 +3,25 @@
 import { useState, useEffect } from "react";
 import { X } from "lucide-react";
 
-function AddVaccinationModal({ isOpen, onClose }) {
+// Props Interface
+interface AddVaccinationModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+// Form Data Interface
+interface VaccinationFormData {
+  batch: string;
+  week: string;
+  vaccinationDate: string;
+}
+
+export default function AddVaccinationModal({
+  isOpen,
+  onClose,
+}: AddVaccinationModalProps) {
   const [show, setShow] = useState(false);
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<VaccinationFormData>({
     batch: "",
     week: "",
     vaccinationDate: new Date().toISOString().split("T")[0],
@@ -20,7 +36,7 @@ function AddVaccinationModal({ isOpen, onClose }) {
     }
   }, [isOpen]);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     console.log("खोप रेकर्ड:", formData);
     handleClose();
@@ -47,6 +63,7 @@ function AddVaccinationModal({ isOpen, onClose }) {
         }`}
         onClick={(e) => e.stopPropagation()}
       >
+        {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-gray-200">
           <h2 className="text-xl font-semibold text-gray-900">खोप थप्नुहोस्</h2>
           <button
@@ -58,8 +75,10 @@ function AddVaccinationModal({ isOpen, onClose }) {
           </button>
         </div>
 
+        {/* Form */}
         <form onSubmit={handleSubmit} className="p-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Batch Selection */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 ब्याच छान्नुहोस्
@@ -79,6 +98,7 @@ function AddVaccinationModal({ isOpen, onClose }) {
               </select>
             </div>
 
+            {/* Week Selection */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 हप्ता छान्नुहोस्
@@ -99,6 +119,7 @@ function AddVaccinationModal({ isOpen, onClose }) {
               </select>
             </div>
 
+            {/* Vaccination Date */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 खोप मिति
@@ -118,6 +139,7 @@ function AddVaccinationModal({ isOpen, onClose }) {
             </div>
           </div>
 
+          {/* Footer Buttons */}
           <div className="flex gap-3 mt-6 pt-6 border-t border-gray-200">
             <button
               type="button"
@@ -138,5 +160,3 @@ function AddVaccinationModal({ isOpen, onClose }) {
     </div>
   );
 }
-
-export default AddVaccinationModal;

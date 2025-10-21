@@ -3,9 +3,26 @@
 import { X } from "lucide-react";
 import { useState, useEffect } from "react";
 
-function AddBatchModal({ isOpen, onClose }) {
+// 1️⃣ Define props type
+interface AddBatchModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+// 2️⃣ Define form data type
+interface BatchFormData {
+  batchName: string;
+  dateOfArrival: string;
+  numberOfChicks: string;
+  price: string;
+  supplier: string;
+  paymentProof: File | null;
+}
+
+// 3️⃣ Typed component
+export default function AddBatchModal({ isOpen, onClose }: AddBatchModalProps) {
   const [show, setShow] = useState(false);
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<BatchFormData>({
     batchName: "",
     dateOfArrival: new Date().toISOString().split("T")[0],
     numberOfChicks: "",
@@ -23,7 +40,8 @@ function AddBatchModal({ isOpen, onClose }) {
     }
   }, [isOpen]);
 
-  const handleSubmit = (e) => {
+  // ✅ Add event type
+  const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     console.log("नयाँ ब्याच:", formData);
     handleClose();
@@ -75,6 +93,7 @@ function AddBatchModal({ isOpen, onClose }) {
 
         <form onSubmit={handleSubmit} className="p-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* All inputs remain unchanged */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 ब्याचको नाम
@@ -194,5 +213,3 @@ function AddBatchModal({ isOpen, onClose }) {
     </div>
   );
 }
-
-export default AddBatchModal;

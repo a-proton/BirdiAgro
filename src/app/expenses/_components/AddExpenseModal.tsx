@@ -4,13 +4,25 @@ import { X } from "lucide-react";
 import { useState, useEffect } from "react";
 
 type Tab = "kukhura" | "others";
+interface Expense {
+  id: number;
+  category: "kukhura" | "others";
+  title: string;
+  amount: number;
+  date: string;
+  method: "नगद" | "बैंक ट्रान्सफर" | "मोबाइल वालेट";
+  isPaid: boolean;
+  paymentProofName: string | null;
+}
 
 export default function AddExpenseModal({
   isOpen,
   onClose,
+  onSave,
 }: {
   isOpen: boolean;
   onClose: () => void;
+  onSave: (expense: Expense) => void;
 }) {
   const [show, setShow] = useState(false);
   const [activeTab, setActiveTab] = useState<Tab>("kukhura");
@@ -20,6 +32,8 @@ export default function AddExpenseModal({
     amount: "",
     date: new Date().toISOString().split("T")[0],
     paymentMethod: "cash",
+    isPaid: false,
+    paymentProof: null as File | null,
   });
 
   const [othersData, setOthersData] = useState({
@@ -27,6 +41,8 @@ export default function AddExpenseModal({
     amount: "",
     date: new Date().toISOString().split("T")[0],
     paymentMethod: "cash",
+    isPaid: false,
+    paymentProof: null as File | null,
   });
 
   useEffect(() => {
@@ -48,12 +64,16 @@ export default function AddExpenseModal({
         amount: "",
         date: new Date().toISOString().split("T")[0],
         paymentMethod: "cash",
+        isPaid: false,
+        paymentProof: null,
       });
       setOthersData({
         expenseTitle: "",
         amount: "",
         date: new Date().toISOString().split("T")[0],
         paymentMethod: "cash",
+        isPaid: false,
+        paymentProof: null,
       });
     }, 300);
   };
@@ -61,24 +81,51 @@ export default function AddExpenseModal({
   const handleKukhuraChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
-    const { name, value } = e.target;
-    setKukhuraData((prev) => ({ ...prev, [name]: value }));
+    const { name, value, type } = e.target;
+    if (type === "checkbox") {
+      const checked = (e.target as HTMLInputElement).checked;
+      setKukhuraData((prev) => ({ ...prev, [name]: checked }));
+    } else if (type === "file") {
+      const files = (e.target as HTMLInputElement).files;
+      setKukhuraData((prev) => ({ ...prev, paymentProof: files?.[0] || null }));
+    } else {
+      setKukhuraData((prev) => ({ ...prev, [name]: value }));
+    }
   };
 
   const handleOthersChange = (
     e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
   ) => {
-    const { name, value } = e.target;
-    setOthersData((prev) => ({ ...prev, [name]: value }));
+    const { name, value, type } = e.target;
+    if (type === "checkbox") {
+      const checked = (e.target as HTMLInputElement).checked;
+      setOthersData((prev) => ({ ...prev, [name]: checked }));
+    } else if (type === "file") {
+      const files = (e.target as HTMLInputElement).files;
+      setOthersData((prev) => ({ ...prev, paymentProof: files?.[0] || null }));
+    } else {
+      setOthersData((prev) => ({ ...prev, [name]: value }));
+    }
   };
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (activeTab === "kukhura") {
-      console.log("Kukhura Expense:", kukhuraData);
-    } else {
-      console.log("Other Expense:", othersData);
-    }
+    const expenseData = activeTab === "kukhura" ? kukhuraData : othersData;
+    onSave({
+      id: Date.now(),
+      category: activeTab,
+      title: expenseData.expenseTitle,
+      amount: parseFloat(expenseData.amount),
+      date: expenseData.date,
+      method:
+        expenseData.paymentMethod === "cash"
+          ? "नगद"
+          : expenseData.paymentMethod === "bank"
+          ? "बैंक ट्रान्सफर"
+          : "मोबाइल वालेट",
+      isPaid: expenseData.isPaid,
+      paymentProofName: expenseData.paymentProof?.name || null,
+    });
     handleClose();
   };
 
@@ -197,6 +244,36 @@ export default function AddExpenseModal({
                   <option value="mobile">मोबाइल वालेट</option>
                 </select>
               </div>
+
+              <div className="flex items-center">
+                <input
+                  type="checkbox"
+                  name="isPaid"
+                  id="kukhuraIsPaid"
+                  checked={kukhuraData.isPaid}
+                  onChange={handleKukhuraChange}
+                  className="h-4 w-4 text-[#1ab189] rounded focus:ring-[#1ab189]"
+                />
+                <label
+                  htmlFor="kukhuraIsPaid"
+                  className="ml-2 text-sm text-gray-700"
+                >
+                  पैसा तिरियो?
+                </label>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  भुक्तानी प्रमाण (PDF/Image)
+                </label>
+                <input
+                  type="file"
+                  name="paymentProof"
+                  accept=".pdf,.jpg,.jpeg,.png"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189] file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-[#e8f8f7] file:text-[#1ab189] hover:file:bg-[#d0f0eb]"
+                  onChange={handleKukhuraChange}
+                />
+              </div>
             </>
           ) : (
             <>
@@ -258,10 +335,40 @@ export default function AddExpenseModal({
                   <option value="mobile">मोबाइल वालेट</option>
                 </select>
               </div>
+
+              <div className="flex items-center">
+                <input
+                  type="checkbox"
+                  name="isPaid"
+                  id="othersIsPaid"
+                  checked={othersData.isPaid}
+                  onChange={handleOthersChange}
+                  className="h-4 w-4 text-[#1ab189] rounded focus:ring-[#1ab189]"
+                />
+                <label
+                  htmlFor="othersIsPaid"
+                  className="ml-2 text-sm text-gray-700"
+                >
+                  रकम भुक्तानी भएको
+                </label>
+              </div>
+
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  भुक्तानी प्रमाण (PDF/Image)
+                </label>
+                <input
+                  type="file"
+                  name="paymentProof"
+                  accept=".pdf,.jpg,.jpeg,.png"
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189] file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-[#e8f8f7] file:text-[#1ab189] hover:file:bg-[#d0f0eb]"
+                  onChange={handleOthersChange}
+                />
+              </div>
             </>
           )}
 
-          <div className="flex gap-3 mt-6 pt-6 border-t border-gray-200">
+          <div className="flex gap-3 pt-6 border-t border-gray-200">
             <button
               type="button"
               onClick={handleClose}

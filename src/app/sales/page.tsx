@@ -2,8 +2,12 @@
 
 import { Plus, TrendingUp } from "lucide-react";
 import { useState } from "react";
-import AddSalesModal from "./_components/AddSalesModal";
 import Image from "next/image";
+import AddSalesModal from "./_components/AddSalesModal";
+import EditSalesModal from "./_components/EditSalesModal";
+import ViewSalesModal from "./_components/ViewSalesModal";
+import SalesTable from "./_components/SalesTable";
+
 interface StatIconProps {
   src: string;
   alt: string;
@@ -21,12 +25,79 @@ function StatIcon({ src, alt }: StatIconProps) {
   );
 }
 
+interface Sale {
+  id?: number;
+  type?: "kukhura" | "others";
+  batchName?: string;
+  productName?: string;
+  chickenCount?: string;
+  totalKgs: string;
+  pricePerKg?: string;
+  totalAmount?: string;
+  totalPcs?: string;
+  soldTo: string;
+  amountReceived: boolean;
+  salesDate?: string; // 👈 make optional
+}
+
 export default function SalesPage() {
-  const [isModalOpen, setIsModalOpen] = useState(false);
+  const [isAddModalOpen, setIsAddModalOpen] = useState(false);
+  const [isViewModalOpen, setIsViewModalOpen] = useState(false);
+  const [isEditModalOpen, setIsEditModalOpen] = useState(false);
+  const [selectedSale, setSelectedSale] = useState<Sale | null>(null);
+  const [editingSale, setEditingSale] = useState<Sale | null>(null);
+
+  const [salesData, setSalesData] = useState<Sale[]>([
+    {
+      id: 1,
+      type: "kukhura",
+      batchName: "ब्याच-००१",
+      productName: "ब्रॉइलर कुखुरा",
+      chickenCount: "100",
+      totalKgs: "50",
+      pricePerKg: "300",
+      totalAmount: "15000",
+      soldTo: "राम बहादुर",
+      amountReceived: true,
+      salesDate: "2024-01-15",
+    },
+    {
+      id: 2,
+      type: "others",
+      productName: "ताजा अण्डा",
+      totalPcs: "500",
+      totalKgs: "30",
+      totalAmount: "7500",
+      soldTo: "सीता देवी",
+      amountReceived: false,
+      salesDate: "2024-01-16",
+    },
+  ]);
+
+  const handleAddSale = (newSale: Sale) => {
+    setSalesData([newSale, ...salesData]);
+  };
+
+  const handleEditSale = (updatedSale: Sale) => {
+    setSalesData(
+      salesData.map((sale) => (sale.id === updatedSale.id ? updatedSale : sale))
+    );
+    setEditingSale(null);
+  };
+
+  const handleView = (sale: Sale) => {
+    setSelectedSale(sale);
+    setIsViewModalOpen(true);
+  };
+
+  const handleEdit = (sale: Sale) => {
+    setEditingSale(sale);
+    setIsEditModalOpen(true);
+  };
 
   return (
     <div className="space-y-6">
-      {/* Page Header  */}
+      {/* Page Header */}
       <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
         <div>
           <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
@@ -37,7 +108,7 @@ export default function SalesPage() {
           </p>
         </div>
         <button
-          onClick={() => setIsModalOpen(true)}
+          onClick={() => setIsAddModalOpen(true)}
           className="inline-flex items-center gap-2 px-4 py-2 bg-[#1ab189] text-white rounded-lg hover:bg-[#158f6f] transition-colors self-start sm:self-auto"
         >
           <Plus className="w-4 h-4" />
@@ -103,64 +174,37 @@ export default function SalesPage() {
         </div>
       </div>
 
-      {/* Recent Sales Table */}
-      <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-        <div className="px-6 py-4 border-b border-gray-200">
-          <h2 className="text-lg font-semibold text-gray-900">हालैको बिक्री</h2>
-        </div>
-        <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
-                  क्रम संख्या
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
-                  ब्याच नाम
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
-                  उत्पादन
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
-                  कुल रकम
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
-                  कुल किलोग्राम
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
-                  मिति
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-200">
-              <tr className="hover:bg-gray-50 transition-colors">
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  १
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  ब्याच-००१
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  ब्रॉइलर कुखुरा
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  ५० कि.ग्रा
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                  रु १५,०००
-                </td>
-                <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
-                  २०२४-०१-१५
-                </td>
-              </tr>
-            </tbody>
-          </table>
-        </div>
-      </div>
+      {/* Sales Table */}
+      <SalesTable
+        salesData={salesData}
+        onView={handleView}
+        onEdit={handleEdit}
+      />
 
+      {/* Modals */}
       <AddSalesModal
-        isOpen={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
+        isOpen={isAddModalOpen}
+        onClose={() => setIsAddModalOpen(false)}
+        onSave={handleAddSale}
+      />
+
+      <EditSalesModal
+        isOpen={isEditModalOpen}
+        onClose={() => {
+          setIsEditModalOpen(false);
+          setEditingSale(null);
+        }}
+        onSave={handleEditSale}
+        data={editingSale}
+      />
+
+      <ViewSalesModal
+        isOpen={isViewModalOpen}
+        onClose={() => {
+          setIsViewModalOpen(false);
+          setSelectedSale(null);
+        }}
+        data={selectedSale}
       />
     </div>
   );

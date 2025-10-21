@@ -113,7 +113,7 @@ export default function SettingsPage() {
                 <select
                   value={newUser.role}
                   onChange={(e) =>
-                    setNewUser({ ...newUser, role: e.target.value as any })
+                    setNewUser({ ...newUser, role: e.target.value })
                   }
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189]"
                 >

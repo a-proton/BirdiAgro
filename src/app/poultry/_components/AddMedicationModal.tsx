@@ -3,9 +3,26 @@
 import { useState, useEffect } from "react";
 import { X } from "lucide-react";
 
-function AddMedicationModal({ isOpen, onClose }) {
+// Props Interface
+interface AddMedicationModalProps {
+  isOpen: boolean;
+  onClose: () => void;
+}
+
+// Form Data Interface
+interface MedicationFormData {
+  batch: string;
+  medicationName: string;
+  medicationDate: string;
+  duration: string;
+}
+
+export default function AddMedicationModal({
+  isOpen,
+  onClose,
+}: AddMedicationModalProps) {
   const [show, setShow] = useState(false);
-  const [formData, setFormData] = useState({
+  const [formData, setFormData] = useState<MedicationFormData>({
     batch: "",
     medicationName: "",
     medicationDate: new Date().toISOString().split("T")[0],
@@ -21,7 +38,7 @@ function AddMedicationModal({ isOpen, onClose }) {
     }
   }, [isOpen]);
 
-  const handleSubmit = (e) => {
+  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     console.log("औषधि रेकर्ड:", formData);
     handleClose();
@@ -63,6 +80,7 @@ function AddMedicationModal({ isOpen, onClose }) {
 
         <form onSubmit={handleSubmit} className="p-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            {/* Batch Selection */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 ब्याच छान्नुहोस्
@@ -82,6 +100,7 @@ function AddMedicationModal({ isOpen, onClose }) {
               </select>
             </div>
 
+            {/* Medication Name */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 औषधिको नाम
@@ -98,6 +117,7 @@ function AddMedicationModal({ isOpen, onClose }) {
               />
             </div>
 
+            {/* Medication Date */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 औषधि मिति
@@ -113,6 +133,7 @@ function AddMedicationModal({ isOpen, onClose }) {
               />
             </div>
 
+            {/* Duration */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 अवधि (दिन)
@@ -120,7 +141,7 @@ function AddMedicationModal({ isOpen, onClose }) {
               <input
                 type="number"
                 required
-                min="1"
+                min={1}
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189] focus:border-transparent"
                 placeholder="जस्तै: ७"
                 value={formData.duration}
@@ -151,5 +172,3 @@ function AddMedicationModal({ isOpen, onClose }) {
     </div>
   );
 }
-
-export default AddMedicationModal;

@@ -3,8 +3,6 @@
 import { X } from "lucide-react";
 import { useState, useEffect } from "react";
 
-type Tab = "kukhura" | "others";
-
 interface Sale {
   id?: number;
   type?: "kukhura" | "others";
@@ -20,23 +18,24 @@ interface Sale {
   salesDate?: string; // 👈 make optional
 }
 
-interface AddSalesModalProps {
+interface EditSalesModalProps {
   isOpen: boolean;
   onClose: () => void;
   onSave: (sale: Sale) => void;
+  data: Sale | null;
 }
 
-export default function AddSalesModal({
+export default function EditSalesModal({
   isOpen,
   onClose,
   onSave,
-}: AddSalesModalProps) {
+  data,
+}: EditSalesModalProps) {
   const [show, setShow] = useState(false);
-  const [activeTab, setActiveTab] = useState<Tab>("kukhura");
 
   const [kukhuraData, setKukhuraData] = useState({
     batchName: "",
-    salesDate: new Date().toISOString().split("T")[0],
+    salesDate: "",
     chickenCount: "",
     totalKgs: "",
     pricePerKg: "",
@@ -62,14 +61,38 @@ export default function AddSalesModal({
     }
   }, [isOpen]);
 
+  useEffect(() => {
+    if (data && isOpen) {
+      if (data.type === "kukhura") {
+        setKukhuraData({
+          batchName: data.batchName || "",
+          salesDate: data.salesDate || "",
+          chickenCount: data.chickenCount || "",
+          totalKgs: data.totalKgs || "",
+          pricePerKg: data.pricePerKg || "",
+          amountReceived: data.amountReceived || false,
+          soldTo: data.soldTo || "",
+        });
+      } else {
+        setOthersData({
+          productName: data.productName || "",
+          totalPcs: data.totalPcs || "",
+          totalKgs: data.totalKgs || "",
+          totalAmount: data.totalAmount || "",
+          amountReceived: data.amountReceived || false,
+          soldTo: data.soldTo || "",
+        });
+      }
+    }
+  }, [data, isOpen]);
+
   const handleClose = () => {
     setShow(false);
     setTimeout(() => {
       onClose();
-      setActiveTab("kukhura");
       setKukhuraData({
         batchName: "",
-        salesDate: new Date().toISOString().split("T")[0],
+        salesDate: "",
         chickenCount: "",
         totalKgs: "",
         pricePerKg: "",
@@ -87,7 +110,7 @@ export default function AddSalesModal({
     }, 300);
   };
 
-  if (!isOpen && !show) return null;
+  if ((!isOpen && !show) || !data) return null;
 
   const handleKukhuraChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const { name, value, type, checked } = e.target;
@@ -113,18 +136,18 @@ export default function AddSalesModal({
 
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
-    if (activeTab === "kukhura") {
+    if (data.type === "kukhura") {
       onSave({
         ...kukhuraData,
         type: "kukhura",
         totalAmount: kukhuraTotalAmount,
-        id: Date.now(),
+        id: data.id,
       });
     } else {
       onSave({
         ...othersData,
         type: "others",
-        id: Date.now(),
+        id: data.id,
       });
     }
     handleClose();
@@ -146,7 +169,7 @@ export default function AddSalesModal({
       >
         <div className="flex items-center justify-between p-6 border-b border-gray-200">
           <h2 className="text-xl font-semibold text-gray-900">
-            नयाँ बिक्री थप्नुहोस्
+            बिक्री सम्पादन गर्नुहोस्
           </h2>
           <button
             onClick={handleClose}
@@ -159,31 +182,20 @@ export default function AddSalesModal({
 
         <div className="border-b border-gray-200">
           <div className="flex">
-            <button
+            <div
               className={`px-6 py-3 font-medium text-sm ${
-                activeTab === "kukhura"
+                data.type === "kukhura"
                   ? "text-[#1ab189] border-b-2 border-[#1ab189]"
-                  : "text-gray-500"
+                  : "text-gray-400"
               }`}
-              onClick={() => setActiveTab("kukhura")}
             >
-              कुखुरा
-            </button>
-            <button
-              className={`px-6 py-3 font-medium text-sm ${
-                activeTab === "others"
-                  ? "text-[#1ab189] border-b-2 border-[#1ab189]"
-                  : "text-gray-500"
-              }`}
-              onClick={() => setActiveTab("others")}
-            >
-              अन्य
-            </button>
+              {data.type === "kukhura" ? "कुखुरा" : "अन्य"}
+            </div>
           </div>
         </div>
 
         <form onSubmit={handleSubmit} className="p-6">
-          {activeTab === "kukhura" ? (
+          {data.type === "kukhura" ? (
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
@@ -287,13 +299,13 @@ export default function AddSalesModal({
                 <input
                   type="checkbox"
                   name="amountReceived"
-                  id="amountReceived"
+                  id="editAmountReceived"
                   checked={kukhuraData.amountReceived}
                   onChange={handleKukhuraChange}
                   className="h-4 w-4 text-[#1ab189] rounded"
                 />
                 <label
-                  htmlFor="amountReceived"
+                  htmlFor="editAmountReceived"
                   className="ml-2 text-sm text-gray-700"
                 >
                   रकम प्राप्त भएको
@@ -381,13 +393,13 @@ export default function AddSalesModal({
                 <input
                   type="checkbox"
                   name="amountReceived"
-                  id="othersAmountReceived"
+                  id="editOthersAmountReceived"
                   checked={othersData.amountReceived}
                   onChange={handleOthersChange}
                   className="h-4 w-4 text-[#1ab189] rounded"
                 />
                 <label
-                  htmlFor="othersAmountReceived"
+                  htmlFor="editOthersAmountReceived"
                   className="ml-2 text-sm text-gray-700"
                 >
                   रकम प्राप्त भएको
@@ -400,15 +412,15 @@ export default function AddSalesModal({
             <button
               type="button"
               onClick={handleClose}
-              className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
+              className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
             >
               रद्द गर्नुहोस्
             </button>
             <button
               type="submit"
-              className="flex-1 px-4 py-2 bg-[#1ab189] text-white rounded-lg hover:bg-[#158f6f]"
+              className="flex-1 px-4 py-2 bg-[#1ab189] text-white rounded-lg hover:bg-[#158f6f] transition-colors"
             >
-              बिक्री सुरक्षित गर्नुहोस्
+              अपडेट गर्नुहोस्
             </button>
           </div>
         </form>

@@ -1,16 +1,43 @@
 "use client";
+
 import { useState } from "react";
 import { Plus, Eye } from "lucide-react";
 import AddBatchModal from "./AddBatchModal";
 import AddDeathModal from "./AddDeathModal";
 import AddVaccinationModal from "./AddVaccinationModal";
 import AddMedicationModal from "./AddMedicationModal";
+import ViewDetailModal from "./ViewBatchDetails";
+import EditBatchModal from "./EditBatchModal";
 
-const batchData = [
+// ---------- Types ----------
+
+export interface Batch {
+  id: number;
+  batchName: string;
+  dateOfArrival: string;
+  numberOfChicks?: number;
+  price?: number;
+  supplier?: string;
+  vaccinations: { date: string; name: string }[];
+  medications: { date: string; name: string }[];
+  paymentProof: string;
+}
+
+interface PopupItem {
+  type: "vaccine" | "medication";
+  name: string;
+  date: string;
+}
+
+// ---------- Static Data ----------
+const initialBatchData: Batch[] = [
   {
     id: 1,
     batchName: "Batch-001",
     dateOfArrival: "2024-09-15",
+    numberOfChicks: 500,
+    price: 50000,
+    supplier: "नेपाल ह्याचरी प्रा. लि.",
     vaccinations: [
       { date: "2024-09-20", name: "Newcastle Vaccine" },
       { date: "2024-10-05", name: "IBD Vaccine" },
@@ -26,6 +53,9 @@ const batchData = [
     id: 2,
     batchName: "Batch-002",
     dateOfArrival: "2024-09-20",
+    numberOfChicks: 600,
+    price: 60000,
+    supplier: "पोखरा पोल्ट्री",
     vaccinations: [
       { date: "2024-09-25", name: "Newcastle Vaccine" },
       { date: "2024-10-10", name: "IBD Booster" },
@@ -37,6 +67,9 @@ const batchData = [
     id: 3,
     batchName: "Batch-003",
     dateOfArrival: "2024-10-01",
+    numberOfChicks: 450,
+    price: 45000,
+    supplier: "काठमाडौं फार्म सप्लाई",
     vaccinations: [
       { date: "2024-10-06", name: "Newcastle" },
       { date: "2024-10-21", name: "Avian Influenza" },
@@ -49,28 +82,47 @@ const batchData = [
   },
 ];
 
+// ---------- Component ----------
 export default function PoultryManagementTable() {
-  const [batches, setBatches] = useState(batchData);
+  const [batches, setBatches] = useState<Batch[]>(initialBatchData);
+
+  // Modal states
   const [isAddBatchOpen, setIsAddBatchOpen] = useState(false);
   const [isAddDeathOpen, setIsAddDeathOpen] = useState(false);
   const [isAddVaccinationOpen, setIsAddVaccinationOpen] = useState(false);
   const [isAddMedicationOpen, setIsAddMedicationOpen] = useState(false);
 
-  const [viewItem, setViewItem] = useState<{
-    type: string;
-    name: string;
-    date: string;
-  } | null>(null);
+  const [isViewDetailOpen, setIsViewDetailOpen] = useState(false);
+  const [selectedBatchForView, setSelectedBatchForView] =
+    useState<Batch | null>(null);
+
+  const [isEditOpen, setIsEditOpen] = useState(false);
+  const [selectedBatchForEdit, setSelectedBatchForEdit] =
+    useState<Batch | null>(null);
+
+  // Popup for viewing specific vaccine/medication
+  const [viewItem, setViewItem] = useState<PopupItem | null>(null);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [isPopupVisible, setIsPopupVisible] = useState(false);
 
-  const handleDelete = (id: number) => {
-    if (window.confirm("के तपाईं पक्का यो ब्याच हटाउन चाहनुहुन्छ?")) {
-      setBatches(batches.filter((batch) => batch.id !== id));
-    }
+  // ---------- Handlers ----------
+  const handleViewBatch = (batch: Batch) => {
+    setSelectedBatchForView(batch);
+    setIsViewDetailOpen(true);
   };
 
-  const openPopup = (item: { type: string; name: string; date: string }) => {
+  const handleEditBatch = (batch: Batch) => {
+    setSelectedBatchForEdit(batch);
+    setIsEditOpen(true);
+  };
+
+  const handleSaveEdit = (updatedBatch: Batch) => {
+    setBatches((prev) =>
+      prev.map((b) => (b.id === updatedBatch.id ? updatedBatch : b))
+    );
+  };
+
+  const openPopup = (item: PopupItem) => {
     setViewItem(item);
     setIsPopupOpen(true);
     setTimeout(() => setIsPopupVisible(true), 10);
@@ -84,6 +136,7 @@ export default function PoultryManagementTable() {
     }, 300);
   };
 
+  // ---------- Render ----------
   return (
     <>
       {/* Action Buttons */}
@@ -118,7 +171,7 @@ export default function PoultryManagementTable() {
         </button>
       </div>
 
-      {/* Batch Details Table */}
+      {/* Batch Table */}
       <div className="bg-white rounded-lg shadow-sm overflow-hidden">
         <div className="px-6 py-4 border-b border-gray-200">
           <h2 className="text-lg font-semibold text-gray-900">ब्याच विवरण</h2>
@@ -127,25 +180,25 @@ export default function PoultryManagementTable() {
           <table className="w-full">
             <thead className="bg-gray-50">
               <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase">
                   SN
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase">
                   ब्याच नाम
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase">
                   आगमन मिति
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase">
                   खोप मिति
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase">
                   औषधि मिति
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase">
                   भुक्तानी प्रमाण
                 </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
+                <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase">
                   क्रियाकलाप
                 </th>
               </tr>
@@ -156,15 +209,17 @@ export default function PoultryManagementTable() {
                   key={batch.id}
                   className="hover:bg-gray-50 transition-colors"
                 >
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  <td className="px-6 py-4 text-sm text-gray-900">
                     {index + 1}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
+                  <td className="px-6 py-4 text-sm font-medium text-gray-900">
                     {batch.batchName}
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                  <td className="px-6 py-4 text-sm text-gray-900">
                     {batch.dateOfArrival}
                   </td>
+
+                  {/* Vaccination Dates */}
                   <td className="px-6 py-4 text-sm text-gray-900">
                     <div className="space-y-1">
                       {batch.vaccinations.map((vacc, idx) => (
@@ -188,6 +243,8 @@ export default function PoultryManagementTable() {
                       ))}
                     </div>
                   </td>
+
+                  {/* Medication Dates */}
                   <td className="px-6 py-4 text-sm text-gray-900">
                     <div className="space-y-1">
                       {batch.medications.map((med, idx) => (
@@ -211,7 +268,8 @@ export default function PoultryManagementTable() {
                       ))}
                     </div>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+
+                  <td className="px-6 py-4 text-sm text-gray-600">
                     <a
                       href="#"
                       className="text-[#1ab189] hover:text-[#158f6f] hover:underline"
@@ -219,19 +277,20 @@ export default function PoultryManagementTable() {
                       {batch.paymentProof}
                     </a>
                   </td>
-                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+
+                  <td className="px-6 py-4 text-sm text-gray-600">
                     <div className="flex items-center gap-2">
-                      <button className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg transition-colors">
+                      <button
+                        onClick={() => handleViewBatch(batch)}
+                        className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg"
+                      >
                         हेर्नुहोस्
                       </button>
-                      <button className="p-2 text-[#1ab189] hover:bg-[#e8f8f7] rounded-lg transition-colors">
-                        सम्पादन गर्नुहोस्
-                      </button>
                       <button
-                        onClick={() => handleDelete(batch.id)}
-                        className="p-2 text-red-600 hover:bg-red-50 rounded-lg transition-colors"
+                        onClick={() => handleEditBatch(batch)}
+                        className="p-2 text-[#1ab189] hover:bg-[#e8f8f7] rounded-lg"
                       >
-                        हटाउनुहोस्
+                        सम्पादन गर्नुहोस्
                       </button>
                     </div>
                   </td>
@@ -260,7 +319,19 @@ export default function PoultryManagementTable() {
         onClose={() => setIsAddMedicationOpen(false)}
       />
 
-      {/* Detail Popup */}
+      <ViewDetailModal
+        isOpen={isViewDetailOpen}
+        onClose={() => setIsViewDetailOpen(false)}
+        batchData={selectedBatchForView}
+      />
+      <EditBatchModal
+        isOpen={isEditOpen}
+        onClose={() => setIsEditOpen(false)}
+        batchData={selectedBatchForEdit}
+        onSave={handleSaveEdit}
+      />
+
+      {/* Popup */}
       {isPopupOpen && (
         <>
           <div
