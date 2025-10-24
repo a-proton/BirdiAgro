@@ -34,6 +34,7 @@ interface Expense {
   method: string;
   isPaid: boolean;
   paymentProofName: string | null;
+  batch: string;
 }
 
 export default function ExpensesPage() {
@@ -53,6 +54,7 @@ export default function ExpensesPage() {
       method: "नगद",
       isPaid: true,
       paymentProofName: "payment-receipt-001.pdf",
+      batch: "batch 1",
     },
     {
       id: 2,
@@ -63,6 +65,7 @@ export default function ExpensesPage() {
       method: "बैंक ट्रान्सफर",
       isPaid: false,
       paymentProofName: null,
+      batch: "batch 1",
     },
     {
       id: 3,
@@ -73,6 +76,7 @@ export default function ExpensesPage() {
       method: "मोबाइल वालेट",
       isPaid: true,
       paymentProofName: "medicine-receipt.jpg",
+      batch: "batch 1",
     },
   ]);
 

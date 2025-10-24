@@ -6,11 +6,11 @@ import { useState, useEffect } from "react";
 type Tab = "kukhura" | "others";
 interface Expense {
   id: number;
-  category: "kukhura" | "others";
+  category: string;
   title: string;
   amount: number;
   date: string;
-  method: "नगद" | "बैंक ट्रान्सफर" | "मोबाइल वालेट";
+  method: string;
   isPaid: boolean;
   paymentProofName: string | null;
   batch: string;

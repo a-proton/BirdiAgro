@@ -13,7 +13,6 @@ import {
   PieChart,
   Pie,
   Cell,
-  Legend,
 } from "recharts";
 
 export default function DashboardPage() {
@@ -87,7 +86,7 @@ export default function DashboardPage() {
       name: "ब्याच A-2024",
       survival: "97.0%",
       weight: "२.३ किलो",
-      profit: "रु ४५,००० ",
+      profit: "रु ४५,०००",
     },
     {
       name: "ब्याच C-2025",
@@ -99,15 +98,8 @@ export default function DashboardPage() {
       name: "ब्याच E-2025",
       survival: "96.5%",
       weight: "२.२ किलो",
-      profit: "रु ४२,८०० ",
+      profit: "रु ४२,८००",
     },
-  ];
-
-  // Upcoming vaccinations
-  const upcomingVaccinations = [
-    { batch: "ब्याच F-2025", vaccine: "Newcastle", daysLeft: 2 },
-    { batch: "ब्याच G-2025", vaccine: "IBD Booster", daysLeft: 5 },
-    { batch: "ब्याच H-2025", vaccine: "Fowl Pox", daysLeft: 8 },
   ];
 
   // Feed stock alerts
@@ -190,24 +182,18 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          {/* Total Dana Used (Lifetime) */}
+          {/* Total bacth (Currently)) */}
           <div className="bg-white rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow">
             <div className="flex items-center justify-between mb-4">
               <span className="text-sm font-medium text-gray-600 uppercase tracking-wide">
-                कुल दाना प्रयोग
+                कुल सक्रिय ब्याच (हाल सञ्चालनमा)
               </span>
+
               <div className="w-10 h-10 bg-amber-50 text-amber-600 rounded-lg flex items-center justify-center text-2xl">
                 🌾
               </div>
             </div>
-            <div className="text-3xl font-bold text-gray-900 mb-2">
-              ४५,८०० किलो
-            </div>
-            <div className="flex items-center gap-1 text-xs">
-              <TrendingDown className="w-3 h-3 text-green-600" />
-              <span className="text-green-600 font-medium">-३.५%</span>
-              <span className="text-gray-500">दक्षता सुधार</span>
-            </div>
+            <div className="text-3xl font-bold text-gray-900 mb-2">८</div>
           </div>
         </div>
 
@@ -275,10 +261,10 @@ export default function DashboardPage() {
                   <Bell className="w-4 h-4 text-blue-600 mt-0.5 flex-shrink-0" />
                   <div>
                     <p className="text-sm font-medium text-blue-900">
-                      खोप लाग्ने समय
+                      औषधि लाग्ने समय
                     </p>
                     <p className="text-xs text-blue-700 mt-1">
-                      ब्याच C-2025 को खोप ३ दिनमा
+                      ब्याच C-2025 को औषधि ३ दिनमा
                     </p>
                   </div>
                 </div>
@@ -332,7 +318,7 @@ export default function DashboardPage() {
                   cy="50%"
                   labelLine={false}
                   label={({ name, percent }) =>
-                    `${name} ${(percent * 100).toFixed(0)}%`
+                    `${name} ${((percent as number) * 100).toFixed(0)}%`
                   }
                   outerRadius={80}
                   fill="#8884d8"
@@ -465,7 +451,7 @@ export default function DashboardPage() {
           </div>
         </div>
 
-        {/* Top Performing Batches and Upcoming Vaccinations */}
+        {/* Top Performing Batches and Active Batches Summary */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           {/* Top Performing Batches */}
           <div className="bg-white rounded-lg shadow-sm overflow-hidden">
@@ -515,43 +501,42 @@ export default function DashboardPage() {
             </div>
           </div>
 
-          {/* Upcoming Vaccinations */}
+          {/* Active Batches Summary */}
           <div className="bg-white rounded-lg shadow-sm overflow-hidden">
             <div className="px-6 py-4 border-b border-gray-200">
               <h2 className="text-lg font-semibold text-gray-900">
-                आगामी खोप तालिका
+                सक्रिय ब्याच सारांश
               </h2>
             </div>
             <div className="p-6">
               <div className="space-y-4">
-                {upcomingVaccinations.map((item, idx) => (
-                  <div
-                    key={idx}
-                    className="border border-gray-200 rounded-lg p-4 hover:border-blue-300 transition-colors"
-                  >
-                    <div className="flex items-start justify-between mb-2">
-                      <div>
-                        <h3 className="font-medium text-gray-900">
-                          {item.batch}
-                        </h3>
-                        <p className="text-sm text-gray-600 mt-1">
-                          {item.vaccine}
-                        </p>
-                      </div>
-                      <span
-                        className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                          item.daysLeft <= 3
-                            ? "bg-red-100 text-red-700"
-                            : item.daysLeft <= 5
-                            ? "bg-amber-100 text-amber-700"
-                            : "bg-blue-100 text-blue-700"
-                        }`}
-                      >
-                        {item.daysLeft} दिन बाँकी
-                      </span>
-                    </div>
+                <div className="border border-gray-200 rounded-lg p-4 bg-gradient-to-r from-teal-50 to-white">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm text-gray-600">
+                      कुल सक्रिय ब्याच
+                    </span>
+                    <span className="text-2xl font-small text-teal-600">८</span>
                   </div>
-                ))}
+                  <div className="text-xs text-gray-500">हाल सञ्चालनमा</div>
+                </div>
+                <div className="border border-gray-200 rounded-lg p-4 bg-gradient-to-r from-teal-50 to-white">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm text-gray-600"> कुल संख्या</span>
+                    <span className="text-2xl font-small text-teal-600">
+                      ३०००
+                    </span>
+                  </div>
+                  <div className="text-xs text-gray-500">हाल सञ्चालनमा</div>
+                </div>
+                <div className="border border-gray-200 rounded-lg p-4 bg-gradient-to-r from-teal-50 to-white">
+                  <div className="flex items-center justify-between mb-2">
+                    <span className="text-sm text-gray-600">कुल दाना खपत</span>
+                    <span className="text-2xl font-small text-teal-600">
+                      ८००० किलो
+                    </span>
+                  </div>
+                  <div className="text-xs text-gray-500">हाल सञ्चालनमा</div>
+                </div>
               </div>
             </div>
           </div>
