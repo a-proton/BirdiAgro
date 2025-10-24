@@ -115,7 +115,7 @@ export default function DashboardPage() {
         {/* Page Header */}
         <div>
           <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
-            डैशबोर्ड
+            ड्यासबोर्ड
           </h1>
           <p className="text-gray-600 mt-1">
             तपाईंको पोल्ट्री फार्म सञ्चालनको सारांश
