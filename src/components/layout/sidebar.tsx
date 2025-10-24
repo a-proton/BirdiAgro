@@ -21,19 +21,19 @@ interface SidebarProps {
 const menuItems: MenuItem[] = [
   { name: "ड्यासबोर्ड", path: "/dashboard", icon: "/icons/dashboard.png" },
   {
-    name: "खाद्य",
+    name: "दाना",
     path: "/feeds",
     icon: "/icons/feeds.png",
     hasSubmenu: true,
     submenu: [
-      { name: "खाद्य जानकारी", path: "/feeds/information" },
-      { name: "खाद्य खपत", path: "/feeds/consumption" },
+      { name: "दाना जानकारी", path: "/feeds/information" },
+      { name: "दाना खपत", path: "/feeds/consumption" },
     ],
   },
   { name: "कुखुरा", path: "/poultry", icon: "/icons/chicken.jpg" },
-  { name: "बिक्री", path: "/sales", icon: "/icons/sales.png" },
-  { name: "सेटिङ्स", path: "/settings", icon: "/icons/settings.png" },
+  { name: "आम्दानी", path: "/sales", icon: "/icons/sales.png" },
   { name: "खर्च", path: "/expenses", icon: "/icons/expenses.png" },
+  { name: "सेटिङ्स", path: "/settings", icon: "/icons/settings.png" },
   { name: "प्रतिवेदन", path: "/reports", icon: "/icons/reports.png" },
 ];
 export default function Sidebar({ isOpen, onClose }: SidebarProps) {

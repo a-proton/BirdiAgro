@@ -124,7 +124,7 @@ export default function SalesTable({
                         className="p-1.5 text-green-600 hover:bg-green-50 rounded-lg transition-colors"
                         title="सम्पादन गर्नुहोस्"
                       >
-                        सम्पादन गर्नुहोस्
+                        सम्पादन
                       </button>
                     </div>
                   </td>

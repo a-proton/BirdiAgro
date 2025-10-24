@@ -7,6 +7,7 @@ interface Expense {
   method: string;
   isPaid: boolean;
   paymentProofName: string | null;
+  batch: string;
 }
 
 export default function ExpenseTable({
@@ -35,6 +36,9 @@ export default function ExpenseTable({
                 वर्ग
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
+                ब्याच
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
                 खर्चको नाम
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
@@ -60,7 +64,10 @@ export default function ExpenseTable({
           <tbody className="divide-y divide-gray-200">
             {expenses.length === 0 ? (
               <tr>
-                <td colSpan={9} className="px-6 py-8 text-center text-gray-500">
+                <td
+                  colSpan={10}
+                  className="px-6 py-8 text-center text-gray-500"
+                >
                   कुनै खर्च छैन
                 </td>
               </tr>
@@ -75,6 +82,9 @@ export default function ExpenseTable({
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                     {expense.category === "kukhura" ? "कुखुरा" : "अन्य"}
+                  </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
+                    {expense.batch}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                     {expense.title}
@@ -122,7 +132,7 @@ export default function ExpenseTable({
                         className="p-1.5 hover:bg-green-50 text-green-600 rounded transition-colors"
                         title="सम्पादन गर्नुहोस्"
                       >
-                        सम्पादन गर्नुहोस्
+                        सम्पादन
                       </button>
                     </div>
                   </td>

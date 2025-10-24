@@ -12,6 +12,7 @@ interface Expense {
   method: string;
   isPaid: boolean;
   paymentProofName: string | null;
+  batch: string;
 }
 
 export default function ViewExpenseModal({
@@ -78,6 +79,15 @@ export default function ViewExpenseModal({
                 {expense.category === "kukhura" ? "कुखुरा" : "अन्य"}
               </p>
             </div>
+
+            {expense.category === "kukhura" && (
+              <div>
+                <label className="block text-sm font-medium text-gray-500 mb-1">
+                  ब्याच
+                </label>
+                <p className="text-base text-gray-900">{expense.batch}</p>
+              </div>
+            )}
 
             <div>
               <label className="block text-sm font-medium text-gray-500 mb-1">

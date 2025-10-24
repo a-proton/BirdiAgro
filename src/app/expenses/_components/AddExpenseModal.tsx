@@ -13,6 +13,7 @@ interface Expense {
   method: "नगद" | "बैंक ट्रान्सफर" | "मोबाइल वालेट";
   isPaid: boolean;
   paymentProofName: string | null;
+  batch: string;
 }
 
 export default function AddExpenseModal({
@@ -28,6 +29,7 @@ export default function AddExpenseModal({
   const [activeTab, setActiveTab] = useState<Tab>("kukhura");
 
   const [kukhuraData, setKukhuraData] = useState({
+    batch: "",
     expenseTitle: "",
     amount: "",
     date: new Date().toISOString().split("T")[0],
@@ -60,6 +62,7 @@ export default function AddExpenseModal({
       onClose();
       setActiveTab("kukhura");
       setKukhuraData({
+        batch: "",
         expenseTitle: "",
         amount: "",
         date: new Date().toISOString().split("T")[0],
@@ -125,6 +128,7 @@ export default function AddExpenseModal({
           : "मोबाइल वालेट",
       isPaid: expenseData.isPaid,
       paymentProofName: expenseData.paymentProof?.name || null,
+      batch: activeTab === "kukhura" ? kukhuraData.batch : "----",
     });
     handleClose();
   };
@@ -186,6 +190,25 @@ export default function AddExpenseModal({
         <form onSubmit={handleSubmit} className="p-6 space-y-4">
           {activeTab === "kukhura" ? (
             <>
+              <div>
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  ब्याच चयन गर्नुहोस्
+                </label>
+                <select
+                  name="batch"
+                  value={kukhuraData.batch}
+                  onChange={handleKukhuraChange}
+                  required
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189] focus:border-transparent"
+                >
+                  <option value="">ब्याच चयन गर्नुहोस्</option>
+                  <option value="Batch-001">ब्याच-001 (साता १-४)</option>
+                  <option value="Batch-002">ब्याच-002 (साता ५-८)</option>
+                  <option value="Batch-003">ब्याच-003 (साता ९-१२)</option>
+                  <option value="Batch-004">ब्याच-004 (साता १३-१६)</option>
+                </select>
+              </div>
+
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   खर्चको शीर्षक

@@ -290,7 +290,7 @@ export default function PoultryManagementTable() {
                         onClick={() => handleEditBatch(batch)}
                         className="p-2 text-[#1ab189] hover:bg-[#e8f8f7] rounded-lg"
                       >
-                        सम्पादन गर्नुहोस्
+                        सम्पादन
                       </button>
                     </div>
                   </td>
