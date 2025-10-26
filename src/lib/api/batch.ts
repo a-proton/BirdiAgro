@@ -14,7 +14,12 @@ export interface BatchWithDetails {
   price?: number;
   supplier?: string;
   vaccinations: { date: string; name: string }[];
-  medications: { date: string; name: string }[];
+  medications: {
+    date: string;
+    name: string;
+    imageName?: string;
+    imagePath?: string;
+  }[];
   paymentProofName: string;
   paymentProofPath: string;
 }
@@ -57,6 +62,8 @@ export async function getAllBatches(): Promise<BatchWithDetails[]> {
           medications: (medications || []).map((m) => ({
             date: m.medication_date,
             name: m.medication_name,
+            imageName: m.medication_image_name || undefined,
+            imagePath: m.medication_image_path || undefined,
           })),
           paymentProofName: batch.payment_proof_name || "",
           paymentProofPath: batch.payment_proof_path || "",

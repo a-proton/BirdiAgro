@@ -1,5 +1,6 @@
-// lib/api/vaccinations.ts
+// lib/api/medications.ts
 import { supabase } from "../supabase";
+import { uploadMedicationImage } from "./storage";
 
 export interface Vaccination {
   id: number;
@@ -81,23 +82,38 @@ export async function deleteVaccination(id: number): Promise<void> {
   }
 }
 
-// lib/api/medications.ts
 export interface Medication {
   id: number;
   batchId: number;
   medicationName: string;
   medicationDate: string;
   duration?: number;
+  medicationImageName?: string;
+  medicationImagePath?: string;
 }
 
-// Create a new medication
+// Create a new medication with optional image
 export async function createMedication(medicationData: {
   batchId: number;
   medicationName: string;
   medicationDate: string;
   duration?: number;
+  medicationImage?: File | null;
+  batchName?: string;
 }): Promise<Medication> {
   try {
+    let medicationImagePath: string | null = null;
+    let medicationImageName: string | null = null;
+
+    // Upload image if provided
+    if (medicationData.medicationImage && medicationData.batchName) {
+      medicationImagePath = await uploadMedicationImage(
+        medicationData.medicationImage,
+        medicationData.batchName
+      );
+      medicationImageName = medicationData.medicationImage.name;
+    }
+
     const { data, error } = await supabase
       .from("medications")
       .insert({
@@ -105,6 +121,8 @@ export async function createMedication(medicationData: {
         medication_name: medicationData.medicationName,
         medication_date: medicationData.medicationDate,
         duration: medicationData.duration,
+        medication_image_name: medicationImageName,
+        medication_image_path: medicationImagePath,
       })
       .select()
       .single();
@@ -117,6 +135,8 @@ export async function createMedication(medicationData: {
       medicationName: data.medication_name,
       medicationDate: data.medication_date,
       duration: data.duration || undefined,
+      medicationImageName: data.medication_image_name || undefined,
+      medicationImagePath: data.medication_image_path || undefined,
     };
   } catch (error) {
     console.error("Error creating medication:", error);
@@ -143,6 +163,8 @@ export async function getMedicationsByBatch(
       medicationName: m.medication_name,
       medicationDate: m.medication_date,
       duration: m.duration || undefined,
+      medicationImageName: m.medication_image_name || undefined,
+      medicationImagePath: m.medication_image_path || undefined,
     }));
   } catch (error) {
     console.error("Error fetching medications:", error);

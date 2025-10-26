@@ -1,7 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { X, ExternalLink, FileText, Image as ImageIcon } from "lucide-react";
-import { getPoultryPublicUrl } from "@/lib/api/storage";
+import { getPoultryPublicUrl, getMedicationImageUrl } from "@/lib/api/storage";
 
 interface ViewDetailModalProps {
   isOpen: boolean;
@@ -13,7 +13,12 @@ interface ViewDetailModalProps {
     price?: number;
     supplier?: string;
     vaccinations: { date: string; name: string }[];
-    medications: { date: string; name: string }[];
+    medications: {
+      date: string;
+      name: string;
+      imageName?: string;
+      imagePath?: string;
+    }[];
     paymentProofName: string;
     paymentProofPath: string;
   } | null;
@@ -51,6 +56,11 @@ export default function ViewDetailModal({
       const url = getPoultryPublicUrl(batchData.paymentProofPath);
       window.open(url, "_blank");
     }
+  };
+
+  const handleViewMedicationImage = (imagePath: string) => {
+    const url = getMedicationImageUrl(imagePath);
+    window.open(url, "_blank");
   };
 
   if (!isOpen && !show) return null;
@@ -169,8 +179,26 @@ export default function ViewDetailModal({
                     key={idx}
                     className="flex items-center justify-between p-3 bg-purple-50 rounded-lg"
                   >
-                    <span className="text-sm text-gray-900">{med.name}</span>
-                    <span className="text-sm text-gray-600">{med.date}</span>
+                    <div className="flex-1">
+                      <span className="text-sm text-gray-900 font-medium">
+                        {med.name}
+                      </span>
+                      <span className="text-sm text-gray-600 ml-3">
+                        {med.date}
+                      </span>
+                    </div>
+                    {med.imagePath && (
+                      <button
+                        onClick={() =>
+                          handleViewMedicationImage(med.imagePath!)
+                        }
+                        className="inline-flex items-center gap-1.5 px-3 py-1.5 bg-purple-600 text-white rounded-lg hover:bg-purple-700 transition-colors text-xs font-medium ml-3"
+                        title={med.imageName || "औषधिको फोटो हेर्नुहोस्"}
+                      >
+                        <ImageIcon className="w-3.5 h-3.5" />
+                        फोटो
+                      </button>
+                    )}
                   </div>
                 ))
               )}

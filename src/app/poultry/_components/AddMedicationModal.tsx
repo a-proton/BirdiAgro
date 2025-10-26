@@ -16,6 +16,7 @@ interface MedicationFormData {
   medicationName: string;
   medicationDate: string;
   duration: string;
+  medicationImage: File | null;
 }
 
 export default function AddMedicationModal({
@@ -33,6 +34,7 @@ export default function AddMedicationModal({
     medicationName: "",
     medicationDate: new Date().toISOString().split("T")[0],
     duration: "",
+    medicationImage: null,
   });
 
   useEffect(() => {
@@ -75,6 +77,8 @@ export default function AddMedicationModal({
         medicationName: formData.medicationName,
         medicationDate: formData.medicationDate,
         duration: formData.duration ? parseInt(formData.duration) : undefined,
+        medicationImage: formData.medicationImage,
+        batchName: formData.batch,
       });
 
       alert("औषधि सफलतापूर्वक थपियो!");
@@ -97,6 +101,7 @@ export default function AddMedicationModal({
         medicationName: "",
         medicationDate: new Date().toISOString().split("T")[0],
         duration: "",
+        medicationImage: null,
       });
     }, 300);
   };
@@ -206,6 +211,31 @@ export default function AddMedicationModal({
                   setFormData({ ...formData, duration: e.target.value })
                 }
               />
+            </div>
+
+            <div className="md:col-span-2">
+              <label className="block text-sm font-medium text-gray-700 mb-2">
+                औषधिको फोटो (JPG/PNG)
+              </label>
+              {formData.medicationImage && (
+                <div className="mb-2 text-sm text-green-600 bg-green-50 p-2 rounded">
+                  चयन गरिएको: <strong>{formData.medicationImage.name}</strong>
+                </div>
+              )}
+              <input
+                type="file"
+                accept=".jpg,.jpeg,.png"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189] focus:border-transparent file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-[#e8f8f7] file:text-[#1ab189] hover:file:bg-[#d0f0eb]"
+                onChange={(e) =>
+                  setFormData({
+                    ...formData,
+                    medicationImage: e.target.files?.[0] || null,
+                  })
+                }
+              />
+              <p className="text-xs text-gray-500 mt-1">
+                औषधिको बोतल वा प्याकेजको फोटो अपलोड गर्नुहोस्
+              </p>
             </div>
           </div>
 

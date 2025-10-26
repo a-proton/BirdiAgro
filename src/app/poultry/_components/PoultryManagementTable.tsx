@@ -9,12 +9,14 @@ import AddMedicationModal from "./AddMedicationModal";
 import ViewDetailModal from "./ViewBatchDetails";
 import EditBatchModal from "./EditBatchModal";
 import { getAllBatches, BatchWithDetails } from "@/lib/api/batch";
-import { getPoultryPublicUrl } from "@/lib/api/storage";
+import { getPoultryPublicUrl, getMedicationImageUrl } from "@/lib/api/storage";
 
 interface PopupItem {
   type: "vaccine" | "medication";
   name: string;
   date: string;
+  imageName?: string;
+  imagePath?: string;
 }
 
 export default function PoultryManagementTable() {
@@ -94,6 +96,11 @@ export default function PoultryManagementTable() {
 
   const handleViewProof = (paymentProofPath: string) => {
     const url = getPoultryPublicUrl(paymentProofPath);
+    window.open(url, "_blank");
+  };
+
+  const handleViewMedicationImage = (imagePath: string) => {
+    const url = getMedicationImageUrl(imagePath);
     window.open(url, "_blank");
   };
 
@@ -259,6 +266,8 @@ export default function PoultryManagementTable() {
                                       type: "medication",
                                       name: med.name,
                                       date: med.date,
+                                      imageName: med.imageName,
+                                      imagePath: med.imagePath,
                                     })
                                   }
                                   className="text-blue-600 hover:text-blue-800"
@@ -371,7 +380,7 @@ export default function PoultryManagementTable() {
             }`}
           >
             <div
-              className={`bg-white rounded-lg shadow-lg p-6 max-w-sm w-full transform transition-transform duration-300 ${
+              className={`bg-white rounded-lg shadow-lg p-6 max-w-md w-full transform transition-transform duration-300 ${
                 isPopupVisible ? "scale-100" : "scale-95"
               }`}
             >
@@ -381,13 +390,50 @@ export default function PoultryManagementTable() {
               <p className="text-gray-700 mb-1">
                 <span className="font-medium">नाम:</span> {viewItem?.name}
               </p>
-              <p className="text-gray-700">
+              <p className="text-gray-700 mb-3">
                 <span className="font-medium">मिति:</span> {viewItem?.date}
               </p>
-              <div className="mt-4 flex justify-end">
+
+              {/* Display medication image if available */}
+              {viewItem?.type === "medication" && viewItem.imagePath && (
+                <div className="mb-4">
+                  <p className="text-sm font-medium text-gray-700 mb-2">
+                    औषधिको फोटो:
+                  </p>
+                  <div className="border border-gray-200 rounded-lg overflow-hidden">
+                    <img
+                      src={getMedicationImageUrl(viewItem.imagePath)}
+                      alt={viewItem.imageName || "Medication"}
+                      className="w-full h-auto max-h-80 object-contain bg-gray-50"
+                      onError={(e) => {
+                        const target = e.currentTarget;
+                        target.src =
+                          "data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='200' height='200'%3E%3Crect width='200' height='200' fill='%23f3f4f6'/%3E%3Ctext x='50%25' y='50%25' dominant-baseline='middle' text-anchor='middle' fill='%23999' font-size='14'%3ENo Image%3C/text%3E%3C/svg%3E";
+                      }}
+                    />
+                  </div>
+                  {viewItem.imageName && (
+                    <p className="text-xs text-gray-500 mt-1">
+                      {viewItem.imageName}
+                    </p>
+                  )}
+                </div>
+              )}
+
+              <div className="flex justify-end gap-2">
+                {viewItem?.type === "medication" && viewItem.imagePath && (
+                  <button
+                    onClick={() =>
+                      handleViewMedicationImage(viewItem.imagePath!)
+                    }
+                    className="px-4 py-2 bg-[#1ab189] text-white rounded hover:bg-[#158f6f] transition-colors"
+                  >
+                    पूर्ण आकारमा हेर्नुहोस्
+                  </button>
+                )}
                 <button
                   onClick={closePopup}
-                  className="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300"
+                  className="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300 transition-colors"
                 >
                   बन्द गर्नुहोस्
                 </button>
