@@ -47,17 +47,23 @@ export default function AddConsumptionModal({
     setLoading(true);
     setError(null);
 
+    const quantity = parseFloat(formData.quantityUsed);
+    if (isNaN(quantity) || quantity <= 0) {
+      setError("कृपया मान्य मात्रा प्रविष्ट गर्नुहोस्।");
+      setLoading(false);
+      return;
+    }
+
     try {
       await createConsumptionRecord({
         batch: formData.batch,
         feedType: formData.feedType,
         feedName: formData.feedName,
-        quantityUsed: parseFloat(formData.quantityUsed),
+        quantityUsed: quantity,
         unit: formData.unit,
         consumptionDate: formData.date,
       });
 
-      // Success - close modal and reset form
       setShow(false);
       setTimeout(() => {
         setIsOpen(false);
@@ -99,6 +105,26 @@ export default function AddConsumptionModal({
     setError(null);
     setTimeout(() => setIsOpen(false), 300);
   };
+
+  // Calculate equivalent values
+  const quantity = parseFloat(formData.quantityUsed) || 0;
+  let equivalentKg = 0;
+  let equivalentBuckets = 0;
+  let equivalentSacks = 0;
+
+  if (formData.unit === "किलो") {
+    equivalentKg = quantity;
+    equivalentBuckets = quantity / 12.5;
+    equivalentSacks = quantity / 50;
+  } else if (formData.unit === "बाल्टिन") {
+    equivalentKg = quantity * 12.5;
+    equivalentBuckets = quantity;
+    equivalentSacks = quantity / 4;
+  } else if (formData.unit === "बोरा") {
+    equivalentKg = quantity * 50;
+    equivalentBuckets = quantity * 4;
+    equivalentSacks = quantity;
+  }
 
   if (!isOpen) {
     return (
@@ -211,42 +237,6 @@ export default function AddConsumptionModal({
                 />
               </div>
 
-              <div className="flex gap-2">
-                <div className="flex-1">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    प्रयोग गरिएको मात्रा *
-                  </label>
-                  <input
-                    type="number"
-                    name="quantityUsed"
-                    value={formData.quantityUsed}
-                    onChange={handleChange}
-                    required
-                    step="0.1"
-                    min="0"
-                    disabled={loading}
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#1ab189] disabled:bg-gray-100"
-                    placeholder="उदाहरण: २५.५"
-                  />
-                </div>
-                <div className="w-28">
-                  <label className="block text-sm font-medium text-gray-700 mb-2">
-                    इकाई *
-                  </label>
-                  <select
-                    name="unit"
-                    value={formData.unit}
-                    onChange={handleChange}
-                    disabled={loading}
-                    className="w-full px-2 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#1ab189] disabled:bg-gray-100"
-                  >
-                    <option value="किलो">किलो</option>
-                    <option value="बाल्टिन">बाल्टिन</option>
-                    <option value="बोरा">बोरा</option>
-                  </select>
-                </div>
-              </div>
-
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   मिति *
@@ -260,6 +250,52 @@ export default function AddConsumptionModal({
                   disabled={loading}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189] focus:border-transparent disabled:bg-gray-100"
                 />
+              </div>
+
+              <div className="md:col-span-2">
+                <label className="block text-sm font-medium text-gray-700 mb-2">
+                  प्रयोग गरिएको मात्रा *
+                </label>
+                <div className="flex gap-2">
+                  <input
+                    type="number"
+                    name="quantityUsed"
+                    value={formData.quantityUsed}
+                    onChange={handleChange}
+                    required
+                    step="0.1"
+                    min="0"
+                    disabled={loading}
+                    className="flex-1 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#1ab189] disabled:bg-gray-100"
+                    placeholder="उदाहरण: २५.५"
+                  />
+                  <select
+                    name="unit"
+                    value={formData.unit}
+                    onChange={handleChange}
+                    disabled={loading}
+                    className="w-32 px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#1ab189] disabled:bg-gray-100"
+                  >
+                    <option value="किलो">किलो</option>
+                    <option value="बाल्टिन">बाल्टिन</option>
+                    <option value="बोरा">बोरा</option>
+                  </select>
+                </div>
+                {quantity > 0 && (
+                  <div className="mt-3 p-3 bg-amber-50 border border-amber-200 rounded-lg">
+                    <p className="text-sm text-amber-900 font-medium mb-1">
+                      समान मात्रा:
+                    </p>
+                    <div className="space-y-1 text-sm text-amber-700">
+                      <p>• {equivalentKg.toFixed(2)} किलो</p>
+                      <p>• {equivalentBuckets.toFixed(2)} बाल्टिन</p>
+                      <p>• {equivalentSacks.toFixed(3)} बोरा</p>
+                    </div>
+                    <p className="mt-2 text-xs text-amber-600">
+                      यो मात्रा स्टकबाट घटाइनेछ
+                    </p>
+                  </div>
+                )}
               </div>
             </div>
 

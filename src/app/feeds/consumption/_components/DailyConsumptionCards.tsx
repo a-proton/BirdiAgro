@@ -8,7 +8,6 @@ import { getFeedStockSummary } from "@/lib/api/consumption";
 interface ConsumptionCardProps {
   title: string;
   dailyConsumption: number;
-  unit: string;
   bgColor: string;
   iconBg: string;
   iconColor: string;
@@ -35,13 +34,13 @@ function FeedIcon({ src, alt }: FeedIconProps) {
 function ConsumptionCard({
   title,
   dailyConsumption,
-  unit,
   bgColor,
   iconBg,
   iconColor,
   icon,
 }: ConsumptionCardProps) {
   const buckets = (dailyConsumption / 12.5).toFixed(1);
+  const sacks = (dailyConsumption / 50).toFixed(2);
 
   return (
     <div
@@ -58,9 +57,18 @@ function ConsumptionCard({
       <div className="space-y-2">
         <div className="text-sm text-gray-600 mb-1">दैनिक खपत</div>
         <div className="text-3xl font-bold text-gray-900">
-          {dailyConsumption.toFixed(1)} {unit}
+          {dailyConsumption.toFixed(1)} किलो
         </div>
-        <div className="text-sm text-gray-500 mt-2">({buckets} बाल्टिनहरू)</div>
+        <div className="mt-3 space-y-1 text-sm text-gray-600">
+          <div className="flex items-center justify-between">
+            <span>बाल्टिनहरू:</span>
+            <span className="font-medium text-gray-900">{buckets}</span>
+          </div>
+          <div className="flex items-center justify-between">
+            <span>बोरा:</span>
+            <span className="font-medium text-gray-900">{sacks}</span>
+          </div>
+        </div>
       </div>
     </div>
   );
@@ -171,7 +179,6 @@ export default function DailyConsumptionCards() {
             key={consumption.feedType}
             title={config.title}
             dailyConsumption={consumption.dailyConsumption}
-            unit="kg"
             bgColor={config.bgColor}
             iconBg={config.iconBg}
             iconColor={config.iconColor}

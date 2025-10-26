@@ -16,24 +16,26 @@ export interface FeedStockSummary {
   feedType: string;
   quantityKg: number;
   quantityBuckets: number;
+  quantitySacks: number;
   dailyConsumption: number;
   estimatedFinishDate: string | null;
   daysRemaining: number | null;
 }
 
-/**
- * Get all consumption records
- * @returns Array of consumption records
- */
+function convertToKg(qty: number, unit: string): number {
+  if (unit === "किलो") return qty;
+  if (unit === "बाल्टिन") return qty * 12.5;
+  if (unit === "बोरा") return qty * 50;
+  return qty;
+}
+
 export async function getAllConsumptionRecords(): Promise<ConsumptionRecord[]> {
   try {
     const { data, error } = await supabase
       .from("feed_consumption")
       .select("*")
       .order("consumption_date", { ascending: false });
-
     if (error) throw error;
-
     return (data || []).map((record) => ({
       id: record.id,
       batch: record.batch,
@@ -49,11 +51,6 @@ export async function getAllConsumptionRecords(): Promise<ConsumptionRecord[]> {
   }
 }
 
-/**
- * Get consumption records by batch
- * @param batch - The batch name
- * @returns Array of consumption records
- */
 export async function getConsumptionRecordsByBatch(
   batch: string
 ): Promise<ConsumptionRecord[]> {
@@ -63,9 +60,7 @@ export async function getConsumptionRecordsByBatch(
       .select("*")
       .eq("batch", batch)
       .order("consumption_date", { ascending: false });
-
     if (error) throw error;
-
     return (data || []).map((record) => ({
       id: record.id,
       batch: record.batch,
@@ -76,16 +71,11 @@ export async function getConsumptionRecordsByBatch(
       consumptionDate: record.consumption_date,
     }));
   } catch (error) {
-    console.error("Error fetching consumption records by batch:", error);
+    console.error("Error fetching by batch:", error);
     throw error;
   }
 }
 
-/**
- * Get consumption records by feed type
- * @param feedType - The feed type (B0, B1, B2)
- * @returns Array of consumption records
- */
 export async function getConsumptionRecordsByFeedType(
   feedType: string
 ): Promise<ConsumptionRecord[]> {
@@ -95,9 +85,7 @@ export async function getConsumptionRecordsByFeedType(
       .select("*")
       .eq("feed_type", feedType)
       .order("consumption_date", { ascending: false });
-
     if (error) throw error;
-
     return (data || []).map((record) => ({
       id: record.id,
       batch: record.batch,
@@ -108,17 +96,11 @@ export async function getConsumptionRecordsByFeedType(
       consumptionDate: record.consumption_date,
     }));
   } catch (error) {
-    console.error("Error fetching consumption records by feed type:", error);
+    console.error("Error fetching by feed type:", error);
     throw error;
   }
 }
 
-/**
- * Get consumption records for date range
- * @param startDate - Start date
- * @param endDate - End date
- * @returns Array of consumption records
- */
 export async function getConsumptionRecordsByDateRange(
   startDate: string,
   endDate: string
@@ -130,9 +112,7 @@ export async function getConsumptionRecordsByDateRange(
       .gte("consumption_date", startDate)
       .lte("consumption_date", endDate)
       .order("consumption_date", { ascending: false });
-
     if (error) throw error;
-
     return (data || []).map((record) => ({
       id: record.id,
       batch: record.batch,
@@ -143,16 +123,11 @@ export async function getConsumptionRecordsByDateRange(
       consumptionDate: record.consumption_date,
     }));
   } catch (error) {
-    console.error("Error fetching consumption records by date range:", error);
+    console.error("Error fetching by date range:", error);
     throw error;
   }
 }
 
-/**
- * Create a new consumption record
- * @param consumptionData - The consumption data
- * @returns The created consumption record ID
- */
 export async function createConsumptionRecord(consumptionData: {
   batch: string;
   feedType: string;
@@ -177,6 +152,13 @@ export async function createConsumptionRecord(consumptionData: {
 
     if (error) throw error;
 
+    // Decrease stock
+    const consumedKg = convertToKg(
+      consumptionData.quantityUsed,
+      consumptionData.unit
+    );
+    await adjustFeedStockQuantity(consumptionData.feedType, -consumedKg);
+
     return data.id;
   } catch (error) {
     console.error("Error creating consumption record:", error);
@@ -184,11 +166,6 @@ export async function createConsumptionRecord(consumptionData: {
   }
 }
 
-/**
- * Update a consumption record
- * @param id - The consumption record ID
- * @param consumptionData - The consumption data to update
- */
 export async function updateConsumptionRecord(
   id: number,
   consumptionData: {
@@ -202,7 +179,6 @@ export async function updateConsumptionRecord(
 ): Promise<void> {
   try {
     const updateData: Record<string, string | number | undefined> = {};
-
     if (consumptionData.batch !== undefined)
       updateData.batch = consumptionData.batch;
     if (consumptionData.feedType !== undefined)
@@ -215,14 +191,12 @@ export async function updateConsumptionRecord(
       updateData.unit = consumptionData.unit;
     if (consumptionData.consumptionDate !== undefined)
       updateData.consumption_date = consumptionData.consumptionDate;
-
     updateData.updated_at = new Date().toISOString();
 
     const { error } = await supabase
       .from("feed_consumption")
       .update(updateData)
       .eq("id", id);
-
     if (error) throw error;
   } catch (error) {
     console.error("Error updating consumption record:", error);
@@ -230,43 +204,117 @@ export async function updateConsumptionRecord(
   }
 }
 
-/**
- * Delete a consumption record
- * @param id - The consumption record ID
- */
 export async function deleteConsumptionRecord(id: number): Promise<void> {
   try {
-    const { error } = await supabase
+    const { data: record, error: fetchError } = await supabase
+      .from("feed_consumption")
+      .select("feed_type, quantity_used, unit")
+      .eq("id", id)
+      .single();
+    if (fetchError) throw fetchError;
+
+    const { error: delError } = await supabase
       .from("feed_consumption")
       .delete()
       .eq("id", id);
+    if (delError) throw delError;
 
-    if (error) throw error;
+    // Revert stock
+    const revertedKg = convertToKg(record.quantity_used, record.unit);
+    await adjustFeedStockQuantity(record.feed_type, revertedKg);
   } catch (error) {
     console.error("Error deleting consumption record:", error);
     throw error;
   }
 }
 
-/**
- * Get feed stock summary
- * @returns Array of feed stock summaries
- */
+export async function adjustFeedStockQuantity(
+  feedType: string,
+  deltaKg: number
+): Promise<void> {
+  try {
+    const { data: existing, error: fetchError } = await supabase
+      .from("feed_stock_summary")
+      .select("quantity_kg")
+      .eq("feed_type", feedType)
+      .single();
+
+    let currentKg = 0;
+    if (!fetchError && existing) {
+      currentKg = existing.quantity_kg || 0;
+    } else if (fetchError && fetchError.code !== "PGRST116") {
+      throw fetchError;
+    }
+
+    const newKg = Math.max(0, currentKg + deltaKg);
+    const newBuckets = newKg / 12.5;
+    const newSacks = newKg / 50;
+
+    // Calculate 7-day avg daily consumption
+    const sevenDaysAgo = new Date(Date.now() - 7 * 86400000)
+      .toISOString()
+      .split("T")[0];
+    const { data: recentConsumption } = await supabase
+      .from("feed_consumption")
+      .select("quantity_used, unit, consumption_date")
+      .eq("feed_type", feedType)
+      .gte("consumption_date", sevenDaysAgo);
+
+    let dailyConsumption = 0;
+    if (recentConsumption && recentConsumption.length > 0) {
+      const totalKg = recentConsumption.reduce((sum, rec) => {
+        return sum + convertToKg(rec.quantity_used, rec.unit);
+      }, 0);
+      dailyConsumption = totalKg / 7;
+    }
+
+    let daysRemaining: number | null = null;
+    let estimatedFinishDate: string | null = null;
+    if (dailyConsumption > 0.01 && newKg > 0) {
+      daysRemaining = Math.ceil(newKg / dailyConsumption);
+      const finishDate = new Date();
+      finishDate.setDate(finishDate.getDate() + daysRemaining);
+      estimatedFinishDate = finishDate.toISOString().split("T")[0];
+    }
+
+    // Upsert into feed_stock_summary
+    const upsertData = {
+      feed_type: feedType,
+      quantity_kg: newKg,
+      quantity_buckets: newBuckets,
+      quantity_sacks: newSacks,
+      daily_consumption: dailyConsumption,
+      estimated_finish_date: estimatedFinishDate,
+      days_remaining: daysRemaining,
+      updated_at: new Date().toISOString(),
+    };
+
+    const { error: upsertError } = await supabase
+      .from("feed_stock_summary")
+      .upsert(upsertData, { onConflict: "feed_type" });
+
+    if (upsertError) throw upsertError;
+  } catch (error) {
+    console.error("Error adjusting feed stock:", error);
+    throw error;
+  }
+}
+
 export async function getFeedStockSummary(): Promise<FeedStockSummary[]> {
   try {
     const { data, error } = await supabase
       .from("feed_stock_summary")
       .select("*")
       .order("feed_type", { ascending: true });
-
     if (error) throw error;
 
     return (data || []).map((record) => ({
       id: record.id,
       feedType: record.feed_type,
-      quantityKg: record.quantity_kg,
-      quantityBuckets: record.quantity_buckets,
-      dailyConsumption: record.daily_consumption,
+      quantityKg: record.quantity_kg || 0,
+      quantityBuckets: record.quantity_buckets || 0,
+      quantitySacks: record.quantity_sacks || 0,
+      dailyConsumption: record.daily_consumption || 0,
       estimatedFinishDate: record.estimated_finish_date,
       daysRemaining: record.days_remaining,
     }));
@@ -276,76 +324,29 @@ export async function getFeedStockSummary(): Promise<FeedStockSummary[]> {
   }
 }
 
-/**
- * Update feed stock quantity manually
- * @param feedType - The feed type (B0, B1, B2)
- * @param quantityKg - New quantity in kg
- */
-export async function updateFeedStockQuantity(
-  feedType: string,
-  quantityKg: number
-): Promise<void> {
-  try {
-    const quantityBuckets = quantityKg / 12.5;
-
-    const { error } = await supabase
-      .from("feed_stock_summary")
-      .update({
-        quantity_kg: quantityKg,
-        quantity_buckets: quantityBuckets,
-        updated_at: new Date().toISOString(),
-      })
-      .eq("feed_type", feedType);
-
-    if (error) throw error;
-  } catch (error) {
-    console.error("Error updating feed stock quantity:", error);
-    throw error;
-  }
-}
-
-/**
- * Get daily consumption trend for a feed type
- * @param feedType - The feed type (B0, B1, B2)
- * @param days - Number of days to look back (default: 30)
- * @returns Array of daily consumption data
- */
 export async function getDailyConsumptionTrend(
   feedType: string,
   days: number = 30
-): Promise<{ date: string; totalConsumption: number }[]> {
+) {
   try {
     const startDate = new Date();
     startDate.setDate(startDate.getDate() - days);
-
     const { data, error } = await supabase
       .from("feed_consumption")
       .select("consumption_date, quantity_used, unit")
       .eq("feed_type", feedType)
       .gte("consumption_date", startDate.toISOString().split("T")[0])
       .order("consumption_date", { ascending: true });
-
     if (error) throw error;
-
-    // Group by date and sum consumption
     const groupedData = (data || []).reduce((acc, record) => {
       const date = record.consumption_date;
-      let quantityInKg = record.quantity_used;
-
-      // Convert to kg
-      if (record.unit === "बाल्टिन") {
-        quantityInKg = record.quantity_used * 12.5;
-      } else if (record.unit === "बोरा") {
-        quantityInKg = record.quantity_used * 50;
-      }
-
+      const quantityInKg = convertToKg(record.quantity_used, record.unit);
       if (!acc[date]) {
         acc[date] = 0;
       }
       acc[date] += quantityInKg;
       return acc;
     }, {} as Record<string, number>);
-
     return Object.entries(groupedData).map(([date, totalConsumption]) => ({
       date,
       totalConsumption,
@@ -356,11 +357,6 @@ export async function getDailyConsumptionTrend(
   }
 }
 
-/**
- * Get total consumption by batch
- * @param batch - The batch name
- * @returns Total consumption in kg
- */
 export async function getTotalConsumptionByBatch(
   batch: string
 ): Promise<number> {
@@ -369,22 +365,11 @@ export async function getTotalConsumptionByBatch(
       .from("feed_consumption")
       .select("quantity_used, unit")
       .eq("batch", batch);
-
     if (error) throw error;
-
     const total = (data || []).reduce((sum, record) => {
-      let quantityInKg = record.quantity_used;
-
-      // Convert to kg
-      if (record.unit === "बाल्टिन") {
-        quantityInKg = record.quantity_used * 12.5;
-      } else if (record.unit === "बोरा") {
-        quantityInKg = record.quantity_used * 50;
-      }
-
+      const quantityInKg = convertToKg(record.quantity_used, record.unit);
       return sum + quantityInKg;
     }, 0);
-
     return total;
   } catch (error) {
     console.error("Error calculating total consumption by batch:", error);

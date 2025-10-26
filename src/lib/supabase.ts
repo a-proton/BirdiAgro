@@ -264,6 +264,7 @@ export interface Database {
           feed_type: string;
           quantity_kg: number;
           quantity_buckets: number;
+          quantity_sacks: number;
           daily_consumption: number;
           estimated_finish_date: string | null;
           days_remaining: number | null;
@@ -274,6 +275,7 @@ export interface Database {
           feed_type: string;
           quantity_kg?: number;
           quantity_buckets?: number;
+          quantity_sacks?: number;
           daily_consumption?: number;
           estimated_finish_date?: string | null;
           days_remaining?: number | null;
@@ -284,6 +286,7 @@ export interface Database {
           feed_type?: string;
           quantity_kg?: number;
           quantity_buckets?: number;
+          quantity_sacks?: number;
           daily_consumption?: number;
           estimated_finish_date?: string | null;
           days_remaining?: number | null;

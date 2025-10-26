@@ -5,6 +5,7 @@ import {
   updatePaymentProof,
   deletePaymentProof,
 } from "./storage";
+import { adjustFeedStockQuantity } from "./consumption";
 
 export interface FeedRecord {
   id: number;
@@ -19,19 +20,13 @@ export interface FeedRecord {
   paymentProofPath: string;
 }
 
-/**
- * Get all feed inventory records
- * @returns Array of feed records
- */
 export async function getAllFeedRecords(): Promise<FeedRecord[]> {
   try {
     const { data, error } = await supabase
       .from("feed_inventory")
       .select("*")
       .order("date_of_order", { ascending: false });
-
     if (error) throw error;
-
     return (data || []).map((record) => ({
       id: record.id,
       feedName: record.feed_name,
@@ -50,11 +45,6 @@ export async function getAllFeedRecords(): Promise<FeedRecord[]> {
   }
 }
 
-/**
- * Get feed records by type
- * @param feedType - The feed type (B0, B1, B2)
- * @returns Array of feed records
- */
 export async function getFeedRecordsByType(
   feedType: string
 ): Promise<FeedRecord[]> {
@@ -64,9 +54,7 @@ export async function getFeedRecordsByType(
       .select("*")
       .eq("feed_type", feedType)
       .order("date_of_order", { ascending: false });
-
     if (error) throw error;
-
     return (data || []).map((record) => ({
       id: record.id,
       feedName: record.feed_name,
@@ -85,11 +73,6 @@ export async function getFeedRecordsByType(
   }
 }
 
-/**
- * Get a single feed record by ID
- * @param id - The feed record ID
- * @returns Feed record or null
- */
 export async function getFeedRecordById(
   id: number
 ): Promise<FeedRecord | null> {
@@ -99,12 +82,10 @@ export async function getFeedRecordById(
       .select("*")
       .eq("id", id)
       .single();
-
     if (error) {
       if (error.code === "PGRST116") return null;
       throw error;
     }
-
     return {
       id: data.id,
       feedName: data.feed_name,
@@ -123,15 +104,11 @@ export async function getFeedRecordById(
   }
 }
 
-/**
- * Create a new feed record
- * @param feedData - The feed data
- * @returns The created feed record ID
- */
 export async function createFeedRecord(feedData: {
   feedName: string;
   feedType: string;
   quantity: string;
+  quantitySacks: number;
   dateOfOrder: string;
   price: string;
   supplier: string;
@@ -141,8 +118,6 @@ export async function createFeedRecord(feedData: {
   try {
     let paymentProofPath: string | null = null;
     let paymentProofName: string | null = null;
-
-    // Upload payment proof if provided
     if (feedData.paymentProof) {
       paymentProofPath = await uploadPaymentProof(
         feedData.paymentProof,
@@ -169,6 +144,10 @@ export async function createFeedRecord(feedData: {
 
     if (error) throw error;
 
+    // Add quantity to stock (in kg)
+    const quantityKg = feedData.quantitySacks * 50;
+    await adjustFeedStockQuantity(feedData.feedType, quantityKg);
+
     return data.id;
   } catch (error) {
     console.error("Error creating feed record:", error);
@@ -176,11 +155,6 @@ export async function createFeedRecord(feedData: {
   }
 }
 
-/**
- * Update a feed record
- * @param id - The feed record ID
- * @param feedData - The feed data to update
- */
 export async function updateFeedRecord(
   id: number,
   feedData: {
@@ -198,8 +172,6 @@ export async function updateFeedRecord(
   try {
     let paymentProofPath: string | null | undefined = undefined;
     let paymentProofName: string | null | undefined = undefined;
-
-    // Handle file upload/update only if a new file is provided
     if (feedData.paymentProof) {
       paymentProofPath = await updatePaymentProof(
         feedData.oldPaymentProofPath || null,
@@ -209,9 +181,7 @@ export async function updateFeedRecord(
       paymentProofName = feedData.paymentProof.name;
     }
 
-    // Build update object with only defined values
     const updateData: Record<string, string | null | undefined> = {};
-
     if (feedData.feedName !== undefined)
       updateData.feed_name = feedData.feedName;
     if (feedData.feedType !== undefined)
@@ -225,21 +195,16 @@ export async function updateFeedRecord(
       updateData.supplier = feedData.supplier;
     if (feedData.modeOfPayment !== undefined)
       updateData.mode_of_payment = feedData.modeOfPayment;
-
-    // Only update file fields if a new file was uploaded
     if (paymentProofPath !== undefined) {
       updateData.payment_proof_path = paymentProofPath;
       updateData.payment_proof_name = paymentProofName;
     }
-
-    // Add updated_at timestamp
     updateData.updated_at = new Date().toISOString();
 
     const { error } = await supabase
       .from("feed_inventory")
       .update(updateData)
       .eq("id", id);
-
     if (error) throw error;
   } catch (error) {
     console.error("Error updating feed record:", error);
@@ -247,57 +212,41 @@ export async function updateFeedRecord(
   }
 }
 
-/**
- * Delete a feed record
- * @param id - The feed record ID
- */
 export async function deleteFeedRecord(id: number): Promise<void> {
   try {
-    // First get the record to find the file path
     const { data: record, error: fetchError } = await supabase
       .from("feed_inventory")
       .select("payment_proof_path")
       .eq("id", id)
       .single();
-
     if (fetchError) throw fetchError;
 
-    // Delete the file if it exists
     if (record?.payment_proof_path) {
       await deletePaymentProof(record.payment_proof_path);
     }
 
-    // Delete the record
-    const { error } = await supabase
+    const { error: delError } = await supabase
       .from("feed_inventory")
       .delete()
       .eq("id", id);
-
-    if (error) throw error;
+    if (delError) throw delError;
   } catch (error) {
     console.error("Error deleting feed record:", error);
     throw error;
   }
 }
 
-/**
- * Get total feed inventory value
- * @returns Total value in rupees
- */
 export async function getTotalFeedInventoryValue(): Promise<number> {
   try {
     const { data, error } = await supabase
       .from("feed_inventory")
       .select("price");
-
     if (error) throw error;
-
     const total = (data || []).reduce((sum, record) => {
       const priceString = record.price.replace(/Rs\s?|,/g, "");
       const priceNumber = parseFloat(priceString) || 0;
       return sum + priceNumber;
     }, 0);
-
     return total;
   } catch (error) {
     console.error("Error calculating total inventory value:", error);

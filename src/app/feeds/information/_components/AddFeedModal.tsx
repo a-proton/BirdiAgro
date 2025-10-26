@@ -1,5 +1,4 @@
 "use client";
-
 import { Plus, X } from "lucide-react";
 import { useState } from "react";
 import { createFeedRecord } from "@/lib/api/feed";
@@ -15,12 +14,12 @@ export default function AddFeedModal({ onSuccess }: AddFeedModalProps) {
   const [error, setError] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     feedName: "",
-    feedType: "B0",
-    quantity: "",
+    feedType: "B0" as "B0" | "B1" | "B2",
+    quantitySacks: "",
     dateOfOrder: new Date().toISOString().split("T")[0],
     price: "",
     supplier: "",
-    modeOfPayment: "Bank Transfer",
+    modeOfPayment: "Bank Transfer" as string,
     paymentProof: null as File | null,
   });
 
@@ -29,11 +28,24 @@ export default function AddFeedModal({ onSuccess }: AddFeedModalProps) {
     setLoading(true);
     setError(null);
 
+    const sacks = parseFloat(formData.quantitySacks);
+    if (isNaN(sacks) || sacks <= 0) {
+      setError("कृपया मान्य बोरा मात्रा प्रविष्ट गर्नुहोस्।");
+      setLoading(false);
+      return;
+    }
+
+    // Calculate buckets and kgs
+    const buckets = sacks * 4;
+    const kgs = sacks * 50;
+    const quantityDisplay = `${sacks} बोरा (${buckets} बाल्टिन, ${kgs} किलो)`;
+
     try {
       await createFeedRecord({
         feedName: formData.feedName,
         feedType: formData.feedType,
-        quantity: formData.quantity,
+        quantity: quantityDisplay,
+        quantitySacks: sacks,
         dateOfOrder: formData.dateOfOrder,
         price: formData.price,
         supplier: formData.supplier,
@@ -41,14 +53,13 @@ export default function AddFeedModal({ onSuccess }: AddFeedModalProps) {
         paymentProof: formData.paymentProof,
       });
 
-      // Success - close modal and reset form
       setShow(false);
       setTimeout(() => {
         setIsOpen(false);
         setFormData({
           feedName: "",
           feedType: "B0",
-          quantity: "",
+          quantitySacks: "",
           dateOfOrder: new Date().toISOString().split("T")[0],
           price: "",
           supplier: "",
@@ -95,6 +106,11 @@ export default function AddFeedModal({ onSuccess }: AddFeedModalProps) {
     setTimeout(() => setIsOpen(false), 300);
   };
 
+  // Calculate display values
+  const sacks = parseFloat(formData.quantitySacks) || 0;
+  const buckets = sacks * 4;
+  const kgs = sacks * 50;
+
   if (!isOpen) {
     return (
       <button
@@ -116,7 +132,6 @@ export default function AddFeedModal({ onSuccess }: AddFeedModalProps) {
         <Plus className="w-4 h-4" />
         दाना थप्नुहोस्
       </button>
-
       <div
         className={`fixed inset-0 flex items-center justify-center z-50 p-4 transition-opacity duration-300 ${
           show ? "opacity-100" : "opacity-0"
@@ -142,13 +157,11 @@ export default function AddFeedModal({ onSuccess }: AddFeedModalProps) {
               <X className="w-5 h-5 text-gray-500" />
             </button>
           </div>
-
           {error && (
             <div className="mx-6 mt-4 p-4 bg-red-50 border border-red-200 rounded-lg">
               <p className="text-sm text-red-600">{error}</p>
             </div>
           )}
-
           <form onSubmit={handleSubmit} className="p-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
@@ -166,7 +179,6 @@ export default function AddFeedModal({ onSuccess }: AddFeedModalProps) {
                   placeholder="दानाको नाम प्रविष्ट गर्नुहोस्"
                 />
               </div>
-
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   दाना प्रकार *
@@ -184,23 +196,35 @@ export default function AddFeedModal({ onSuccess }: AddFeedModalProps) {
                   <option value="B2">B2 - लेयर</option>
                 </select>
               </div>
-
-              <div>
+              <div className="md:col-span-2">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  मात्रा *
+                  मात्रा (बोरा मा) *
                 </label>
                 <input
-                  type="text"
-                  name="quantity"
-                  value={formData.quantity}
+                  type="number"
+                  name="quantitySacks"
+                  value={formData.quantitySacks}
                   onChange={handleChange}
                   required
+                  min="0.1"
+                  step="0.1"
                   disabled={loading}
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189] focus:border-transparent disabled:bg-gray-100"
-                  placeholder="उदाहरण: १० बोरा (५०० किलो)"
+                  placeholder="उदाहरण: 10"
                 />
+                {sacks > 0 && (
+                  <div className="mt-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
+                    <p className="text-sm text-blue-900 font-medium">
+                      मात्रा विवरण:
+                    </p>
+                    <div className="mt-1 space-y-1 text-sm text-blue-700">
+                      <p>• {sacks} बोरा</p>
+                      <p>• {buckets} बाल्टिन (प्रति बोरा 4 बाल्टिन)</p>
+                      <p>• {kgs} किलो (प्रति बोरा 50 किलो)</p>
+                    </div>
+                  </div>
+                )}
               </div>
-
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   अर्डर मिति *
@@ -215,7 +239,6 @@ export default function AddFeedModal({ onSuccess }: AddFeedModalProps) {
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189] focus:border-transparent disabled:bg-gray-100"
                 />
               </div>
-
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   मूल्य *
@@ -231,7 +254,6 @@ export default function AddFeedModal({ onSuccess }: AddFeedModalProps) {
                   placeholder="उदाहरण: Rs 45,000"
                 />
               </div>
-
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   वितरक *
@@ -247,7 +269,6 @@ export default function AddFeedModal({ onSuccess }: AddFeedModalProps) {
                   placeholder="वितरकको नाम प्रविष्ट गर्नुहोस्"
                 />
               </div>
-
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   भुक्तानी प्रकार *
@@ -266,8 +287,7 @@ export default function AddFeedModal({ onSuccess }: AddFeedModalProps) {
                   <option value="Online Payment">अनलाइन भुक्तानी</option>
                 </select>
               </div>
-
-              <div>
+              <div className="md:col-span-2">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   भुक्तानी प्रमाण (PDF/Image)
                 </label>
@@ -286,7 +306,6 @@ export default function AddFeedModal({ onSuccess }: AddFeedModalProps) {
                 )}
               </div>
             </div>
-
             <div className="flex gap-3 mt-6 pt-6 border-t border-gray-200">
               <button
                 type="button"

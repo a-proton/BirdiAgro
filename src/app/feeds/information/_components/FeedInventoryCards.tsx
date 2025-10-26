@@ -23,10 +23,9 @@ function FeedIcon({ src, alt }: FeedIconProps) {
 
 interface FeedCardProps {
   title: string;
-  quantity: number;
-  sacks: number;
-  buckets: number;
-  kgs: number;
+  quantitySacks: number;
+  quantityBuckets: number;
+  quantityKg: number;
   bgColor: string;
   iconBg: string;
   iconColor: string;
@@ -36,10 +35,9 @@ interface FeedCardProps {
 
 function FeedCard({
   title,
-  quantity,
-  sacks,
-  buckets,
-  kgs,
+  quantitySacks,
+  quantityBuckets,
+  quantityKg,
   bgColor,
   iconBg,
   iconColor,
@@ -60,19 +58,21 @@ function FeedCard({
       </div>
       <div className="space-y-2">
         <div className="text-2xl font-bold text-gray-900 mb-3">
-          मात्रा: {quantity} बोरा
+          स्टक: {quantitySacks.toFixed(1)} बोरा
         </div>
         <div className="space-y-1 text-sm text-gray-600">
           <div className="flex items-center justify-between">
             <span>बाल्टिनहरू:</span>
             <span className="font-medium text-gray-900">
-              {buckets.toFixed(1)} ({sacks} × 4)
+              {quantityBuckets.toFixed(1)} ({(quantitySacks * 4).toFixed(1)}{" "}
+              बाल्टिन)
             </span>
           </div>
           <div className="flex items-center justify-between">
             <span>किलोग्राम:</span>
             <span className="font-medium text-gray-900">
-              {kgs.toFixed(0)} किलो ({sacks} × 50)
+              {quantityKg.toFixed(0)} किलो ({(quantitySacks * 50).toFixed(0)}{" "}
+              किलो)
             </span>
           </div>
         </div>
@@ -114,10 +114,9 @@ export default function FeedInventoryCards() {
   const [feedData, setFeedData] = useState<
     Array<{
       feedType: string;
-      quantity: number;
-      sacks: number;
-      buckets: number;
-      kgs: number;
+      quantitySacks: number;
+      quantityBuckets: number;
+      quantityKg: number;
     }>
   >([]);
 
@@ -130,19 +129,12 @@ export default function FeedInventoryCards() {
       setLoading(true);
       const summary = await getFeedStockSummary();
 
-      const processedData = summary.map((item) => {
-        const kgs = item.quantityKg;
-        const sacks = Math.round(kgs / 50);
-        const buckets = item.quantityBuckets;
-
-        return {
-          feedType: item.feedType,
-          quantity: sacks,
-          sacks: sacks,
-          buckets: buckets,
-          kgs: kgs,
-        };
-      });
+      const processedData = summary.map((item) => ({
+        feedType: item.feedType,
+        quantitySacks: item.quantitySacks,
+        quantityBuckets: item.quantityBuckets,
+        quantityKg: item.quantityKg,
+      }));
 
       setFeedData(processedData);
       setError(null);
@@ -200,10 +192,9 @@ export default function FeedInventoryCards() {
           <FeedCard
             key={feed.feedType}
             title={config.title}
-            quantity={feed.quantity}
-            sacks={feed.sacks}
-            buckets={feed.buckets}
-            kgs={feed.kgs}
+            quantitySacks={feed.quantitySacks}
+            quantityBuckets={feed.quantityBuckets}
+            quantityKg={feed.quantityKg}
             bgColor={config.bgColor}
             iconBg={config.iconBg}
             iconColor={config.iconColor}
