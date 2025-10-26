@@ -128,6 +128,30 @@ export async function getConsumptionRecordsByDateRange(
   }
 }
 
+// NEW: Check available stock for a feed type
+export async function getAvailableStock(feedType: string): Promise<number> {
+  try {
+    const { data, error } = await supabase
+      .from("feed_stock_summary")
+      .select("quantity_kg")
+      .eq("feed_type", feedType)
+      .single();
+
+    if (error) {
+      if (error.code === "PGRST116") {
+        // No record found, return 0
+        return 0;
+      }
+      throw error;
+    }
+
+    return data?.quantity_kg || 0;
+  } catch (error) {
+    console.error("Error fetching available stock:", error);
+    throw error;
+  }
+}
+
 export async function createConsumptionRecord(consumptionData: {
   batch: string;
   feedType: string;
@@ -137,6 +161,23 @@ export async function createConsumptionRecord(consumptionData: {
   consumptionDate: string;
 }): Promise<number> {
   try {
+    // Convert to kg for validation
+    const consumedKg = convertToKg(
+      consumptionData.quantityUsed,
+      consumptionData.unit
+    );
+
+    // Check available stock BEFORE creating record
+    const availableStock = await getAvailableStock(consumptionData.feedType);
+
+    if (availableStock < consumedKg) {
+      throw new Error(
+        `अपर्याप्त स्टक! उपलब्ध: ${availableStock.toFixed(
+          2
+        )} किलो, आवश्यक: ${consumedKg.toFixed(2)} किलो`
+      );
+    }
+
     const { data, error } = await supabase
       .from("feed_consumption")
       .insert({
@@ -152,11 +193,7 @@ export async function createConsumptionRecord(consumptionData: {
 
     if (error) throw error;
 
-    // Decrease stock
-    const consumedKg = convertToKg(
-      consumptionData.quantityUsed,
-      consumptionData.unit
-    );
+    // Decrease stock after successful insert
     await adjustFeedStockQuantity(consumptionData.feedType, -consumedKg);
 
     return data.id;
@@ -250,22 +287,39 @@ export async function adjustFeedStockQuantity(
     const newBuckets = newKg / 12.5;
     const newSacks = newKg / 50;
 
-    // Calculate 7-day avg daily consumption
-    const sevenDaysAgo = new Date(Date.now() - 7 * 86400000)
+    // Calculate daily consumption based on ACTUAL days with data (not fixed 7 days)
+    const thirtyDaysAgo = new Date(Date.now() - 30 * 86400000)
       .toISOString()
       .split("T")[0];
+
     const { data: recentConsumption } = await supabase
       .from("feed_consumption")
       .select("quantity_used, unit, consumption_date")
       .eq("feed_type", feedType)
-      .gte("consumption_date", sevenDaysAgo);
+      .gte("consumption_date", thirtyDaysAgo);
 
     let dailyConsumption = 0;
     if (recentConsumption && recentConsumption.length > 0) {
-      const totalKg = recentConsumption.reduce((sum, rec) => {
-        return sum + convertToKg(rec.quantity_used, rec.unit);
-      }, 0);
-      dailyConsumption = totalKg / 7;
+      // Group by date to get actual days
+      const consumptionByDate = recentConsumption.reduce((acc, rec) => {
+        const date = rec.consumption_date;
+        if (!acc[date]) {
+          acc[date] = 0;
+        }
+        acc[date] += convertToKg(rec.quantity_used, rec.unit);
+        return acc;
+      }, {} as Record<string, number>);
+
+      // Calculate average based on actual number of days with consumption
+      const daysWithConsumption = Object.keys(consumptionByDate).length;
+      const totalKg = Object.values(consumptionByDate).reduce(
+        (sum, kg) => sum + kg,
+        0
+      );
+
+      if (daysWithConsumption > 0) {
+        dailyConsumption = totalKg / daysWithConsumption;
+      }
     }
 
     let daysRemaining: number | null = null;
