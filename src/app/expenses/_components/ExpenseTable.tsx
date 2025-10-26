@@ -1,4 +1,6 @@
-export interface Expense {
+import { Trash2 } from "lucide-react";
+
+interface Expense {
   id: number;
   category: string;
   title: string;
@@ -7,6 +9,7 @@ export interface Expense {
   method: string;
   isPaid: boolean;
   paymentProofName: string | null;
+  paymentProofPath: string | null;
   batch: string;
 }
 
@@ -14,6 +17,7 @@ export default function ExpenseTable({
   expenses,
   onView,
   onEdit,
+  onDelete,
 }: {
   expenses: Expense[];
   onView: (expense: Expense) => void;
@@ -122,14 +126,14 @@ export default function ExpenseTable({
                     <div className="flex items-center gap-2">
                       <button
                         onClick={() => onView(expense)}
-                        className="p-1.5 hover:bg-blue-50 text-blue-600 rounded transition-colors"
+                        className="p-1.5 hover:bg-blue-50 text-blue-600 rounded transition-colors text-xs"
                         title="हेर्नुहोस्"
                       >
                         हेर्नुहोस्
                       </button>
                       <button
                         onClick={() => onEdit(expense)}
-                        className="p-1.5 hover:bg-green-50 text-green-600 rounded transition-colors"
+                        className="p-1.5 hover:bg-green-50 text-green-600 rounded transition-colors text-xs"
                         title="सम्पादन गर्नुहोस्"
                       >
                         सम्पादन

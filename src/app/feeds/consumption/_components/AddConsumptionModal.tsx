@@ -150,21 +150,39 @@ export default function AddConsumptionModal() {
                 />
               </div>
 
-              <div>
-                <label className="block text-sm font-medium text-gray-700 mb-2">
-                  प्रयोग गरिएको मात्रा (किलो)
-                </label>
-                <input
-                  type="number"
-                  name="quantityUsed"
-                  value={formData.quantityUsed}
-                  onChange={handleChange}
-                  required
-                  step="0.1"
-                  min="0"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189] focus:border-transparent"
-                  placeholder="उदाहरण: २५.५"
-                />
+              {/* Quantity + Unit */}
+              <div className="flex gap-2">
+                <div className="flex-1">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    प्रयोग गरिएको मात्रा
+                  </label>
+                  <input
+                    type="number"
+                    name="quantityUsed"
+                    value={formData.quantityUsed}
+                    onChange={handleChange}
+                    required
+                    step="0.1"
+                    min="0"
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#1ab189]"
+                    placeholder="उदाहरण: २५.५"
+                  />
+                </div>
+                <div className="w-28">
+                  <label className="block text-sm font-medium text-gray-700 mb-2">
+                    इकाई
+                  </label>
+                  <select
+                    name="unit"
+                    value={formData.unit}
+                    onChange={handleChange}
+                    className="w-full px-2 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#1ab189]"
+                  >
+                    <option value="किलो">किलो</option>
+                    <option value="बाल्टिन">बाल्टिन</option>
+                    <option value="बोरा">बोरा</option>
+                  </select>
+                </div>
               </div>
 
               <div>

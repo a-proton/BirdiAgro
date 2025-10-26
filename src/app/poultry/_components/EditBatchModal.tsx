@@ -1,6 +1,7 @@
 "use client";
 import { useState, useEffect } from "react";
 import { X } from "lucide-react";
+import { updateBatch } from "@/lib/api/batch";
 
 interface Vaccination {
   date: string;
@@ -21,14 +22,15 @@ interface BatchData {
   supplier?: string;
   vaccinations: Vaccination[];
   medications: Medication[];
-  paymentProof: string;
+  paymentProofName: string;
+  paymentProofPath: string;
 }
 
 interface EditBatchModalProps {
   isOpen: boolean;
   onClose: () => void;
   batchData: BatchData | null;
-  onSave: (updatedData: BatchData) => void;
+  onSave: () => void;
 }
 
 export default function EditBatchModal({
@@ -38,6 +40,7 @@ export default function EditBatchModal({
   onSave,
 }: EditBatchModalProps) {
   const [show, setShow] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const [formData, setFormData] = useState({
     batchName: "",
     dateOfArrival: "",
@@ -72,24 +75,36 @@ export default function EditBatchModal({
   }, [isOpen]);
 
   // Save data
-  const handleSubmit = () => {
-    if (batchData && formData.batchName && formData.dateOfArrival) {
-      const updatedBatch: BatchData = {
-        ...batchData,
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
+    if (!batchData || !formData.batchName || !formData.dateOfArrival) {
+      return;
+    }
+
+    setIsSaving(true);
+
+    try {
+      await updateBatch(batchData.id, {
         batchName: formData.batchName,
         dateOfArrival: formData.dateOfArrival,
         numberOfChicks: formData.numberOfChicks
           ? parseInt(formData.numberOfChicks, 10)
           : undefined,
         price: formData.price ? parseFloat(formData.price) : undefined,
-        supplier: formData.supplier,
-        paymentProof: formData.paymentProof
-          ? formData.paymentProof.name
-          : batchData.paymentProof,
-      };
+        supplier: formData.supplier || undefined,
+        paymentProof: formData.paymentProof,
+        oldPaymentProofPath: batchData.paymentProofPath || null,
+      });
 
-      onSave(updatedBatch);
+      alert("ब्याच सफलतापूर्वक अद्यावधिक गरियो!");
+      onSave();
       handleClose();
+    } catch (error) {
+      console.error("Error updating batch:", error);
+      alert("ब्याच अद्यावधिक गर्न सकिएन। पुन: प्रयास गर्नुहोस्।");
+    } finally {
+      setIsSaving(false);
     }
   };
 
@@ -123,18 +138,19 @@ export default function EditBatchModal({
           <button
             onClick={handleClose}
             className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+            disabled={isSaving}
           >
             <X className="w-5 h-5 text-gray-500" />
           </button>
         </div>
 
         {/* Form */}
-        <div className="p-6">
+        <form onSubmit={handleSubmit} className="p-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             {/* Batch Name */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                ब्याचको नाम
+                ब्याचको नाम <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
@@ -145,13 +161,14 @@ export default function EditBatchModal({
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189] focus:border-transparent"
                 placeholder="उदाहरण: ब्याच-००१"
                 required
+                disabled={isSaving}
               />
             </div>
 
             {/* Date of Arrival */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                आगमन मिति
+                आगमन मिति <span className="text-red-500">*</span>
               </label>
               <input
                 type="date"
@@ -161,6 +178,7 @@ export default function EditBatchModal({
                 }
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189] focus:border-transparent"
                 required
+                disabled={isSaving}
               />
             </div>
 
@@ -178,23 +196,26 @@ export default function EditBatchModal({
                 }
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189] focus:border-transparent"
                 placeholder="उदाहरण: ५००"
+                disabled={isSaving}
               />
             </div>
 
             {/* Price */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                मूल्य
+                मूल्य (रु)
               </label>
               <input
                 type="number"
-                min="1"
+                min="0"
+                step="0.01"
                 value={formData.price}
                 onChange={(e) =>
                   setFormData({ ...formData, price: e.target.value })
                 }
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189] focus:border-transparent"
-                placeholder="उदाहरण: रु ५०,०००"
+                placeholder="उदाहरण: ५०,०००"
+                disabled={isSaving}
               />
             </div>
 
@@ -211,6 +232,7 @@ export default function EditBatchModal({
                 }
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189] focus:border-transparent"
                 placeholder="उदाहरण: नेपाल ह्याचरी प्रा. लि."
+                disabled={isSaving}
               />
             </div>
 
@@ -219,6 +241,17 @@ export default function EditBatchModal({
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 भुक्तानी प्रमाण (PDF/Image)
               </label>
+              {batchData.paymentProofName && !formData.paymentProof && (
+                <div className="mb-2 text-sm text-gray-600 bg-blue-50 p-2 rounded">
+                  वर्तमान फाइल: <strong>{batchData.paymentProofName}</strong>
+                </div>
+              )}
+              {formData.paymentProof && (
+                <div className="mb-2 text-sm text-green-600 bg-green-50 p-2 rounded">
+                  नयाँ फाइल चयन गरिएको:{" "}
+                  <strong>{formData.paymentProof.name}</strong>
+                </div>
+              )}
               <input
                 type="file"
                 accept=".pdf,.jpg,.jpeg,.png"
@@ -229,10 +262,11 @@ export default function EditBatchModal({
                     paymentProof: e.target.files?.[0] || null,
                   })
                 }
+                disabled={isSaving}
               />
-              {batchData.paymentProof && !formData.paymentProof && (
-                <p className="text-xs text-gray-500 mt-1">
-                  वर्तमान फाइल: {batchData.paymentProof}
+              {formData.paymentProof && (
+                <p className="mt-1 text-xs text-gray-500">
+                  नयाँ फाइल चयन गर्दा पुरानो फाइल स्वतः हट्नेछ
                 </p>
               )}
             </div>
@@ -249,19 +283,22 @@ export default function EditBatchModal({
           {/* Buttons */}
           <div className="flex gap-3 mt-6 pt-6 border-t border-gray-200">
             <button
+              type="button"
               onClick={handleClose}
-              className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+              disabled={isSaving}
+              className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
             >
               रद्द गर्नुहोस्
             </button>
             <button
-              onClick={handleSubmit}
-              className="flex-1 px-4 py-2 bg-[#1ab189] text-white rounded-lg hover:bg-[#158f6f] transition-colors"
+              type="submit"
+              disabled={isSaving}
+              className="flex-1 px-4 py-2 bg-[#1ab189] text-white rounded-lg hover:bg-[#158f6f] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              सेभ गर्नुहोस्
+              {isSaving ? "सेभ गर्दै..." : "सेभ गर्नुहोस्"}
             </button>
           </div>
-        </div>
+        </form>
       </div>
     </div>
   );

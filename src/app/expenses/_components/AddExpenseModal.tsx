@@ -2,8 +2,11 @@
 
 import { X } from "lucide-react";
 import { useState, useEffect } from "react";
+import { getBatchNames } from "../../../lib/api/batch";
+import { createExpense } from "@/lib/api/expenses";
 
 type Tab = "kukhura" | "others";
+
 interface Expense {
   id: number;
   category: string;
@@ -13,6 +16,7 @@ interface Expense {
   method: string;
   isPaid: boolean;
   paymentProofName: string | null;
+  paymentProofPath: string | null;
   batch: string;
 }
 
@@ -27,6 +31,9 @@ export default function AddExpenseModal({
 }) {
   const [show, setShow] = useState(false);
   const [activeTab, setActiveTab] = useState<Tab>("kukhura");
+  const [availableBatches, setAvailableBatches] = useState<string[]>([]);
+  const [isLoadingBatches, setIsLoadingBatches] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
 
   const [kukhuraData, setKukhuraData] = useState({
     batch: "",
@@ -47,14 +54,29 @@ export default function AddExpenseModal({
     paymentProof: null as File | null,
   });
 
+  // Load batches when modal opens
   useEffect(() => {
     if (isOpen) {
       const timer = setTimeout(() => setShow(true), 10);
+      loadBatches();
       return () => clearTimeout(timer);
     } else {
       setShow(false);
     }
   }, [isOpen]);
+
+  const loadBatches = async () => {
+    setIsLoadingBatches(true);
+    try {
+      const batches = await getBatchNames();
+      setAvailableBatches(batches);
+    } catch (error) {
+      console.error("Error loading batches:", error);
+      alert("ब्याच लोड गर्न सकिएन। पुन: प्रयास गर्नुहोस्।");
+    } finally {
+      setIsLoadingBatches(false);
+    }
+  };
 
   const handleClose = () => {
     setShow(false);
@@ -111,26 +133,37 @@ export default function AddExpenseModal({
     }
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const expenseData = activeTab === "kukhura" ? kukhuraData : othersData;
-    onSave({
-      id: Date.now(),
-      category: activeTab,
-      title: expenseData.expenseTitle,
-      amount: parseFloat(expenseData.amount),
-      date: expenseData.date,
-      method:
-        expenseData.paymentMethod === "cash"
-          ? "नगद"
-          : expenseData.paymentMethod === "bank"
-          ? "बैंक ट्रान्सफर"
-          : "मोबाइल वालेट",
-      isPaid: expenseData.isPaid,
-      paymentProofName: expenseData.paymentProof?.name || null,
-      batch: activeTab === "kukhura" ? kukhuraData.batch : "----",
-    });
-    handleClose();
+    setIsSaving(true);
+
+    try {
+      const expenseData = activeTab === "kukhura" ? kukhuraData : othersData;
+
+      const newExpense = await createExpense({
+        category: activeTab,
+        batch: activeTab === "kukhura" ? kukhuraData.batch : undefined,
+        title: expenseData.expenseTitle,
+        amount: parseFloat(expenseData.amount),
+        date: expenseData.date,
+        paymentMethod:
+          expenseData.paymentMethod === "cash"
+            ? "नगद"
+            : expenseData.paymentMethod === "bank"
+            ? "बैंक ट्रान्सफर"
+            : "मोबाइल वालेट",
+        isPaid: expenseData.isPaid,
+        paymentProof: expenseData.paymentProof,
+      });
+
+      onSave(newExpense);
+      handleClose();
+    } catch (error) {
+      console.error("Error saving expense:", error);
+      alert("खर्च सुरक्षित गर्न सकिएन। पुन: प्रयास गर्नुहोस्।");
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   if (!isOpen && !show) return null;
@@ -199,14 +232,23 @@ export default function AddExpenseModal({
                   value={kukhuraData.batch}
                   onChange={handleKukhuraChange}
                   required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189] focus:border-transparent"
+                  disabled={isLoadingBatches}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189] focus:border-transparent disabled:bg-gray-100"
                 >
-                  <option value="">ब्याच चयन गर्नुहोस्</option>
-                  <option value="Batch-001">ब्याच-001 (साता १-४)</option>
-                  <option value="Batch-002">ब्याच-002 (साता ५-८)</option>
-                  <option value="Batch-003">ब्याच-003 (साता ९-१२)</option>
-                  <option value="Batch-004">ब्याच-004 (साता १३-१६)</option>
+                  <option value="">
+                    {isLoadingBatches ? "लोड हुँदैछ..." : "ब्याच चयन गर्नुहोस्"}
+                  </option>
+                  {availableBatches.map((batch) => (
+                    <option key={batch} value={batch}>
+                      {batch}
+                    </option>
+                  ))}
                 </select>
+                {!isLoadingBatches && availableBatches.length === 0 && (
+                  <p className="text-sm text-red-600 mt-1">
+                    कुनै ब्याच उपलब्ध छैन। पहिले ब्याच थप्नुहोस्।
+                  </p>
+                )}
               </div>
 
               <div>
@@ -232,6 +274,8 @@ export default function AddExpenseModal({
                   type="number"
                   name="amount"
                   required
+                  min="0"
+                  step="0.01"
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189]"
                   value={kukhuraData.amount}
                   onChange={handleKukhuraChange}
@@ -289,6 +333,11 @@ export default function AddExpenseModal({
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   भुक्तानी प्रमाण (PDF/Image)
                 </label>
+                {kukhuraData.paymentProof && (
+                  <div className="mb-2 text-sm text-green-600">
+                    चयन गरिएको: {kukhuraData.paymentProof.name}
+                  </div>
+                )}
                 <input
                   type="file"
                   name="paymentProof"
@@ -323,6 +372,8 @@ export default function AddExpenseModal({
                   type="number"
                   name="amount"
                   required
+                  min="0"
+                  step="0.01"
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189]"
                   value={othersData.amount}
                   onChange={handleOthersChange}
@@ -380,6 +431,11 @@ export default function AddExpenseModal({
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   भुक्तानी प्रमाण (PDF/Image)
                 </label>
+                {othersData.paymentProof && (
+                  <div className="mb-2 text-sm text-green-600">
+                    चयन गरिएको: {othersData.paymentProof.name}
+                  </div>
+                )}
                 <input
                   type="file"
                   name="paymentProof"
@@ -395,15 +451,17 @@ export default function AddExpenseModal({
             <button
               type="button"
               onClick={handleClose}
-              className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50"
+              disabled={isSaving}
+              className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 disabled:opacity-50"
             >
               रद्द गर्नुहोस्
             </button>
             <button
               type="submit"
-              className="flex-1 px-4 py-2 bg-[#1ab189] text-white rounded-lg hover:bg-[#158f6f]"
+              disabled={isSaving || isLoadingBatches}
+              className="flex-1 px-4 py-2 bg-[#1ab189] text-white rounded-lg hover:bg-[#158f6f] disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              खर्च सुरक्षित गर्नुहोस्
+              {isSaving ? "सुरक्षित गर्दै..." : "खर्च सुरक्षित गर्नुहोस्"}
             </button>
           </div>
         </form>

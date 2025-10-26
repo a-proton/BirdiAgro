@@ -1,27 +1,15 @@
 "use client";
 
-import { useState } from "react";
-import { Plus, Eye } from "lucide-react";
+import { useState, useEffect } from "react";
+import { Plus, Eye, FileText, Image as ImageIcon } from "lucide-react";
 import AddBatchModal from "./AddBatchModal";
 import AddDeathModal from "./AddDeathModal";
 import AddVaccinationModal from "./AddVaccinationModal";
 import AddMedicationModal from "./AddMedicationModal";
 import ViewDetailModal from "./ViewBatchDetails";
 import EditBatchModal from "./EditBatchModal";
-
-// ---------- Types ----------
-
-export interface Batch {
-  id: number;
-  batchName: string;
-  dateOfArrival: string;
-  numberOfChicks?: number;
-  price?: number;
-  supplier?: string;
-  vaccinations: { date: string; name: string }[];
-  medications: { date: string; name: string }[];
-  paymentProof: string;
-}
+import { getAllBatches, BatchWithDetails } from "@/lib/api/batch";
+import { getPoultryPublicUrl } from "@/lib/api/storage";
 
 interface PopupItem {
   type: "vaccine" | "medication";
@@ -29,62 +17,9 @@ interface PopupItem {
   date: string;
 }
 
-// ---------- Static Data ----------
-const initialBatchData: Batch[] = [
-  {
-    id: 1,
-    batchName: "Batch-001",
-    dateOfArrival: "2024-09-15",
-    numberOfChicks: 500,
-    price: 50000,
-    supplier: "नेपाल ह्याचरी प्रा. लि.",
-    vaccinations: [
-      { date: "2024-09-20", name: "Newcastle Vaccine" },
-      { date: "2024-10-05", name: "IBD Vaccine" },
-      { date: "2024-10-21", name: "Fowl Pox Vaccine" },
-    ],
-    medications: [
-      { date: "2024-09-25", name: "Antibiotic A" },
-      { date: "2024-10-10", name: "Vitamin Supplement" },
-    ],
-    paymentProof: "payment_001.pdf",
-  },
-  {
-    id: 2,
-    batchName: "Batch-002",
-    dateOfArrival: "2024-09-20",
-    numberOfChicks: 600,
-    price: 60000,
-    supplier: "पोखरा पोल्ट्री",
-    vaccinations: [
-      { date: "2024-09-25", name: "Newcastle Vaccine" },
-      { date: "2024-10-10", name: "IBD Booster" },
-    ],
-    medications: [{ date: "2024-09-30", name: "Coccidiostat" }],
-    paymentProof: "payment_002.pdf",
-  },
-  {
-    id: 3,
-    batchName: "Batch-003",
-    dateOfArrival: "2024-10-01",
-    numberOfChicks: 450,
-    price: 45000,
-    supplier: "काठमाडौं फार्म सप्लाई",
-    vaccinations: [
-      { date: "2024-10-06", name: "Newcastle" },
-      { date: "2024-10-21", name: "Avian Influenza" },
-    ],
-    medications: [
-      { date: "2024-10-11", name: "Electrolytes" },
-      { date: "2024-10-15", name: "Antibiotic B" },
-    ],
-    paymentProof: "payment_003.pdf",
-  },
-];
-
-// ---------- Component ----------
 export default function PoultryManagementTable() {
-  const [batches, setBatches] = useState<Batch[]>(initialBatchData);
+  const [batches, setBatches] = useState<BatchWithDetails[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
 
   // Modal states
   const [isAddBatchOpen, setIsAddBatchOpen] = useState(false);
@@ -94,32 +29,47 @@ export default function PoultryManagementTable() {
 
   const [isViewDetailOpen, setIsViewDetailOpen] = useState(false);
   const [selectedBatchForView, setSelectedBatchForView] =
-    useState<Batch | null>(null);
+    useState<BatchWithDetails | null>(null);
 
   const [isEditOpen, setIsEditOpen] = useState(false);
   const [selectedBatchForEdit, setSelectedBatchForEdit] =
-    useState<Batch | null>(null);
+    useState<BatchWithDetails | null>(null);
 
   // Popup for viewing specific vaccine/medication
   const [viewItem, setViewItem] = useState<PopupItem | null>(null);
   const [isPopupOpen, setIsPopupOpen] = useState(false);
   const [isPopupVisible, setIsPopupVisible] = useState(false);
 
-  // ---------- Handlers ----------
-  const handleViewBatch = (batch: Batch) => {
+  // Load batches on mount
+  useEffect(() => {
+    loadBatches();
+  }, []);
+
+  const loadBatches = async () => {
+    setIsLoading(true);
+    try {
+      const data = await getAllBatches();
+      setBatches(data);
+    } catch (error) {
+      console.error("Error loading batches:", error);
+      alert("ब्याच लोड गर्न सकिएन। पुन: प्रयास गर्नुहोस्।");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  const handleViewBatch = (batch: BatchWithDetails) => {
     setSelectedBatchForView(batch);
     setIsViewDetailOpen(true);
   };
 
-  const handleEditBatch = (batch: Batch) => {
+  const handleEditBatch = (batch: BatchWithDetails) => {
     setSelectedBatchForEdit(batch);
     setIsEditOpen(true);
   };
 
-  const handleSaveEdit = (updatedBatch: Batch) => {
-    setBatches((prev) =>
-      prev.map((b) => (b.id === updatedBatch.id ? updatedBatch : b))
-    );
+  const handleSaveEdit = async () => {
+    await loadBatches();
   };
 
   const openPopup = (item: PopupItem) => {
@@ -136,7 +86,17 @@ export default function PoultryManagementTable() {
     }, 300);
   };
 
-  // ---------- Render ----------
+  const getFileType = (fileName: string | null) => {
+    if (!fileName) return null;
+    const ext = fileName.split(".").pop()?.toLowerCase();
+    return ext === "pdf" ? "pdf" : "image";
+  };
+
+  const handleViewProof = (paymentProofPath: string) => {
+    const url = getPoultryPublicUrl(paymentProofPath);
+    window.open(url, "_blank");
+  };
+
   return (
     <>
       {/* Action Buttons */}
@@ -177,127 +137,186 @@ export default function PoultryManagementTable() {
           <h2 className="text-lg font-semibold text-gray-900">ब्याच विवरण</h2>
         </div>
         <div className="overflow-x-auto">
-          <table className="w-full">
-            <thead className="bg-gray-50">
-              <tr>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase">
-                  SN
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase">
-                  ब्याच नाम
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase">
-                  आगमन मिति
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase">
-                  खोप मिति
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase">
-                  औषधि मिति
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase">
-                  भुक्तानी प्रमाण
-                </th>
-                <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase">
-                  क्रियाकलाप
-                </th>
-              </tr>
-            </thead>
-            <tbody className="divide-y divide-gray-200">
-              {batches.map((batch, index) => (
-                <tr
-                  key={batch.id}
-                  className="hover:bg-gray-50 transition-colors"
-                >
-                  <td className="px-6 py-4 text-sm text-gray-900">
-                    {index + 1}
-                  </td>
-                  <td className="px-6 py-4 text-sm font-medium text-gray-900">
-                    {batch.batchName}
-                  </td>
-                  <td className="px-6 py-4 text-sm text-gray-900">
-                    {batch.dateOfArrival}
-                  </td>
-
-                  {/* Vaccination Dates */}
-                  <td className="px-6 py-4 text-sm text-gray-900">
-                    <div className="space-y-1">
-                      {batch.vaccinations.map((vacc, idx) => (
-                        <div key={idx} className="flex items-center gap-2">
-                          <span className="text-gray-400">→</span>
-                          <span>{vacc.date}</span>
-                          <button
-                            onClick={() =>
-                              openPopup({
-                                type: "vaccine",
-                                name: vacc.name,
-                                date: vacc.date,
-                              })
-                            }
-                            className="text-blue-600 hover:text-blue-800"
-                            title="खोप विवरण हेर्नुहोस्"
-                          >
-                            <Eye className="w-4 h-4" />
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  </td>
-
-                  {/* Medication Dates */}
-                  <td className="px-6 py-4 text-sm text-gray-900">
-                    <div className="space-y-1">
-                      {batch.medications.map((med, idx) => (
-                        <div key={idx} className="flex items-center gap-2">
-                          <span className="text-gray-400">→</span>
-                          <span>{med.date}</span>
-                          <button
-                            onClick={() =>
-                              openPopup({
-                                type: "medication",
-                                name: med.name,
-                                date: med.date,
-                              })
-                            }
-                            className="text-blue-600 hover:text-blue-800"
-                            title="औषधि विवरण हेर्नुहोस्"
-                          >
-                            <Eye className="w-4 h-4" />
-                          </button>
-                        </div>
-                      ))}
-                    </div>
-                  </td>
-
-                  <td className="px-6 py-4 text-sm text-gray-600">
-                    <a
-                      href="#"
-                      className="text-[#1ab189] hover:text-[#158f6f] hover:underline"
-                    >
-                      {batch.paymentProof}
-                    </a>
-                  </td>
-
-                  <td className="px-6 py-4 text-sm text-gray-600">
-                    <div className="flex items-center gap-2">
-                      <button
-                        onClick={() => handleViewBatch(batch)}
-                        className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg"
-                      >
-                        हेर्नुहोस्
-                      </button>
-                      <button
-                        onClick={() => handleEditBatch(batch)}
-                        className="p-2 text-[#1ab189] hover:bg-[#e8f8f7] rounded-lg"
-                      >
-                        सम्पादन
-                      </button>
-                    </div>
-                  </td>
+          {isLoading ? (
+            <div className="px-6 py-8 text-center text-gray-500">
+              लोड हुँदैछ...
+            </div>
+          ) : (
+            <table className="w-full">
+              <thead className="bg-gray-50">
+                <tr>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase">
+                    SN
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase">
+                    ब्याच नाम
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase">
+                    आगमन मिति
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase">
+                    मूल्य (रु)
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase">
+                    खोप मिति
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase">
+                    औषधि मिति
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase">
+                    भुक्तानी प्रमाण
+                  </th>
+                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase">
+                    क्रियाकलाप
+                  </th>
                 </tr>
-              ))}
-            </tbody>
-          </table>
+              </thead>
+              <tbody className="divide-y divide-gray-200">
+                {batches.length === 0 ? (
+                  <tr>
+                    <td
+                      colSpan={8}
+                      className="px-6 py-8 text-center text-gray-500"
+                    >
+                      कुनै ब्याच छैन
+                    </td>
+                  </tr>
+                ) : (
+                  batches.map((batch, index) => (
+                    <tr
+                      key={batch.id}
+                      className="hover:bg-gray-50 transition-colors"
+                    >
+                      <td className="px-6 py-4 text-sm text-gray-900">
+                        {index + 1}
+                      </td>
+                      <td className="px-6 py-4 text-sm font-medium text-gray-900">
+                        {batch.batchName}
+                      </td>
+                      <td className="px-6 py-4 text-sm text-gray-900">
+                        {batch.dateOfArrival}
+                      </td>
+
+                      {/* Price */}
+                      <td className="px-6 py-4 text-sm text-gray-900">
+                        {batch.price ? (
+                          <span className="font-medium">
+                            रु {batch.price.toLocaleString("en-IN")}
+                          </span>
+                        ) : (
+                          <span className="text-gray-400">---</span>
+                        )}
+                      </td>
+
+                      {/* Vaccination Dates */}
+                      <td className="px-6 py-4 text-sm text-gray-900">
+                        <div className="space-y-1">
+                          {batch.vaccinations.length === 0 ? (
+                            <span className="text-gray-400">---</span>
+                          ) : (
+                            batch.vaccinations.map((vacc, idx) => (
+                              <div
+                                key={idx}
+                                className="flex items-center gap-2"
+                              >
+                                <span className="text-gray-400">→</span>
+                                <span>{vacc.date}</span>
+                                <button
+                                  onClick={() =>
+                                    openPopup({
+                                      type: "vaccine",
+                                      name: vacc.name,
+                                      date: vacc.date,
+                                    })
+                                  }
+                                  className="text-blue-600 hover:text-blue-800"
+                                  title="खोप विवरण हेर्नुहोस्"
+                                >
+                                  <Eye className="w-4 h-4" />
+                                </button>
+                              </div>
+                            ))
+                          )}
+                        </div>
+                      </td>
+
+                      {/* Medication Dates */}
+                      <td className="px-6 py-4 text-sm text-gray-900">
+                        <div className="space-y-1">
+                          {batch.medications.length === 0 ? (
+                            <span className="text-gray-400">---</span>
+                          ) : (
+                            batch.medications.map((med, idx) => (
+                              <div
+                                key={idx}
+                                className="flex items-center gap-2"
+                              >
+                                <span className="text-gray-400">→</span>
+                                <span>{med.date}</span>
+                                <button
+                                  onClick={() =>
+                                    openPopup({
+                                      type: "medication",
+                                      name: med.name,
+                                      date: med.date,
+                                    })
+                                  }
+                                  className="text-blue-600 hover:text-blue-800"
+                                  title="औषधि विवरण हेर्नुहोस्"
+                                >
+                                  <Eye className="w-4 h-4" />
+                                </button>
+                              </div>
+                            ))
+                          )}
+                        </div>
+                      </td>
+
+                      {/* Payment Proof */}
+                      <td className="px-6 py-4 text-sm text-gray-600">
+                        {batch.paymentProofName && batch.paymentProofPath ? (
+                          <button
+                            onClick={() =>
+                              handleViewProof(batch.paymentProofPath)
+                            }
+                            className="inline-flex items-center gap-2 px-3 py-1.5 text-[#1ab189] hover:bg-[#e8f8f7] rounded-lg transition-colors"
+                            title={batch.paymentProofName}
+                          >
+                            {getFileType(batch.paymentProofName) === "pdf" ? (
+                              <FileText className="w-4 h-4" />
+                            ) : (
+                              <ImageIcon className="w-4 h-4" />
+                            )}
+                            <span className="text-xs">हेर्नुहोस्</span>
+                          </button>
+                        ) : (
+                          <span className="text-gray-400">---</span>
+                        )}
+                      </td>
+
+                      {/* Actions */}
+                      <td className="px-6 py-4 text-sm text-gray-600">
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => handleViewBatch(batch)}
+                            className="p-2 text-blue-600 hover:bg-blue-50 rounded-lg"
+                          >
+                            हेर्नुहोस्
+                          </button>
+                          <button
+                            onClick={() => handleEditBatch(batch)}
+                            className="p-2 text-[#1ab189] hover:bg-[#e8f8f7] rounded-lg"
+                          >
+                            सम्पादन
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))
+                )}
+              </tbody>
+            </table>
+          )}
         </div>
       </div>
 
@@ -305,18 +324,22 @@ export default function PoultryManagementTable() {
       <AddBatchModal
         isOpen={isAddBatchOpen}
         onClose={() => setIsAddBatchOpen(false)}
+        onBatchAdded={loadBatches}
       />
       <AddDeathModal
         isOpen={isAddDeathOpen}
         onClose={() => setIsAddDeathOpen(false)}
+        onDeathAdded={loadBatches}
       />
       <AddVaccinationModal
         isOpen={isAddVaccinationOpen}
         onClose={() => setIsAddVaccinationOpen(false)}
+        onVaccinationAdded={loadBatches}
       />
       <AddMedicationModal
         isOpen={isAddMedicationOpen}
         onClose={() => setIsAddMedicationOpen(false)}
+        onMedicationAdded={loadBatches}
       />
 
       <ViewDetailModal
@@ -331,7 +354,7 @@ export default function PoultryManagementTable() {
         onSave={handleSaveEdit}
       />
 
-      {/* Popup */}
+      {/* Popup for Vaccine/Medication Details */}
       {isPopupOpen && (
         <>
           <div

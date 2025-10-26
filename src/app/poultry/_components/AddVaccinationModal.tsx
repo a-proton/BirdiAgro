@@ -2,49 +2,116 @@
 
 import { useState, useEffect } from "react";
 import { X } from "lucide-react";
+import { getBatchNames, getBatchIdByName } from "@/lib/api/batch";
+import { createVaccination } from "@/lib/api/medications";
 
-// Props Interface
 interface AddVaccinationModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onVaccinationAdded?: () => void;
 }
 
-// Form Data Interface
 interface VaccinationFormData {
   batch: string;
   week: string;
   vaccinationDate: string;
+  vaccinationName: string;
 }
 
 export default function AddVaccinationModal({
   isOpen,
   onClose,
+  onVaccinationAdded,
 }: AddVaccinationModalProps) {
   const [show, setShow] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [isLoadingBatches, setIsLoadingBatches] = useState(false);
+  const [availableBatches, setAvailableBatches] = useState<string[]>([]);
+
   const [formData, setFormData] = useState<VaccinationFormData>({
     batch: "",
     week: "",
     vaccinationDate: new Date().toISOString().split("T")[0],
+    vaccinationName: "",
   });
 
   useEffect(() => {
     if (isOpen) {
       const timer = setTimeout(() => setShow(true), 10);
+      loadBatches();
       return () => clearTimeout(timer);
     } else {
       setShow(false);
     }
   }, [isOpen]);
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const loadBatches = async () => {
+    setIsLoadingBatches(true);
+    try {
+      const batches = await getBatchNames();
+      setAvailableBatches(batches);
+    } catch (error) {
+      console.error("Error loading batches:", error);
+      alert("ब्याच लोड गर्न सकिएन।");
+    } finally {
+      setIsLoadingBatches(false);
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log("खोप रेकर्ड:", formData);
-    handleClose();
+    setIsSaving(true);
+
+    try {
+      const batchId = await getBatchIdByName(formData.batch);
+
+      if (!batchId) {
+        alert("ब्याच फेला परेन।");
+        return;
+      }
+
+      // Generate vaccination name based on week
+      const vaccinationName = getVaccinationNameByWeek(formData.week);
+
+      await createVaccination({
+        batchId,
+        vaccinationName,
+        vaccinationDate: formData.vaccinationDate,
+        week: formData.week,
+      });
+
+      alert("खोप सफलतापूर्वक थपियो!");
+      if (onVaccinationAdded) onVaccinationAdded();
+      handleClose();
+    } catch (error) {
+      console.error("Error creating vaccination:", error);
+      alert("खोप थप्न सकिएन। पुन: प्रयास गर्नुहोस्।");
+    } finally {
+      setIsSaving(false);
+    }
+  };
+
+  const getVaccinationNameByWeek = (week: string): string => {
+    const vaccineMap: { [key: string]: string } = {
+      "Week-1": "रानीखेत रोग - 1st Dose",
+      "Week-2": "गुम्बोरो खोप - 1st Dose ",
+      "Week-3": "रानीखेत रोग  - 2nd Dose",
+      "Week-4": "गुम्बोरो खोप - 2nd Dose",
+    };
+    return vaccineMap[week] || "General Vaccine";
   };
 
   const handleClose = () => {
     setShow(false);
-    setTimeout(() => onClose(), 300);
+    setTimeout(() => {
+      onClose();
+      setFormData({
+        batch: "",
+        week: "",
+        vaccinationDate: new Date().toISOString().split("T")[0],
+        vaccinationName: "",
+      });
+    }, 300);
   };
 
   if (!isOpen && !show) return null;
@@ -63,7 +130,6 @@ export default function AddVaccinationModal({
         }`}
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Header */}
         <div className="flex items-center justify-between p-6 border-b border-gray-200">
           <h2 className="text-xl font-semibold text-gray-900">खोप थप्नुहोस्</h2>
           <button
@@ -75,30 +141,37 @@ export default function AddVaccinationModal({
           </button>
         </div>
 
-        {/* Form */}
         <form onSubmit={handleSubmit} className="p-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Batch Selection */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 ब्याच छान्नुहोस्
               </label>
               <select
                 required
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189] focus:border-transparent"
+                disabled={isLoadingBatches}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189] focus:border-transparent disabled:bg-gray-100"
                 value={formData.batch}
                 onChange={(e) =>
                   setFormData({ ...formData, batch: e.target.value })
                 }
               >
-                <option value="">ब्याच छान्नुहोस्</option>
-                <option value="Batch-001">ब्याच-००१</option>
-                <option value="Batch-002">ब्याच-००२</option>
-                <option value="Batch-003">ब्याच-००३</option>
+                <option value="">
+                  {isLoadingBatches ? "लोड हुँदैछ..." : "ब्याच छान्नुहोस्"}
+                </option>
+                {availableBatches.map((batch) => (
+                  <option key={batch} value={batch}>
+                    {batch}
+                  </option>
+                ))}
               </select>
+              {!isLoadingBatches && availableBatches.length === 0 && (
+                <p className="text-sm text-red-600 mt-1">
+                  कुनै ब्याच उपलब्ध छैन। पहिले ब्याच थप्नुहोस्।
+                </p>
+              )}
             </div>
 
-            {/* Week Selection */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 हप्ता छान्नुहोस्
@@ -119,7 +192,6 @@ export default function AddVaccinationModal({
               </select>
             </div>
 
-            {/* Vaccination Date */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 खोप मिति
@@ -139,20 +211,23 @@ export default function AddVaccinationModal({
             </div>
           </div>
 
-          {/* Footer Buttons */}
           <div className="flex gap-3 mt-6 pt-6 border-t border-gray-200">
             <button
               type="button"
               onClick={handleClose}
-              className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+              disabled={isSaving}
+              className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
             >
               रद्द गर्नुहोस्
             </button>
             <button
               type="submit"
-              className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+              disabled={
+                isSaving || isLoadingBatches || availableBatches.length === 0
+              }
+              className="flex-1 px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              खोप थप्नुहोस्
+              {isSaving ? "थप्दै..." : "खोप थप्नुहोस्"}
             </button>
           </div>
         </form>

@@ -2,10 +2,13 @@
 
 import { useState, useEffect } from "react";
 import { X } from "lucide-react";
+import { getBatchNames, getBatchIdByName } from "@/lib/api/batch";
+import { createDeath } from "@/lib/api/death";
 
 interface AddDeathModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onDeathAdded?: () => void;
 }
 
 interface DeathFormData {
@@ -16,8 +19,16 @@ interface DeathFormData {
   notes: string;
 }
 
-export default function AddDeathModal({ isOpen, onClose }: AddDeathModalProps) {
+export default function AddDeathModal({
+  isOpen,
+  onClose,
+  onDeathAdded,
+}: AddDeathModalProps) {
   const [show, setShow] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
+  const [isLoadingBatches, setIsLoadingBatches] = useState(false);
+  const [availableBatches, setAvailableBatches] = useState<string[]>([]);
+
   const [formData, setFormData] = useState<DeathFormData>({
     batch: "",
     dateOfDeath: new Date().toISOString().split("T")[0],
@@ -29,21 +40,69 @@ export default function AddDeathModal({ isOpen, onClose }: AddDeathModalProps) {
   useEffect(() => {
     if (isOpen) {
       const timer = setTimeout(() => setShow(true), 10);
+      loadBatches();
       return () => clearTimeout(timer);
     } else {
       setShow(false);
     }
   }, [isOpen]);
 
-  const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
+  const loadBatches = async () => {
+    setIsLoadingBatches(true);
+    try {
+      const batches = await getBatchNames();
+      setAvailableBatches(batches);
+    } catch (error) {
+      console.error("Error loading batches:", error);
+      alert("ब्याच लोड गर्न सकिएन।");
+    } finally {
+      setIsLoadingBatches(false);
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    console.log("मृत्युको रेकर्ड:", formData);
-    handleClose();
+    setIsSaving(true);
+
+    try {
+      const batchId = await getBatchIdByName(formData.batch);
+
+      if (!batchId) {
+        alert("ब्याच फेला परेन।");
+        return;
+      }
+
+      await createDeath({
+        batchId,
+        dateOfDeath: formData.dateOfDeath,
+        numberOfDeaths: parseInt(formData.numberOfDeaths),
+        cause: formData.cause || undefined,
+        notes: formData.notes || undefined,
+      });
+
+      alert("मृत्यु रेकर्ड सफलतापूर्वक थपियो!");
+      if (onDeathAdded) onDeathAdded();
+      handleClose();
+    } catch (error) {
+      console.error("Error creating death record:", error);
+      alert("मृत्यु रेकर्ड थप्न सकिएन। पुन: प्रयास गर्नुहोस्।");
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleClose = () => {
     setShow(false);
-    setTimeout(() => onClose(), 300);
+    setTimeout(() => {
+      onClose();
+      setFormData({
+        batch: "",
+        dateOfDeath: new Date().toISOString().split("T")[0],
+        numberOfDeaths: "",
+        cause: "",
+        notes: "",
+      });
+    }, 300);
   };
 
   if (!isOpen && !show) return null;
@@ -83,17 +142,27 @@ export default function AddDeathModal({ isOpen, onClose }: AddDeathModalProps) {
               </label>
               <select
                 required
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189] focus:border-transparent"
+                disabled={isLoadingBatches}
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189] focus:border-transparent disabled:bg-gray-100"
                 value={formData.batch}
                 onChange={(e) =>
                   setFormData({ ...formData, batch: e.target.value })
                 }
               >
-                <option value="">ब्याच छान्नुहोस्</option>
-                <option value="Batch-001">ब्याच-००१</option>
-                <option value="Batch-002">ब्याच-००२</option>
-                <option value="Batch-003">ब्याच-००३</option>
+                <option value="">
+                  {isLoadingBatches ? "लोड हुँदैछ..." : "ब्याच छान्नुहोस्"}
+                </option>
+                {availableBatches.map((batch) => (
+                  <option key={batch} value={batch}>
+                    {batch}
+                  </option>
+                ))}
               </select>
+              {!isLoadingBatches && availableBatches.length === 0 && (
+                <p className="text-sm text-red-600 mt-1">
+                  कुनै ब्याच उपलब्ध छैन। पहिले ब्याच थप्नुहोस्।
+                </p>
+              )}
             </div>
 
             <div>
@@ -169,15 +238,19 @@ export default function AddDeathModal({ isOpen, onClose }: AddDeathModalProps) {
             <button
               type="button"
               onClick={handleClose}
-              className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+              disabled={isSaving}
+              className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
             >
               रद्द गर्नुहोस्
             </button>
             <button
               type="submit"
-              className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
+              disabled={
+                isSaving || isLoadingBatches || availableBatches.length === 0
+              }
+              className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              मृत्यु रेकर्ड गर्नुहोस्
+              {isSaving ? "रेकर्ड गर्दै..." : "मृत्यु रेकर्ड गर्नुहोस्"}
             </button>
           </div>
         </form>

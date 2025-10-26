@@ -2,14 +2,14 @@
 
 import { X } from "lucide-react";
 import { useState, useEffect } from "react";
+import { createBatch } from "../../../lib/api/batch";
 
-// 1️⃣ Define props type
 interface AddBatchModalProps {
   isOpen: boolean;
   onClose: () => void;
+  onBatchAdded?: () => void;
 }
 
-// 2️⃣ Define form data type
 interface BatchFormData {
   batchName: string;
   dateOfArrival: string;
@@ -19,9 +19,13 @@ interface BatchFormData {
   paymentProof: File | null;
 }
 
-// 3️⃣ Typed component
-export default function AddBatchModal({ isOpen, onClose }: AddBatchModalProps) {
+export default function AddBatchModal({
+  isOpen,
+  onClose,
+  onBatchAdded,
+}: AddBatchModalProps) {
   const [show, setShow] = useState(false);
+  const [isSaving, setIsSaving] = useState(false);
   const [formData, setFormData] = useState<BatchFormData>({
     batchName: "",
     dateOfArrival: new Date().toISOString().split("T")[0],
@@ -40,11 +44,31 @@ export default function AddBatchModal({ isOpen, onClose }: AddBatchModalProps) {
     }
   }, [isOpen]);
 
-  // ✅ Add event type
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("नयाँ ब्याच:", formData);
-    handleClose();
+    setIsSaving(true);
+
+    try {
+      await createBatch({
+        batchName: formData.batchName,
+        dateOfArrival: formData.dateOfArrival,
+        numberOfChicks: formData.numberOfChicks
+          ? parseInt(formData.numberOfChicks)
+          : undefined,
+        price: formData.price ? parseFloat(formData.price) : undefined,
+        supplier: formData.supplier || undefined,
+        paymentProof: formData.paymentProof,
+      });
+
+      alert("ब्याच सफलतापूर्वक थपियो!");
+      if (onBatchAdded) onBatchAdded();
+      handleClose();
+    } catch (error) {
+      console.error("Error creating batch:", error);
+      alert("ब्याच थप्न सकिएन। पुन: प्रयास गर्नुहोस्।");
+    } finally {
+      setIsSaving(false);
+    }
   };
 
   const handleClose = () => {
@@ -93,16 +117,15 @@ export default function AddBatchModal({ isOpen, onClose }: AddBatchModalProps) {
 
         <form onSubmit={handleSubmit} className="p-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* All inputs remain unchanged */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                ब्याचको नाम
+                ब्याचको नाम <span className="text-red-500">*</span>
               </label>
               <input
                 type="text"
                 required
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189] focus:border-transparent"
-                placeholder="उदाहरण: ब्याच-००१"
+                placeholder="उदाहरण: Batch-001"
                 value={formData.batchName}
                 onChange={(e) =>
                   setFormData({ ...formData, batchName: e.target.value })
@@ -112,7 +135,7 @@ export default function AddBatchModal({ isOpen, onClose }: AddBatchModalProps) {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                आगमन मिति
+                आगमन मिति <span className="text-red-500">*</span>
               </label>
               <input
                 type="date"
@@ -131,7 +154,6 @@ export default function AddBatchModal({ isOpen, onClose }: AddBatchModalProps) {
               </label>
               <input
                 type="number"
-                required
                 min="1"
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189] focus:border-transparent"
                 placeholder="उदाहरण: ५००"
@@ -144,14 +166,14 @@ export default function AddBatchModal({ isOpen, onClose }: AddBatchModalProps) {
 
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
-                मूल्य
+                मूल्य (रु)
               </label>
               <input
                 type="number"
-                required
-                min="1"
+                min="0"
+                step="0.01"
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189] focus:border-transparent"
-                placeholder="उदाहरण: रु ५०,०००"
+                placeholder="उदाहरण: ५०००"
                 value={formData.price}
                 onChange={(e) =>
                   setFormData({ ...formData, price: e.target.value })
@@ -165,7 +187,6 @@ export default function AddBatchModal({ isOpen, onClose }: AddBatchModalProps) {
               </label>
               <input
                 type="text"
-                required
                 className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189] focus:border-transparent"
                 placeholder="उदाहरण: नेपाल ह्याचरी प्रा. लि."
                 value={formData.supplier}
@@ -179,6 +200,11 @@ export default function AddBatchModal({ isOpen, onClose }: AddBatchModalProps) {
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 भुक्तानी प्रमाण (PDF/Image)
               </label>
+              {formData.paymentProof && (
+                <div className="mb-2 text-sm text-green-600 bg-green-50 p-2 rounded">
+                  चयन गरिएको: <strong>{formData.paymentProof.name}</strong>
+                </div>
+              )}
               <input
                 type="file"
                 accept=".pdf,.jpg,.jpeg,.png"
@@ -197,15 +223,17 @@ export default function AddBatchModal({ isOpen, onClose }: AddBatchModalProps) {
             <button
               type="button"
               onClick={handleClose}
-              className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+              disabled={isSaving}
+              className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
             >
               रद्द गर्नुहोस्
             </button>
             <button
               type="submit"
-              className="flex-1 px-4 py-2 bg-[#1ab189] text-white rounded-lg hover:bg-[#158f6f] transition-colors"
+              disabled={isSaving}
+              className="flex-1 px-4 py-2 bg-[#1ab189] text-white rounded-lg hover:bg-[#158f6f] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
-              ब्याच थप्नुहोस्
+              {isSaving ? "थप्दै..." : "ब्याच थप्नुहोस्"}
             </button>
           </div>
         </form>

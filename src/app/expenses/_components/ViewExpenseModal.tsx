@@ -1,7 +1,8 @@
 "use client";
 
-import { X } from "lucide-react";
+import { X, ExternalLink, FileText, Image as ImageIcon } from "lucide-react";
 import { useState, useEffect } from "react";
+import { getPublicUrl } from "@/lib/api/storage";
 
 interface Expense {
   id: number;
@@ -12,6 +13,7 @@ interface Expense {
   method: string;
   isPaid: boolean;
   paymentProofName: string | null;
+  paymentProofPath: string | null;
   batch: string;
 }
 
@@ -42,7 +44,22 @@ export default function ViewExpenseModal({
     }, 300);
   };
 
+  const getFileType = (fileName: string | null) => {
+    if (!fileName) return null;
+    const ext = fileName.split(".").pop()?.toLowerCase();
+    return ext === "pdf" ? "pdf" : "image";
+  };
+
+  const handleViewFile = () => {
+    if (expense?.paymentProofPath) {
+      const url = getPublicUrl(expense.paymentProofPath);
+      window.open(url, "_blank");
+    }
+  };
+
   if ((!isOpen && !show) || !expense) return null;
+
+  const fileType = getFileType(expense.paymentProofName);
 
   return (
     <div
@@ -136,17 +153,30 @@ export default function ViewExpenseModal({
               </div>
             </div>
 
-            <div>
+            <div className="md:col-span-2">
               <label className="block text-sm font-medium text-gray-500 mb-1">
                 भुक्तानी प्रमाण
               </label>
-              {expense.paymentProofName ? (
-                <a
-                  href="#"
-                  className="text-base text-[#1ab189] hover:text-[#158f6f] hover:underline"
-                >
-                  {expense.paymentProofName}
-                </a>
+              {expense.paymentProofName && expense.paymentProofPath ? (
+                <div className="flex items-center gap-3">
+                  <div className="flex items-center gap-2 px-4 py-2 bg-blue-50 rounded-lg flex-1">
+                    {fileType === "pdf" ? (
+                      <FileText className="w-5 h-5 text-blue-600" />
+                    ) : (
+                      <ImageIcon className="w-5 h-5 text-blue-600" />
+                    )}
+                    <span className="text-sm text-gray-700 truncate">
+                      {expense.paymentProofName}
+                    </span>
+                  </div>
+                  <button
+                    onClick={handleViewFile}
+                    className="inline-flex items-center gap-2 px-4 py-2 bg-[#1ab189] text-white rounded-lg hover:bg-[#158f6f] transition-colors"
+                  >
+                    <ExternalLink className="w-4 h-4" />
+                    हेर्नुहोस्
+                  </button>
+                </div>
               ) : (
                 <p className="text-base text-gray-400">उपलब्ध छैन</p>
               )}

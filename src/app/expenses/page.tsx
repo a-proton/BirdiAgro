@@ -1,12 +1,18 @@
 "use client";
 
 import { Plus, TrendingUp } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import AddExpenseModal from "./_components/AddExpenseModal";
 import EditExpenseModal from "./_components/EditExpenseModal";
 import ViewExpenseModal from "./_components/ViewExpenseModal";
 import ExpenseTable from "./_components/ExpenseTable";
 import Image from "next/image";
+import {
+  getAllExpenses,
+  deleteExpense,
+  updateExpense,
+  type Expense,
+} from "@/lib/api/expenses";
 
 interface StatIconProps {
   src: string;
@@ -25,60 +31,33 @@ function StatIcon({ src, alt }: StatIconProps) {
   );
 }
 
-interface Expense {
-  id: number;
-  category: string;
-  title: string;
-  amount: number;
-  date: string;
-  method: string;
-  isPaid: boolean;
-  paymentProofName: string | null;
-  batch: string;
-}
-
 export default function ExpensesPage() {
   const [isAddModalOpen, setIsAddModalOpen] = useState(false);
   const [isEditModalOpen, setIsEditModalOpen] = useState(false);
   const [isViewModalOpen, setIsViewModalOpen] = useState(false);
   const [selectedExpense, setSelectedExpense] = useState<Expense | null>(null);
+  const [expenses, setExpenses] = useState<Expense[]>([]);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
 
-  // Mock data with updated structure
-  const [expenses, setExpenses] = useState<Expense[]>([
-    {
-      id: 1,
-      category: "kukhura",
-      title: "खाद किन्नु",
-      amount: 12500,
-      date: "2025-10-15",
-      method: "नगद",
-      isPaid: true,
-      paymentProofName: "payment-receipt-001.pdf",
-      batch: "batch 1",
-    },
-    {
-      id: 2,
-      category: "others",
-      title: "डाक्टर भ्रमण",
-      amount: 3200,
-      date: "2025-10-16",
-      method: "बैंक ट्रान्सफर",
-      isPaid: false,
-      paymentProofName: null,
-      batch: "batch 1",
-    },
-    {
-      id: 3,
-      category: "kukhura",
-      title: "औषधि खरिद",
-      amount: 8500,
-      date: "2025-10-17",
-      method: "मोबाइल वालेट",
-      isPaid: true,
-      paymentProofName: "medicine-receipt.jpg",
-      batch: "batch 1",
-    },
-  ]);
+  // Fetch expenses on component mount
+  useEffect(() => {
+    loadExpenses();
+  }, []);
+
+  const loadExpenses = async () => {
+    try {
+      setIsLoading(true);
+      setError(null);
+      const data = await getAllExpenses();
+      setExpenses(data);
+    } catch (err) {
+      console.error("Error loading expenses:", err);
+      setError("खर्च लोड गर्न सकिएन। पुन: प्रयास गर्नुहोस्।");
+    } finally {
+      setIsLoading(false);
+    }
+  };
 
   // Helper to get stats dynamically
   const today = new Date().toISOString().split("T")[0];
@@ -106,17 +85,71 @@ export default function ExpensesPage() {
     .reduce((sum, e) => sum + e.amount, 0);
 
   const handleAddExpense = (expense: Expense) => {
+    // Add to local state immediately for better UX
     setExpenses([expense, ...expenses]);
   };
 
-  const handleEditExpense = (updatedExpense: Expense) => {
-    setExpenses(
-      expenses.map((e) => (e.id === updatedExpense.id ? updatedExpense : e))
-    );
+  const handleEditExpense = async (
+    id: number,
+    data: {
+      category?: string;
+      batch?: string;
+      title?: string;
+      amount?: number;
+      date?: string;
+      paymentMethod?: string;
+      isPaid?: boolean;
+      paymentProof?: File | null;
+      oldPaymentProofPath?: string | null;
+    }
+  ) => {
+    try {
+      await updateExpense(id, data);
+
+      // Update locally instead of reloading - prevents table jumping
+      setExpenses((prevExpenses) =>
+        prevExpenses.map((exp) => {
+          if (exp.id === id) {
+            return {
+              ...exp,
+              ...(data.category !== undefined && { category: data.category }),
+              ...(data.batch !== undefined && { batch: data.batch }),
+              ...(data.title !== undefined && { title: data.title }),
+              ...(data.amount !== undefined && { amount: data.amount }),
+              ...(data.date !== undefined && { date: data.date }),
+              ...(data.paymentMethod !== undefined && {
+                method: data.paymentMethod,
+              }),
+              ...(data.isPaid !== undefined && { isPaid: data.isPaid }),
+              // File updates will be handled on next full reload if needed
+            };
+          }
+          return exp;
+        })
+      );
+
+      // Close modal immediately
+      setIsEditModalOpen(false);
+      setSelectedExpense(null);
+    } catch (err) {
+      console.error("Error updating expense:", err);
+      alert("खर्च अपडेट गर्न सकिएन। पुन: प्रयास गर्नुहोस्।");
+      throw err; // Re-throw so modal knows update failed
+    }
   };
 
-  const handleDeleteExpense = (id: number) => {
-    setExpenses(expenses.filter((e) => e.id !== id));
+  const handleDeleteExpense = async (id: number) => {
+    if (!confirm("के तपाईं यो खर्च मेटाउन चाहनुहुन्छ?")) {
+      return;
+    }
+
+    try {
+      await deleteExpense(id);
+      setExpenses(expenses.filter((e) => e.id !== id));
+    } catch (err) {
+      console.error("Error deleting expense:", err);
+      alert("खर्च मेटाउन सकिएन। पुन: प्रयास गर्नुहोस्।");
+    }
   };
 
   const handleViewExpense = (expense: Expense) => {
@@ -128,6 +161,33 @@ export default function ExpensesPage() {
     setSelectedExpense(expense);
     setIsEditModalOpen(true);
   };
+
+  if (isLoading) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#1ab189] mx-auto"></div>
+          <p className="mt-4 text-gray-600">लोड हुँदैछ...</p>
+        </div>
+      </div>
+    );
+  }
+
+  if (error) {
+    return (
+      <div className="flex items-center justify-center min-h-screen">
+        <div className="text-center">
+          <p className="text-red-600 mb-4">{error}</p>
+          <button
+            onClick={loadExpenses}
+            className="px-4 py-2 bg-[#1ab189] text-white rounded-lg hover:bg-[#158f6f]"
+          >
+            पुन: प्रयास गर्नुहोस्
+          </button>
+        </div>
+      </div>
+    );
+  }
 
   return (
     <div className="space-y-6">
