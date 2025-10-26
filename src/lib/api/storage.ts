@@ -4,6 +4,7 @@ import { supabase } from "../supabase";
 const EXPENSE_BUCKET = "expense_proof";
 const POULTRY_BUCKET = "poultry_proof";
 const MEDICATION_BUCKET = "medications_image";
+const PAYMENT_PROOF_BUCKET = "payment_proof"; // New bucket for feed payment proofs
 
 /**
  * Upload a file to Supabase Storage (Expense)
@@ -109,6 +110,41 @@ export async function uploadMedicationImage(
 }
 
 /**
+ * Upload a payment proof for feed inventory
+ * @param file - The file to upload
+ * @param feedType - Feed type for folder organization (B0, B1, B2)
+ * @returns The file path in storage
+ */
+export async function uploadPaymentProof(
+  file: File,
+  feedType?: string
+): Promise<string> {
+  try {
+    const timestamp = Date.now();
+    const fileExt = file.name.split(".").pop();
+    const fileName = `${timestamp}_${Math.random()
+      .toString(36)
+      .substring(7)}.${fileExt}`;
+    const filePath = feedType
+      ? `${feedType.toLowerCase()}/${fileName}`
+      : `general/${fileName}`;
+
+    const { data, error } = await supabase.storage
+      .from(PAYMENT_PROOF_BUCKET)
+      .upload(filePath, file, {
+        cacheControl: "3600",
+        upsert: false,
+      });
+
+    if (error) throw error;
+    return data.path;
+  } catch (error) {
+    console.error("Error uploading payment proof:", error);
+    throw error;
+  }
+}
+
+/**
  * Get public URL for an expense file
  * @param filePath - The path of the file in storage
  * @returns The public URL
@@ -136,6 +172,18 @@ export function getPoultryPublicUrl(filePath: string): string {
 export function getMedicationImageUrl(filePath: string): string {
   const { data } = supabase.storage
     .from(MEDICATION_BUCKET)
+    .getPublicUrl(filePath);
+  return data.publicUrl;
+}
+
+/**
+ * Get public URL for a payment proof
+ * @param filePath - The path of the file in storage
+ * @returns The public URL
+ */
+export function getPaymentProofUrl(filePath: string): string {
+  const { data } = supabase.storage
+    .from(PAYMENT_PROOF_BUCKET)
     .getPublicUrl(filePath);
   return data.publicUrl;
 }
@@ -187,6 +235,23 @@ export async function deleteMedicationImage(filePath: string): Promise<void> {
     if (error) throw error;
   } catch (error) {
     console.error("Error deleting medication image:", error);
+    throw error;
+  }
+}
+
+/**
+ * Delete a payment proof from storage
+ * @param filePath - The path of the file to delete
+ */
+export async function deletePaymentProof(filePath: string): Promise<void> {
+  try {
+    const { error } = await supabase.storage
+      .from(PAYMENT_PROOF_BUCKET)
+      .remove([filePath]);
+
+    if (error) throw error;
+  } catch (error) {
+    console.error("Error deleting payment proof:", error);
     throw error;
   }
 }
@@ -256,6 +321,29 @@ export async function updateMedicationImage(
     return await uploadMedicationImage(newFile, batchName);
   } catch (error) {
     console.error("Error updating medication image:", error);
+    throw error;
+  }
+}
+
+/**
+ * Update payment proof - delete old and upload new
+ * @param oldFilePath - Path to old file (to delete)
+ * @param newFile - New file to upload
+ * @param feedType - Feed type for folder organization
+ * @returns New file path
+ */
+export async function updatePaymentProof(
+  oldFilePath: string | null,
+  newFile: File,
+  feedType?: string
+): Promise<string> {
+  try {
+    if (oldFilePath) {
+      await deletePaymentProof(oldFilePath);
+    }
+    return await uploadPaymentProof(newFile, feedType);
+  } catch (error) {
+    console.error("Error updating payment proof:", error);
     throw error;
   }
 }

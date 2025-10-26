@@ -3,20 +3,24 @@
 import { X } from "lucide-react";
 import { useState, useEffect } from "react";
 import { FeedRecord } from "./FeedInventoryTable";
+import { updateFeedRecord } from "@/lib/api/feed";
 
 interface EditFeedModalProps {
   feed: FeedRecord;
   isOpen: boolean;
   onClose: () => void;
+  onSuccess?: () => void;
 }
 
 export default function EditFeedModal({
   feed,
   isOpen,
   onClose,
+  onSuccess,
 }: EditFeedModalProps) {
   const [show, setShow] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
   const [formData, setFormData] = useState({
     feedName: feed.feedName,
     feedType: feed.feedType,
@@ -26,7 +30,7 @@ export default function EditFeedModal({
     supplier: feed.supplier,
     modeOfPayment: feed.modeOfPayment,
     paymentProof: null as File | null,
-    existingProof: feed.paymentProof,
+    existingProof: feed.paymentProofName,
   });
 
   useEffect(() => {
@@ -40,8 +44,9 @@ export default function EditFeedModal({
         supplier: feed.supplier,
         modeOfPayment: feed.modeOfPayment,
         paymentProof: null,
-        existingProof: feed.paymentProof,
+        existingProof: feed.paymentProofName,
       });
+      setError(null);
       setTimeout(() => setShow(true), 10);
     } else {
       setShow(false);
@@ -51,13 +56,29 @@ export default function EditFeedModal({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
+    setError(null);
 
-    console.log("Updated feed:", { id: feed.id, ...formData });
+    try {
+      await updateFeedRecord(feed.id, {
+        feedName: formData.feedName,
+        feedType: formData.feedType,
+        quantity: formData.quantity,
+        dateOfOrder: formData.dateOfOrder,
+        price: formData.price,
+        supplier: formData.supplier,
+        modeOfPayment: formData.modeOfPayment,
+        paymentProof: formData.paymentProof,
+        oldPaymentProofPath: feed.paymentProofPath || null,
+      });
 
-    await new Promise((resolve) => setTimeout(resolve, 1500));
-
-    setLoading(false);
-    handleClose();
+      setLoading(false);
+      handleClose();
+      if (onSuccess) onSuccess();
+    } catch (err) {
+      console.error("Error updating feed record:", err);
+      setError("दाना सम्पादन गर्न असफल भयो। कृपया फेरि प्रयास गर्नुहोस्।");
+      setLoading(false);
+    }
   };
 
   const handleChange = (
@@ -79,7 +100,9 @@ export default function EditFeedModal({
   };
 
   const handleClose = () => {
+    if (loading) return;
     setShow(false);
+    setError(null);
     setTimeout(() => onClose(), 300);
   };
 
@@ -112,6 +135,12 @@ export default function EditFeedModal({
           </button>
         </div>
 
+        {error && (
+          <div className="mx-6 mt-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+            <p className="text-sm text-red-600">{error}</p>
+          </div>
+        )}
+
         <form onSubmit={handleSubmit} className="p-6">
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div>
@@ -125,7 +154,7 @@ export default function EditFeedModal({
                 onChange={handleChange}
                 required
                 disabled={loading}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189] focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189] focus:border-transparent disabled:bg-gray-100"
               />
             </div>
 
@@ -139,7 +168,7 @@ export default function EditFeedModal({
                 onChange={handleChange}
                 required
                 disabled={loading}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189] focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189] focus:border-transparent disabled:bg-gray-100"
               >
                 <option value="B0">B0 - स्टार्टर</option>
                 <option value="B1">B1 - ग्रोअर</option>
@@ -158,7 +187,7 @@ export default function EditFeedModal({
                 onChange={handleChange}
                 required
                 disabled={loading}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189] focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189] focus:border-transparent disabled:bg-gray-100"
               />
             </div>
 
@@ -173,7 +202,7 @@ export default function EditFeedModal({
                 onChange={handleChange}
                 required
                 disabled={loading}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189] focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189] focus:border-transparent disabled:bg-gray-100"
               />
             </div>
 
@@ -188,7 +217,7 @@ export default function EditFeedModal({
                 onChange={handleChange}
                 required
                 disabled={loading}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189] focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189] focus:border-transparent disabled:bg-gray-100"
               />
             </div>
 
@@ -203,7 +232,7 @@ export default function EditFeedModal({
                 onChange={handleChange}
                 required
                 disabled={loading}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189] focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189] focus:border-transparent disabled:bg-gray-100"
               />
             </div>
 
@@ -217,7 +246,7 @@ export default function EditFeedModal({
                 onChange={handleChange}
                 required
                 disabled={loading}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189] focus:border-transparent"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189] focus:border-transparent disabled:bg-gray-100"
               >
                 <option value="Bank Transfer">बैंक ट्रान्सफर</option>
                 <option value="Cash">नगद</option>
@@ -236,7 +265,7 @@ export default function EditFeedModal({
                 onChange={handleFileChange}
                 accept=".pdf,.jpg,.jpeg,.png"
                 disabled={loading}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189] focus:border-transparent file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-[#e8f8f7] file:text-[#1ab189] hover:file:bg-[#d0f0eb]"
+                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189] focus:border-transparent file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-[#e8f8f7] file:text-[#1ab189] hover:file:bg-[#d0f0eb] disabled:bg-gray-100"
               />
               {formData.paymentProof ? (
                 <p className="mt-2 text-sm text-gray-600">
@@ -257,14 +286,14 @@ export default function EditFeedModal({
               type="button"
               onClick={handleClose}
               disabled={loading}
-              className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+              className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
             >
               रद्द गर्नुहोस्
             </button>
             <button
               type="submit"
               disabled={loading}
-              className="flex-1 px-4 py-2 bg-[#1ab189] text-white rounded-lg hover:bg-[#158f6f] transition-colors flex items-center justify-center"
+              className="flex-1 px-4 py-2 bg-[#1ab189] text-white rounded-lg hover:bg-[#158f6f] transition-colors flex items-center justify-center disabled:opacity-50"
             >
               {loading && (
                 <svg

@@ -1,36 +1,82 @@
 "use client";
 
 import type React from "react";
-
 import { Plus, X } from "lucide-react";
-import { useState } from "react";
+import { useState, useEffect } from "react";
+import { createConsumptionRecord } from "@/lib/api/consumption";
+import { getBatchNames } from "@/lib/api/batch";
 
-export default function AddConsumptionModal() {
+interface AddConsumptionModalProps {
+  onSuccess?: () => void;
+}
+
+export default function AddConsumptionModal({
+  onSuccess,
+}: AddConsumptionModalProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [show, setShow] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [error, setError] = useState<string | null>(null);
+  const [batches, setBatches] = useState<string[]>([]);
   const [formData, setFormData] = useState({
     batch: "",
     feedType: "B0",
     feedName: "",
     quantityUsed: "",
+    unit: "किलो",
     date: new Date().toISOString().split("T")[0],
   });
 
-  const handleSubmit = (e: React.FormEvent) => {
+  useEffect(() => {
+    if (isOpen) {
+      fetchBatches();
+    }
+  }, [isOpen]);
+
+  const fetchBatches = async () => {
+    try {
+      const batchNames = await getBatchNames();
+      setBatches(batchNames);
+    } catch (err) {
+      console.error("Error fetching batches:", err);
+    }
+  };
+
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    console.log("Consumption recorded:", formData);
-    setShow(false);
-    setTimeout(() => {
-      setIsOpen(false);
-      // Reset form
-      setFormData({
-        batch: "",
-        feedType: "B0",
-        feedName: "",
-        quantityUsed: "",
-        date: new Date().toISOString().split("T")[0],
+    setLoading(true);
+    setError(null);
+
+    try {
+      await createConsumptionRecord({
+        batch: formData.batch,
+        feedType: formData.feedType,
+        feedName: formData.feedName,
+        quantityUsed: parseFloat(formData.quantityUsed),
+        unit: formData.unit,
+        consumptionDate: formData.date,
       });
-    }, 300);
+
+      // Success - close modal and reset form
+      setShow(false);
+      setTimeout(() => {
+        setIsOpen(false);
+        setFormData({
+          batch: "",
+          feedType: "B0",
+          feedName: "",
+          quantityUsed: "",
+          unit: "किलो",
+          date: new Date().toISOString().split("T")[0],
+        });
+        setLoading(false);
+        if (onSuccess) onSuccess();
+      }, 300);
+    } catch (err) {
+      console.error("Error recording consumption:", err);
+      setError("खपत रेकर्ड गर्न असफल भयो। कृपया फेरि प्रयास गर्नुहोस्।");
+      setLoading(false);
+    }
   };
 
   const handleChange = (
@@ -48,7 +94,9 @@ export default function AddConsumptionModal() {
   };
 
   const handleClose = () => {
+    if (loading) return;
     setShow(false);
+    setError(null);
     setTimeout(() => setIsOpen(false), 300);
   };
 
@@ -79,11 +127,13 @@ export default function AddConsumptionModal() {
           show ? "opacity-100" : "opacity-0"
         }`}
         style={{ backgroundColor: "rgba(0,0,0,0.5)" }}
+        onClick={handleClose}
       >
         <div
           className={`bg-white rounded-lg shadow-xl max-w-2xl w-full max-h-[90vh] overflow-y-auto transition-transform duration-300 ${
             show ? "scale-100" : "scale-95"
           }`}
+          onClick={(e) => e.stopPropagation()}
         >
           <div className="flex items-center justify-between p-6 border-b border-gray-200">
             <h2 className="text-xl font-semibold text-gray-900">
@@ -91,43 +141,53 @@ export default function AddConsumptionModal() {
             </h2>
             <button
               onClick={handleClose}
-              className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
+              disabled={loading}
+              className="p-2 hover:bg-gray-100 rounded-lg transition-colors disabled:opacity-50"
             >
               <X className="w-5 h-5 text-gray-500" />
             </button>
           </div>
 
+          {error && (
+            <div className="mx-6 mt-4 p-4 bg-red-50 border border-red-200 rounded-lg">
+              <p className="text-sm text-red-600">{error}</p>
+            </div>
+          )}
+
           <form onSubmit={handleSubmit} className="p-6">
             <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  ब्याच चयन गर्नुहोस्
+                  ब्याच चयन गर्नुहोस् *
                 </label>
                 <select
                   name="batch"
                   value={formData.batch}
                   onChange={handleChange}
                   required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189] focus:border-transparent"
+                  disabled={loading}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189] focus:border-transparent disabled:bg-gray-100"
                 >
                   <option value="">ब्याच चयन गर्नुहोस्</option>
-                  <option value="Batch-001">ब्याच-001 (साता १-४)</option>
-                  <option value="Batch-002">ब्याच-002 (साता ५-८)</option>
-                  <option value="Batch-003">ब्याच-003 (साता ९-१२)</option>
-                  <option value="Batch-004">ब्याच-004 (साता १३-१६)</option>
+                  {batches.map((batch) => (
+                    <option key={batch} value={batch}>
+                      {batch}
+                    </option>
+                  ))}
                 </select>
               </div>
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  दानाको प्रकार
+                  दानाको प्रकार *
                 </label>
                 <select
                   name="feedType"
                   value={formData.feedType}
                   onChange={handleChange}
                   required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189] focus:border-transparent"
+                  disabled={loading}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189] focus:border-transparent disabled:bg-gray-100"
                 >
                   <option value="B0">B0 - स्टार्टर</option>
                   <option value="B1">B1 - ग्रोअर</option>
@@ -137,7 +197,7 @@ export default function AddConsumptionModal() {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  दानाको नाम
+                  दानाको नाम *
                 </label>
                 <input
                   type="text"
@@ -145,16 +205,16 @@ export default function AddConsumptionModal() {
                   value={formData.feedName}
                   onChange={handleChange}
                   required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189] focus:border-transparent"
+                  disabled={loading}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189] focus:border-transparent disabled:bg-gray-100"
                   placeholder="उदाहरण: पोशाक"
                 />
               </div>
 
-              {/* Quantity + Unit */}
               <div className="flex gap-2">
                 <div className="flex-1">
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    प्रयोग गरिएको मात्रा
+                    प्रयोग गरिएको मात्रा *
                   </label>
                   <input
                     type="number"
@@ -164,19 +224,21 @@ export default function AddConsumptionModal() {
                     required
                     step="0.1"
                     min="0"
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#1ab189]"
+                    disabled={loading}
+                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#1ab189] disabled:bg-gray-100"
                     placeholder="उदाहरण: २५.५"
                   />
                 </div>
                 <div className="w-28">
                   <label className="block text-sm font-medium text-gray-700 mb-2">
-                    इकाई
+                    इकाई *
                   </label>
                   <select
                     name="unit"
                     value={formData.unit}
                     onChange={handleChange}
-                    className="w-full px-2 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#1ab189]"
+                    disabled={loading}
+                    className="w-full px-2 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-[#1ab189] disabled:bg-gray-100"
                   >
                     <option value="किलो">किलो</option>
                     <option value="बाल्टिन">बाल्टिन</option>
@@ -187,7 +249,7 @@ export default function AddConsumptionModal() {
 
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
-                  मिति
+                  मिति *
                 </label>
                 <input
                   type="date"
@@ -195,7 +257,8 @@ export default function AddConsumptionModal() {
                   value={formData.date}
                   onChange={handleChange}
                   required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189] focus:border-transparent"
+                  disabled={loading}
+                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189] focus:border-transparent disabled:bg-gray-100"
                 />
               </div>
             </div>
@@ -204,29 +267,44 @@ export default function AddConsumptionModal() {
               <button
                 type="button"
                 onClick={handleClose}
-                className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+                disabled={loading}
+                className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
               >
                 रद्द गर्नुहोस्
               </button>
               <button
                 type="submit"
-                className="flex-1 px-4 py-2 bg-[#1ab189] text-white rounded-lg hover:bg-[#158f6f] transition-colors"
+                disabled={loading}
+                className="flex-1 px-4 py-2 bg-[#1ab189] text-white rounded-lg hover:bg-[#158f6f] transition-colors disabled:opacity-50 flex items-center justify-center"
               >
-                खपत रेकर्ड गर्नुहोस्
+                {loading && (
+                  <svg
+                    className="animate-spin -ml-1 mr-3 h-5 w-5 text-white"
+                    xmlns="http://www.w3.org/2000/svg"
+                    fill="none"
+                    viewBox="0 0 24 24"
+                  >
+                    <circle
+                      className="opacity-25"
+                      cx="12"
+                      cy="12"
+                      r="10"
+                      stroke="currentColor"
+                      strokeWidth="4"
+                    ></circle>
+                    <path
+                      className="opacity-75"
+                      fill="currentColor"
+                      d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+                    ></path>
+                  </svg>
+                )}
+                {loading ? "रेकर्ड गर्दै..." : "खपत रेकर्ड गर्नुहोस्"}
               </button>
             </div>
           </form>
         </div>
       </div>
-
-      {/* Backdrop */}
-      <div
-        className={`fixed inset-0 bg-black transition-opacity duration-300 ${
-          show ? "opacity-50" : "opacity-0"
-        }`}
-        style={{ zIndex: -1 }}
-        onClick={handleClose}
-      ></div>
     </>
   );
 }

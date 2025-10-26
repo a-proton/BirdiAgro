@@ -18,7 +18,8 @@ export interface Database {
           number_of_chicks: number | null;
           price: number | null;
           supplier: string | null;
-          payment_proof: string | null;
+          payment_proof_name: string | null;
+          payment_proof_path: string | null;
           created_at: string;
           updated_at: string;
         };
@@ -29,7 +30,8 @@ export interface Database {
           number_of_chicks?: number | null;
           price?: number | null;
           supplier?: string | null;
-          payment_proof?: string | null;
+          payment_proof_name?: string | null;
+          payment_proof_path?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -40,7 +42,8 @@ export interface Database {
           number_of_chicks?: number | null;
           price?: number | null;
           supplier?: string | null;
-          payment_proof?: string | null;
+          payment_proof_name?: string | null;
+          payment_proof_path?: string | null;
           created_at?: string;
           updated_at?: string;
         };
@@ -77,6 +80,8 @@ export interface Database {
           batch_id: number;
           medication_name: string;
           medication_date: string;
+          medication_image_name: string | null;
+          medication_image_path: string | null;
           duration: number | null;
           created_at: string;
         };
@@ -85,6 +90,8 @@ export interface Database {
           batch_id: number;
           medication_name: string;
           medication_date: string;
+          medication_image_name?: string | null;
+          medication_image_path?: string | null;
           duration?: number | null;
           created_at?: string;
         };
@@ -93,6 +100,8 @@ export interface Database {
           batch_id?: number;
           medication_name?: string;
           medication_date?: string;
+          medication_image_name?: string | null;
+          medication_image_path?: string | null;
           duration?: number | null;
           created_at?: string;
         };
@@ -167,6 +176,117 @@ export interface Database {
           payment_proof_name?: string | null;
           payment_proof_path?: string | null;
           created_at?: string;
+          updated_at?: string;
+        };
+      };
+      feed_inventory: {
+        Row: {
+          id: number;
+          feed_name: string;
+          feed_type: string;
+          quantity: string;
+          date_of_order: string;
+          price: string;
+          supplier: string;
+          mode_of_payment: string;
+          payment_proof_name: string | null;
+          payment_proof_path: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: number;
+          feed_name: string;
+          feed_type: string;
+          quantity: string;
+          date_of_order: string;
+          price: string;
+          supplier: string;
+          mode_of_payment: string;
+          payment_proof_name?: string | null;
+          payment_proof_path?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: number;
+          feed_name?: string;
+          feed_type?: string;
+          quantity?: string;
+          date_of_order?: string;
+          price?: string;
+          supplier?: string;
+          mode_of_payment?: string;
+          payment_proof_name?: string | null;
+          payment_proof_path?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
+      feed_consumption: {
+        Row: {
+          id: number;
+          batch: string;
+          feed_type: string;
+          feed_name: string;
+          quantity_used: number;
+          unit: string;
+          consumption_date: string;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: number;
+          batch: string;
+          feed_type: string;
+          feed_name: string;
+          quantity_used: number;
+          unit: string;
+          consumption_date: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: number;
+          batch?: string;
+          feed_type?: string;
+          feed_name?: string;
+          quantity_used?: number;
+          unit?: string;
+          consumption_date?: string;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
+      feed_stock_summary: {
+        Row: {
+          id: number;
+          feed_type: string;
+          quantity_kg: number;
+          quantity_buckets: number;
+          daily_consumption: number;
+          estimated_finish_date: string | null;
+          days_remaining: number | null;
+          updated_at: string;
+        };
+        Insert: {
+          id?: number;
+          feed_type: string;
+          quantity_kg?: number;
+          quantity_buckets?: number;
+          daily_consumption?: number;
+          estimated_finish_date?: string | null;
+          days_remaining?: number | null;
+          updated_at?: string;
+        };
+        Update: {
+          id?: number;
+          feed_type?: string;
+          quantity_kg?: number;
+          quantity_buckets?: number;
+          daily_consumption?: number;
+          estimated_finish_date?: string | null;
+          days_remaining?: number | null;
           updated_at?: string;
         };
       };
