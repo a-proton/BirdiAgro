@@ -27,13 +27,12 @@ export interface BatchWithDetails {
   totalSold?: number;
 }
 
-// Get remaining chickens in a batch
-export async function getRemainingChickens(batchId: number): Promise<number> {
+export const getRemainingChickens = async (batchId: string | number | null) => {
   try {
-    // Get batch initial count
+    // Get batch details (including number_of_chicks and batch_name)
     const { data: batch, error: batchError } = await supabase
       .from("batches")
-      .select("number_of_chicks")
+      .select("number_of_chicks, batch_name")
       .eq("id", batchId)
       .single();
 
@@ -41,7 +40,7 @@ export async function getRemainingChickens(batchId: number): Promise<number> {
 
     const initialCount = batch?.number_of_chicks || 0;
 
-    // Get total deaths
+    // Get total deaths for this batch
     const { data: deaths, error: deathsError } = await supabase
       .from("deaths")
       .select("number_of_deaths")
@@ -54,7 +53,7 @@ export async function getRemainingChickens(batchId: number): Promise<number> {
       0
     );
 
-    // Get total sold (from sales table)
+    // Get total sold chickens for this batch
     const { data: sales, error: salesError } = await supabase
       .from("sales")
       .select("chicken_count")
@@ -64,16 +63,25 @@ export async function getRemainingChickens(batchId: number): Promise<number> {
     if (salesError) throw salesError;
 
     const totalSold = (sales || []).reduce(
-      (sum, s) => sum + (s.chicken_count || 0),
+      (sum, s) => sum + s.chicken_count,
       0
     );
 
-    return initialCount - totalDeaths - totalSold;
+    // Calculate remaining chickens
+    const remaining = initialCount - totalDeaths - totalSold;
+
+    return {
+      batch_name: batch?.batch_name,
+      initialCount,
+      totalDeaths,
+      totalSold,
+      remaining: remaining < 0 ? 0 : remaining, // safety check
+    };
   } catch (error) {
-    console.error("Error calculating remaining chickens:", error);
+    console.error("Error fetching remaining chickens:", error);
     throw error;
   }
-}
+};
 
 // Get batch statistics
 export async function getBatchStats(batchId: number): Promise<{
@@ -207,7 +215,7 @@ export async function getBatchNames(): Promise<string[]> {
     const batchesWithStock = await Promise.all(
       (data || []).map(async (batch) => {
         const remaining = await getRemainingChickens(batch.id);
-        return remaining > 0 ? batch.batch_name : null;
+        return remaining.remaining > 0 ? batch.batch_name : null;
       })
     );
 

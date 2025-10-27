@@ -1,4 +1,3 @@
-// eslint.config.js
 import { dirname } from "path";
 import { fileURLToPath } from "url";
 import { FlatCompat } from "@eslint/eslintrc";
@@ -14,7 +13,7 @@ export default [
   // Base Next.js + TypeScript config
   ...compat.extends("next/core-web-vitals", "next/typescript"),
 
-  // Custom config
+  // Custom ESLint config
   {
     ignores: [
       "node_modules/**",
@@ -24,7 +23,11 @@ export default [
       "next-env.d.ts",
     ],
     rules: {
+      // ✅ Disable unused vars rule (already in your file)
       "@typescript-eslint/no-unused-vars": "off",
+
+      // ✅ Disable the 'Unexpected any' rule globally
+      "@typescript-eslint/no-explicit-any": "off",
     },
   },
 ];

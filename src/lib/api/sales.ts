@@ -26,52 +26,34 @@ export interface SaleStats {
   yearGrowth: number;
 }
 
-// Validate sale quantity against batch availability
-async function validateSaleQuantity(
+export const validateSaleQuantity = async (
   batchName: string,
   chickenCount: number,
-  excludeSaleId?: number
-): Promise<{ valid: boolean; message?: string; available?: number }> {
+  excludeSaleId?: string | number
+) => {
   try {
     const batchId = await getBatchIdByName(batchName);
+    const availableCount = await getRemainingChickens(batchId);
 
-    if (!batchId) {
+    if (chickenCount > availableCount.remaining) {
       return {
         valid: false,
-        message: "ब्याच फेला परेन",
+        message: `यो ब्याचमा ${availableCount.remaining} मात्र कुखुरा उपलब्ध छन्। तपाईंले ${chickenCount} बिक्री गर्न खोज्नुभयो।`,
       };
     }
 
-    const remaining = await getRemainingChickens(batchId);
-
-    // If updating, add back the current sale's count
-    let availableCount = remaining;
-    if (excludeSaleId) {
-      const { data: currentSale } = await supabase
-        .from("sales")
-        .select("chicken_count")
-        .eq("id", excludeSaleId)
-        .single();
-
-      if (currentSale?.chicken_count) {
-        availableCount += currentSale.chicken_count;
-      }
-    }
-
-    if (chickenCount > availableCount) {
-      return {
-        valid: false,
-        message: `यो ब्याचमा ${availableCount} मात्र कुखुरा उपलब्ध छन्। तपाईंले ${chickenCount} बिक्री गर्न खोज्नुभयो।`,
-        available: availableCount,
-      };
-    }
-
-    return { valid: true, available: availableCount };
+    return {
+      valid: true,
+      message: "ठीक छ। बिक्री गर्न सकिन्छ।",
+    };
   } catch (error) {
     console.error("Error validating sale quantity:", error);
-    throw error;
+    return {
+      valid: false,
+      message: "कुनै त्रुटि भयो। कृपया फेरि प्रयास गर्नुहोस्।",
+    };
   }
-}
+};
 
 // Get all sales
 export async function getAllSales(): Promise<Sale[]> {
@@ -268,8 +250,9 @@ export async function updateSale(id: number, saleData: Sale): Promise<void> {
     ) {
       const validation = await validateSaleQuantity(
         saleData.batchName,
-        parseInt(saleData.chickenCount),
-        id // Exclude current sale from validation
+
+        id,
+        parseInt(saleData.chickenCount)
       );
 
       if (!validation.valid) {

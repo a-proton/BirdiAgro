@@ -10,7 +10,7 @@ import ViewDetailModal from "./ViewBatchDetails";
 import EditBatchModal from "./EditBatchModal";
 import { getAllBatches, BatchWithDetails } from "@/lib/api/batch";
 import { getPoultryPublicUrl, getMedicationImageUrl } from "@/lib/api/storage";
-
+import Image from "next/image";
 interface PopupItem {
   type: "vaccine" | "medication";
   name: string;
@@ -401,9 +401,11 @@ export default function PoultryManagementTable() {
                     औषधिको फोटो:
                   </p>
                   <div className="border border-gray-200 rounded-lg overflow-hidden">
-                    <img
+                    <Image
                       src={getMedicationImageUrl(viewItem.imagePath)}
                       alt={viewItem.imageName || "Medication"}
+                      width={20}
+                      height={20}
                       className="w-full h-auto max-h-80 object-contain bg-gray-50"
                       onError={(e) => {
                         const target = e.currentTarget;
