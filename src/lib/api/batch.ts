@@ -22,9 +22,118 @@ export interface BatchWithDetails {
   }[];
   paymentProofName: string;
   paymentProofPath: string;
+  remainingChickens?: number;
+  totalDeaths?: number;
+  totalSold?: number;
 }
 
-// Get all batches with their vaccinations and medications
+// Get remaining chickens in a batch
+export async function getRemainingChickens(batchId: number): Promise<number> {
+  try {
+    // Get batch initial count
+    const { data: batch, error: batchError } = await supabase
+      .from("batches")
+      .select("number_of_chicks")
+      .eq("id", batchId)
+      .single();
+
+    if (batchError) throw batchError;
+
+    const initialCount = batch?.number_of_chicks || 0;
+
+    // Get total deaths
+    const { data: deaths, error: deathsError } = await supabase
+      .from("deaths")
+      .select("number_of_deaths")
+      .eq("batch_id", batchId);
+
+    if (deathsError) throw deathsError;
+
+    const totalDeaths = (deaths || []).reduce(
+      (sum, d) => sum + d.number_of_deaths,
+      0
+    );
+
+    // Get total sold (from sales table)
+    const { data: sales, error: salesError } = await supabase
+      .from("sales")
+      .select("chicken_count")
+      .eq("type", "kukhura")
+      .eq("batch_name", batch?.batch_name);
+
+    if (salesError) throw salesError;
+
+    const totalSold = (sales || []).reduce(
+      (sum, s) => sum + (s.chicken_count || 0),
+      0
+    );
+
+    return initialCount - totalDeaths - totalSold;
+  } catch (error) {
+    console.error("Error calculating remaining chickens:", error);
+    throw error;
+  }
+}
+
+// Get batch statistics
+export async function getBatchStats(batchId: number): Promise<{
+  initial: number;
+  deaths: number;
+  sold: number;
+  remaining: number;
+}> {
+  try {
+    // Get batch initial count
+    const { data: batch, error: batchError } = await supabase
+      .from("batches")
+      .select("number_of_chicks, batch_name")
+      .eq("id", batchId)
+      .single();
+
+    if (batchError) throw batchError;
+
+    const initialCount = batch?.number_of_chicks || 0;
+
+    // Get total deaths
+    const { data: deaths, error: deathsError } = await supabase
+      .from("deaths")
+      .select("number_of_deaths")
+      .eq("batch_id", batchId);
+
+    if (deathsError) throw deathsError;
+
+    const totalDeaths = (deaths || []).reduce(
+      (sum, d) => sum + d.number_of_deaths,
+      0
+    );
+
+    // Get total sold
+    const { data: sales, error: salesError } = await supabase
+      .from("sales")
+      .select("chicken_count")
+      .eq("type", "kukhura")
+      .eq("batch_name", batch?.batch_name);
+
+    if (salesError) throw salesError;
+
+    const totalSold = (sales || []).reduce(
+      (sum, s) => sum + (s.chicken_count || 0),
+      0
+    );
+
+    return {
+      initial: initialCount,
+      deaths: totalDeaths,
+      sold: totalSold,
+      remaining: initialCount - totalDeaths - totalSold,
+    };
+  } catch (error) {
+    console.error("Error getting batch stats:", error);
+    throw error;
+  }
+}
+
+// Get all batches with their vaccinations, medications, and remaining counts
 export async function getAllBatches(): Promise<BatchWithDetails[]> {
   try {
     const { data: batches, error: batchError } = await supabase
@@ -48,6 +157,9 @@ export async function getAllBatches(): Promise<BatchWithDetails[]> {
           .eq("batch_id", batch.id)
           .order("medication_date", { ascending: true });
 
+        // Get batch statistics
+        const stats = await getBatchStats(batch.id);
+
         return {
           id: batch.id,
           batchName: batch.batch_name,
@@ -67,6 +179,9 @@ export async function getAllBatches(): Promise<BatchWithDetails[]> {
           })),
           paymentProofName: batch.payment_proof_name || "",
           paymentProofPath: batch.payment_proof_path || "",
+          remainingChickens: stats.remaining,
+          totalDeaths: stats.deaths,
+          totalSold: stats.sold,
         };
       })
     );
@@ -78,19 +193,50 @@ export async function getAllBatches(): Promise<BatchWithDetails[]> {
   }
 }
 
-// Get batch names for dropdown
+// Get batch names for dropdown (only batches with remaining chickens)
 export async function getBatchNames(): Promise<string[]> {
   try {
     const { data, error } = await supabase
       .from("batches")
-      .select("batch_name")
+      .select("id, batch_name")
       .order("date_of_arrival", { ascending: false });
 
     if (error) throw error;
 
-    return (data || []).map((batch) => batch.batch_name);
+    // Filter batches with remaining chickens
+    const batchesWithStock = await Promise.all(
+      (data || []).map(async (batch) => {
+        const remaining = await getRemainingChickens(batch.id);
+        return remaining > 0 ? batch.batch_name : null;
+      })
+    );
+
+    return batchesWithStock.filter((name): name is string => name !== null);
   } catch (error) {
     console.error("Error fetching batch names:", error);
+    throw error;
+  }
+}
+
+// Get batch ID by name
+export async function getBatchIdByName(
+  batchName: string
+): Promise<number | null> {
+  try {
+    const { data, error } = await supabase
+      .from("batches")
+      .select("id")
+      .eq("batch_name", batchName)
+      .single();
+
+    if (error) {
+      if (error.code === "PGRST116") return null;
+      throw error;
+    }
+
+    return data.id;
+  } catch (error) {
+    console.error("Error getting batch ID:", error);
     throw error;
   }
 }
@@ -108,7 +254,6 @@ export async function createBatch(batchData: {
     let paymentProofPath: string | null = null;
     let paymentProofName: string | null = null;
 
-    // Upload file if provided
     if (batchData.paymentProof) {
       paymentProofPath = await uploadPoultryProof(
         batchData.paymentProof,
@@ -157,7 +302,6 @@ export async function updateBatch(
     let paymentProofPath: string | null | undefined = undefined;
     let paymentProofName: string | null | undefined = undefined;
 
-    // Handle file upload/update only if a new file is provided
     if (batchData.paymentProof) {
       paymentProofPath = await updatePoultryProof(
         batchData.oldPaymentProofPath || null,
@@ -167,7 +311,6 @@ export async function updateBatch(
       paymentProofName = batchData.paymentProof.name;
     }
 
-    // Build update object with only defined values
     const updateData: Record<string, string | number | null | undefined> = {};
 
     if (batchData.batchName !== undefined)
@@ -180,13 +323,11 @@ export async function updateBatch(
     if (batchData.supplier !== undefined)
       updateData.supplier = batchData.supplier;
 
-    // Only update file fields if a new file was uploaded
     if (paymentProofPath !== undefined) {
       updateData.payment_proof_path = paymentProofPath;
       updateData.payment_proof_name = paymentProofName;
     }
 
-    // Add updated_at timestamp
     updateData.updated_at = new Date().toISOString();
 
     const { error } = await supabase
@@ -204,7 +345,6 @@ export async function updateBatch(
 // Delete a batch
 export async function deleteBatch(id: number): Promise<void> {
   try {
-    // First get the batch to find the file path
     const { data: batch, error: fetchError } = await supabase
       .from("batches")
       .select("payment_proof_path")
@@ -213,40 +353,15 @@ export async function deleteBatch(id: number): Promise<void> {
 
     if (fetchError) throw fetchError;
 
-    // Delete the file if it exists
     if (batch?.payment_proof_path) {
       await deletePoultryProof(batch.payment_proof_path);
     }
 
-    // Delete the batch record
     const { error } = await supabase.from("batches").delete().eq("id", id);
 
     if (error) throw error;
   } catch (error) {
     console.error("Error deleting batch:", error);
-    throw error;
-  }
-}
-
-// Get batch ID by name
-export async function getBatchIdByName(
-  batchName: string
-): Promise<number | null> {
-  try {
-    const { data, error } = await supabase
-      .from("batches")
-      .select("id")
-      .eq("batch_name", batchName)
-      .single();
-
-    if (error) {
-      if (error.code === "PGRST116") return null; // Not found
-      throw error;
-    }
-
-    return data.id;
-  } catch (error) {
-    console.error("Error getting batch ID:", error);
     throw error;
   }
 }

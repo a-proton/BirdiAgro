@@ -1,33 +1,36 @@
 "use client";
 
-import { Eye, Edit2 } from "lucide-react";
-
-interface Sale {
-  id?: number;
-  type?: "kukhura" | "others";
-  batchName?: string;
-  productName?: string;
-  chickenCount?: string;
-  totalKgs: string;
-  pricePerKg?: string;
-  totalAmount?: string;
-  totalPcs?: string;
-  soldTo: string;
-  amountReceived: boolean;
-  salesDate?: string; // 👈 make optional
-}
+import { Eye, Edit2, Trash2 } from "lucide-react";
+import { Sale } from "@/lib/api/sales";
 
 interface SalesTableProps {
   salesData: Sale[];
   onView: (sale: Sale) => void;
   onEdit: (sale: Sale) => void;
+  onDelete: (id: number) => void;
 }
 
 export default function SalesTable({
   salesData,
   onView,
   onEdit,
+  onDelete,
 }: SalesTableProps) {
+  const formatDate = (dateString?: string) => {
+    if (!dateString) return "N/A";
+    try {
+      const date = new Date(dateString);
+      // Use a simple format that works on both server and client
+      return date.toLocaleDateString("en-US", {
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+      });
+    } catch {
+      return dateString;
+    }
+  };
+
   return (
     <div className="bg-white rounded-lg shadow-sm overflow-hidden">
       <div className="px-6 py-4 border-b border-gray-200">
@@ -39,6 +42,9 @@ export default function SalesTable({
             <tr>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
                 क्रम संख्या
+              </th>
+              <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
+                प्रकार
               </th>
               <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
                 ब्याच/उत्पादन नाम
@@ -67,7 +73,7 @@ export default function SalesTable({
             {salesData.length === 0 ? (
               <tr>
                 <td
-                  colSpan={8}
+                  colSpan={9}
                   className="px-6 py-8 text-center text-sm text-gray-500"
                 >
                   कुनै बिक्री डाटा उपलब्ध छैन
@@ -82,6 +88,17 @@ export default function SalesTable({
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                     {index + 1}
                   </td>
+                  <td className="px-6 py-4 whitespace-nowrap text-sm">
+                    {sale.type === "kukhura" ? (
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-[#e8f8f7] text-[#1ab189]">
+                        कुखुरा
+                      </span>
+                    ) : (
+                      <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium bg-blue-50 text-blue-700">
+                        अन्य
+                      </span>
+                    )}
+                  </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-900">
                     {sale.type === "kukhura"
                       ? sale.batchName
@@ -94,7 +111,10 @@ export default function SalesTable({
                     {sale.totalKgs} कि.ग्रा
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm font-medium text-gray-900">
-                    रु {sale.totalAmount}
+                    रु{" "}
+                    {parseFloat(sale.totalAmount || "0").toLocaleString(
+                      "ne-NP"
+                    )}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm">
                     {sale.amountReceived ? (
@@ -108,7 +128,7 @@ export default function SalesTable({
                     )}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                    {sale.salesDate}
+                    {formatDate(sale.salesDate)}
                   </td>
                   <td className="px-6 py-4 whitespace-nowrap text-sm">
                     <div className="flex items-center gap-2">

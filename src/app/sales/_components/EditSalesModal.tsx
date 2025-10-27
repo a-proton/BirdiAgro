@@ -1,22 +1,9 @@
 "use client";
 
-import { X } from "lucide-react";
+import { X, AlertCircle } from "lucide-react";
 import { useState, useEffect } from "react";
-
-interface Sale {
-  id?: number;
-  type?: "kukhura" | "others";
-  batchName?: string;
-  productName?: string;
-  chickenCount?: string;
-  totalKgs: string;
-  pricePerKg?: string;
-  totalAmount?: string;
-  totalPcs?: string;
-  soldTo: string;
-  amountReceived: boolean;
-  salesDate?: string; // 👈 make optional
-}
+import { getBatchNames } from "@/lib/api/batch";
+import { Sale } from "@/lib/api/sales";
 
 interface EditSalesModalProps {
   isOpen: boolean;
@@ -32,6 +19,9 @@ export default function EditSalesModal({
   data,
 }: EditSalesModalProps) {
   const [show, setShow] = useState(false);
+  const [loading, setLoading] = useState(false);
+  const [batchNames, setBatchNames] = useState<string[]>([]);
+  const [error, setError] = useState<string | null>(null);
 
   const [kukhuraData, setKukhuraData] = useState({
     batchName: "",
@@ -55,11 +45,26 @@ export default function EditSalesModal({
   useEffect(() => {
     if (isOpen) {
       const timer = setTimeout(() => setShow(true), 10);
+      fetchBatchNames();
       return () => clearTimeout(timer);
     } else {
       setShow(false);
     }
   }, [isOpen]);
+
+  const fetchBatchNames = async () => {
+    try {
+      const names = await getBatchNames();
+      // Add current batch name if it's not in the list (for editing existing sales)
+      if (data?.batchName && !names.includes(data.batchName)) {
+        setBatchNames([data.batchName, ...names]);
+      } else {
+        setBatchNames(names);
+      }
+    } catch (err) {
+      console.error("Error fetching batch names:", err);
+    }
+  };
 
   useEffect(() => {
     if (data && isOpen) {
@@ -90,6 +95,7 @@ export default function EditSalesModal({
     setShow(false);
     setTimeout(() => {
       onClose();
+      setError(null);
       setKukhuraData({
         batchName: "",
         salesDate: "",
@@ -112,12 +118,16 @@ export default function EditSalesModal({
 
   if ((!isOpen && !show) || !data) return null;
 
-  const handleKukhuraChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value, type, checked } = e.target;
+  const handleKukhuraChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLSelectElement>
+  ) => {
+    const { name, value, type } = e.target;
+    const checked = (e.target as HTMLInputElement).checked;
     setKukhuraData((prev) => ({
       ...prev,
       [name]: type === "checkbox" ? checked : value,
     }));
+    setError(null);
   };
 
   const handleOthersChange = (e: React.ChangeEvent<HTMLInputElement>) => {
@@ -126,6 +136,7 @@ export default function EditSalesModal({
       ...prev,
       [name]: type === "checkbox" ? checked : value,
     }));
+    setError(null);
   };
 
   const kukhuraTotalAmount = (() => {
@@ -134,23 +145,33 @@ export default function EditSalesModal({
     return (kgs * price).toFixed(2);
   })();
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    if (data.type === "kukhura") {
-      onSave({
-        ...kukhuraData,
-        type: "kukhura",
-        totalAmount: kukhuraTotalAmount,
-        id: data.id,
-      });
-    } else {
-      onSave({
-        ...othersData,
-        type: "others",
-        id: data.id,
-      });
+    setLoading(true);
+    setError(null);
+
+    try {
+      if (data.type === "kukhura") {
+        await onSave({
+          ...kukhuraData,
+          type: "kukhura",
+          totalAmount: kukhuraTotalAmount,
+          id: data.id,
+        });
+      } else {
+        await onSave({
+          ...othersData,
+          type: "others",
+          id: data.id,
+        });
+      }
+      handleClose();
+    } catch (err) {
+      console.error("Error updating sale:", err);
+      setError(err instanceof Error ? err.message : "बिक्री अपडेट गर्न सकिएन");
+    } finally {
+      setLoading(false);
     }
-    handleClose();
   };
 
   return (
@@ -195,21 +216,36 @@ export default function EditSalesModal({
         </div>
 
         <form onSubmit={handleSubmit} className="p-6">
+          {error && (
+            <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3">
+              <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+              <div className="flex-1">
+                <p className="text-sm font-medium text-red-800">त्रुटि</p>
+                <p className="text-sm text-red-700 mt-1">{error}</p>
+              </div>
+            </div>
+          )}
+
           {data.type === "kukhura" ? (
             <div className="space-y-4">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-1">
                   ब्याच चयन गर्नुहोस्
                 </label>
-                <input
-                  type="text"
+                <select
                   name="batchName"
                   required
                   className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189]"
-                  placeholder="जस्तै: ब्याच-००१"
                   value={kukhuraData.batchName}
                   onChange={handleKukhuraChange}
-                />
+                >
+                  <option value="">ब्याच चयन गर्नुहोस्</option>
+                  {batchNames.map((name) => (
+                    <option key={name} value={name}>
+                      {name}
+                    </option>
+                  ))}
+                </select>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
@@ -412,15 +448,17 @@ export default function EditSalesModal({
             <button
               type="button"
               onClick={handleClose}
-              className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors"
+              disabled={loading}
+              className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
             >
               रद्द गर्नुहोस्
             </button>
             <button
               type="submit"
-              className="flex-1 px-4 py-2 bg-[#1ab189] text-white rounded-lg hover:bg-[#158f6f] transition-colors"
+              disabled={loading}
+              className="flex-1 px-4 py-2 bg-[#1ab189] text-white rounded-lg hover:bg-[#158f6f] transition-colors disabled:opacity-50"
             >
-              अपडेट गर्नुहोस्
+              {loading ? "अपडेट गर्दै..." : "अपडेट गर्नुहोस्"}
             </button>
           </div>
         </form>

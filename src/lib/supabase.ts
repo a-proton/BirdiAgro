@@ -293,6 +293,56 @@ export interface Database {
           updated_at?: string;
         };
       };
+      sales: {
+        Row: {
+          id: number;
+          type: "kukhura" | "others";
+          batch_name: string | null;
+          chicken_count: number | null;
+          price_per_kg: number | null;
+          product_name: string | null;
+          total_pcs: number | null;
+          total_kgs: number;
+          total_amount: number;
+          sold_to: string;
+          amount_received: boolean;
+          sales_date: string | null;
+          created_at: string;
+          updated_at: string;
+        };
+        Insert: {
+          id?: number;
+          type: "kukhura" | "others";
+          batch_name?: string | null;
+          chicken_count?: number | null;
+          price_per_kg?: number | null;
+          product_name?: string | null;
+          total_pcs?: number | null;
+          total_kgs: number;
+          total_amount: number;
+          sold_to: string;
+          amount_received?: boolean;
+          sales_date?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+        Update: {
+          id?: number;
+          type?: "kukhura" | "others";
+          batch_name?: string | null;
+          chicken_count?: number | null;
+          price_per_kg?: number | null;
+          product_name?: string | null;
+          total_pcs?: number | null;
+          total_kgs?: number;
+          total_amount?: number;
+          sold_to?: string;
+          amount_received?: boolean;
+          sales_date?: string | null;
+          created_at?: string;
+          updated_at?: string;
+        };
+      };
     };
   };
 }
