@@ -1,3 +1,4 @@
+// ===== FeedInventoryCards.tsx =====
 "use client";
 
 import React, { useState, useEffect } from "react";
@@ -46,31 +47,33 @@ function FeedCard({
 }: FeedCardProps) {
   return (
     <div
-      className={`${bgColor} rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow border border-gray-100`}
+      className={`${bgColor} rounded-lg shadow-sm p-4 sm:p-6 hover:shadow-md transition-shadow border border-gray-100`}
     >
-      <div className="flex items-center justify-between mb-4">
-        <span className="text-lg font-bold text-gray-900">{title}</span>
+      <div className="flex items-center justify-between mb-3 sm:mb-4">
+        <span className="text-base sm:text-lg font-bold text-gray-900">
+          {title}
+        </span>
         <div
-          className={`w-12 h-12 ${iconBg} ${iconColor} rounded-lg flex items-center justify-center`}
+          className={`w-10 h-10 sm:w-12 sm:h-12 ${iconBg} ${iconColor} rounded-lg flex items-center justify-center`}
         >
           <FeedIcon src={iconSrc} alt={iconAlt} />
         </div>
       </div>
       <div className="space-y-2">
-        <div className="text-2xl font-bold text-gray-900 mb-3">
+        <div className="text-xl sm:text-2xl font-bold text-gray-900 mb-2 sm:mb-3">
           स्टक: {quantitySacks.toFixed(1)} बोरा
         </div>
-        <div className="space-y-1 text-sm text-gray-600">
-          <div className="flex items-center justify-between">
+        <div className="space-y-1 text-xs sm:text-sm text-gray-600">
+          <div className="flex items-center justify-between gap-2">
             <span>बाल्टिनहरू:</span>
-            <span className="font-medium text-gray-900">
+            <span className="font-medium text-gray-900 text-right">
               {quantityBuckets.toFixed(1)} ({(quantitySacks * 4).toFixed(1)}{" "}
               बाल्टिन)
             </span>
           </div>
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between gap-2">
             <span>किलोग्राम:</span>
-            <span className="font-medium text-gray-900">
+            <span className="font-medium text-gray-900 text-right">
               {quantityKg.toFixed(0)} किलो ({(quantitySacks * 50).toFixed(0)}{" "}
               किलो)
             </span>
@@ -152,7 +155,7 @@ export default function FeedInventoryCards() {
         {[1, 2, 3].map((i) => (
           <div
             key={i}
-            className="bg-gray-100 rounded-lg h-48 animate-pulse"
+            className="bg-gray-100 rounded-lg h-40 sm:h-48 animate-pulse"
           ></div>
         ))}
       </div>
@@ -161,11 +164,11 @@ export default function FeedInventoryCards() {
 
   if (error) {
     return (
-      <div className="bg-red-50 border border-red-200 rounded-lg p-6 text-center">
-        <p className="text-red-600 mb-4">{error}</p>
+      <div className="bg-red-50 border border-red-200 rounded-lg p-4 sm:p-6 text-center">
+        <p className="text-sm sm:text-base text-red-600 mb-4">{error}</p>
         <button
           onClick={fetchFeedInventory}
-          className="px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700"
+          className="px-4 py-2 text-sm sm:text-base bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors"
         >
           फेरि प्रयास गर्नुहोस्
         </button>
@@ -175,8 +178,10 @@ export default function FeedInventoryCards() {
 
   if (feedData.length === 0) {
     return (
-      <div className="bg-gray-50 border border-gray-200 rounded-lg p-8 text-center">
-        <p className="text-gray-600">कुनै दाना स्टक जानकारी उपलब्ध छैन।</p>
+      <div className="bg-gray-50 border border-gray-200 rounded-lg p-6 sm:p-8 text-center">
+        <p className="text-sm sm:text-base text-gray-600">
+          कुनै दाना स्टक जानकारी उपलब्ध छैन।
+        </p>
       </div>
     );
   }

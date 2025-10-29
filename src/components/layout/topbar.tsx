@@ -3,6 +3,7 @@
 import { Menu, User, LogOut } from "lucide-react";
 import { useState, useEffect, useRef } from "react";
 import { useRouter } from "next/navigation";
+import { createClient } from "@/lib/supabase/client";
 
 interface TopbarProps {
   onMenuToggle: () => void;
@@ -10,6 +11,7 @@ interface TopbarProps {
 
 export default function Topbar({ onMenuToggle }: TopbarProps) {
   const router = useRouter();
+  const supabase = createClient();
   const [user, setUser] = useState<any>(null);
   const [showDropdown, setShowDropdown] = useState(false);
   const dropdownRef = useRef<HTMLDivElement>(null);
@@ -37,19 +39,10 @@ export default function Topbar({ onMenuToggle }: TopbarProps) {
 
   const handleLogout = async () => {
     try {
-      const token = localStorage.getItem("authToken");
-
-      if (token) {
-        await fetch("/api/auth/logout", {
-          method: "POST",
-          headers: {
-            Authorization: `Bearer ${token}`,
-          },
-        });
-      }
+      // Sign out from Supabase
+      await supabase.auth.signOut();
 
       // Clear localStorage
-      localStorage.removeItem("authToken");
       localStorage.removeItem("user");
 
       // Redirect to login
@@ -57,7 +50,6 @@ export default function Topbar({ onMenuToggle }: TopbarProps) {
     } catch (error) {
       console.error("Logout error:", error);
       // Still clear local storage and redirect even if API call fails
-      localStorage.removeItem("authToken");
       localStorage.removeItem("user");
       router.push("/login");
     }

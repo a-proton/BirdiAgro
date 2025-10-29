@@ -35,7 +35,6 @@ export default function AddFeedModal({ onSuccess }: AddFeedModalProps) {
       return;
     }
 
-    // Calculate buckets and kgs
     const buckets = sacks * 4;
     const kgs = sacks * 50;
     const quantityDisplay = `${sacks} बोरा (${buckets} बाल्टिन, ${kgs} किलो)`;
@@ -106,7 +105,6 @@ export default function AddFeedModal({ onSuccess }: AddFeedModalProps) {
     setTimeout(() => setIsOpen(false), 300);
   };
 
-  // Calculate display values
   const sacks = parseFloat(formData.quantitySacks) || 0;
   const buckets = sacks * 4;
   const kgs = sacks * 50;
@@ -115,7 +113,7 @@ export default function AddFeedModal({ onSuccess }: AddFeedModalProps) {
     return (
       <button
         onClick={handleOpen}
-        className="inline-flex items-center gap-2 px-4 py-2 bg-[#1ab189] text-white rounded-lg hover:bg-[#158f6f] transition-colors"
+        className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2 bg-[#1ab189] text-white text-sm sm:text-base rounded-lg hover:bg-[#158f6f] transition-colors"
       >
         <Plus className="w-4 h-4" />
         दाना थप्नुहोस्
@@ -127,7 +125,7 @@ export default function AddFeedModal({ onSuccess }: AddFeedModalProps) {
     <>
       <button
         onClick={handleOpen}
-        className="inline-flex items-center gap-2 px-4 py-2 bg-[#1ab189] text-white rounded-lg hover:bg-[#158f6f] transition-colors"
+        className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2 bg-[#1ab189] text-white text-sm sm:text-base rounded-lg hover:bg-[#158f6f] transition-colors"
       >
         <Plus className="w-4 h-4" />
         दाना थप्नुहोस्
@@ -145,8 +143,8 @@ export default function AddFeedModal({ onSuccess }: AddFeedModalProps) {
           }`}
           onClick={(e) => e.stopPropagation()}
         >
-          <div className="flex items-center justify-between p-6 border-b border-gray-200">
-            <h2 className="text-xl font-semibold text-gray-900">
+          <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-200 sticky top-0 bg-white z-10">
+            <h2 className="text-lg sm:text-xl font-semibold text-gray-900">
               नयाँ दाना थप्नुहोस्
             </h2>
             <button
@@ -158,12 +156,12 @@ export default function AddFeedModal({ onSuccess }: AddFeedModalProps) {
             </button>
           </div>
           {error && (
-            <div className="mx-6 mt-4 p-4 bg-red-50 border border-red-200 rounded-lg">
-              <p className="text-sm text-red-600">{error}</p>
+            <div className="mx-4 sm:mx-6 mt-4 p-3 sm:p-4 bg-red-50 border border-red-200 rounded-lg">
+              <p className="text-xs sm:text-sm text-red-600">{error}</p>
             </div>
           )}
-          <form onSubmit={handleSubmit} className="p-6">
-            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+          <form onSubmit={handleSubmit} className="p-4 sm:p-6">
+            <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
               <div>
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   दानाको नाम *
@@ -175,7 +173,7 @@ export default function AddFeedModal({ onSuccess }: AddFeedModalProps) {
                   onChange={handleChange}
                   required
                   disabled={loading}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189] focus:border-transparent disabled:bg-gray-100"
+                  className="w-full px-3 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189] focus:border-transparent disabled:bg-gray-100"
                   placeholder="दानाको नाम प्रविष्ट गर्नुहोस्"
                 />
               </div>
@@ -189,14 +187,14 @@ export default function AddFeedModal({ onSuccess }: AddFeedModalProps) {
                   onChange={handleChange}
                   required
                   disabled={loading}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189] focus:border-transparent disabled:bg-gray-100"
+                  className="w-full px-3 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189] focus:border-transparent disabled:bg-gray-100"
                 >
                   <option value="B0">B0 - स्टार्टर</option>
                   <option value="B1">B1 - ग्रोअर</option>
                   <option value="B2">B2 - लेयर</option>
                 </select>
               </div>
-              <div className="md:col-span-2">
+              <div className="sm:col-span-2">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   मात्रा (बोरा मा) *
                 </label>
@@ -209,15 +207,15 @@ export default function AddFeedModal({ onSuccess }: AddFeedModalProps) {
                   min="0.1"
                   step="0.1"
                   disabled={loading}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189] focus:border-transparent disabled:bg-gray-100"
+                  className="w-full px-3 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189] focus:border-transparent disabled:bg-gray-100"
                   placeholder="उदाहरण: 10"
                 />
                 {sacks > 0 && (
                   <div className="mt-2 p-3 bg-blue-50 border border-blue-200 rounded-lg">
-                    <p className="text-sm text-blue-900 font-medium">
+                    <p className="text-xs sm:text-sm text-blue-900 font-medium">
                       मात्रा विवरण:
                     </p>
-                    <div className="mt-1 space-y-1 text-sm text-blue-700">
+                    <div className="mt-1 space-y-1 text-xs sm:text-sm text-blue-700">
                       <p>• {sacks} बोरा</p>
                       <p>• {buckets} बाल्टिन (प्रति बोरा 4 बाल्टिन)</p>
                       <p>• {kgs} किलो (प्रति बोरा 50 किलो)</p>
@@ -236,7 +234,7 @@ export default function AddFeedModal({ onSuccess }: AddFeedModalProps) {
                   onChange={handleChange}
                   required
                   disabled={loading}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189] focus:border-transparent disabled:bg-gray-100"
+                  className="w-full px-3 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189] focus:border-transparent disabled:bg-gray-100"
                 />
               </div>
               <div>
@@ -250,7 +248,7 @@ export default function AddFeedModal({ onSuccess }: AddFeedModalProps) {
                   onChange={handleChange}
                   required
                   disabled={loading}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189] focus:border-transparent disabled:bg-gray-100"
+                  className="w-full px-3 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189] focus:border-transparent disabled:bg-gray-100"
                   placeholder="उदाहरण: Rs 45,000"
                 />
               </div>
@@ -265,7 +263,7 @@ export default function AddFeedModal({ onSuccess }: AddFeedModalProps) {
                   onChange={handleChange}
                   required
                   disabled={loading}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189] focus:border-transparent disabled:bg-gray-100"
+                  className="w-full px-3 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189] focus:border-transparent disabled:bg-gray-100"
                   placeholder="वितरकको नाम प्रविष्ट गर्नुहोस्"
                 />
               </div>
@@ -279,7 +277,7 @@ export default function AddFeedModal({ onSuccess }: AddFeedModalProps) {
                   onChange={handleChange}
                   required
                   disabled={loading}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189] focus:border-transparent disabled:bg-gray-100"
+                  className="w-full px-3 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189] focus:border-transparent disabled:bg-gray-100"
                 >
                   <option value="Bank Transfer">बैंक ट्रान्सफर</option>
                   <option value="Cash">नगद</option>
@@ -287,7 +285,7 @@ export default function AddFeedModal({ onSuccess }: AddFeedModalProps) {
                   <option value="Online Payment">अनलाइन भुक्तानी</option>
                 </select>
               </div>
-              <div className="md:col-span-2">
+              <div className="sm:col-span-2">
                 <label className="block text-sm font-medium text-gray-700 mb-2">
                   भुक्तानी प्रमाण (PDF/Image)
                 </label>
@@ -297,28 +295,28 @@ export default function AddFeedModal({ onSuccess }: AddFeedModalProps) {
                   onChange={handleFileChange}
                   accept=".pdf,.jpg,.jpeg,.png"
                   disabled={loading}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189] focus:border-transparent file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-[#e8f8f7] file:text-[#1ab189] hover:file:bg-[#d0f0eb] disabled:bg-gray-100"
+                  className="w-full px-3 py-2 text-xs sm:text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189] focus:border-transparent file:mr-2 sm:file:mr-4 file:py-1.5 sm:file:py-2 file:px-3 sm:file:px-4 file:rounded-lg file:border-0 file:text-xs sm:file:text-sm file:font-semibold file:bg-[#e8f8f7] file:text-[#1ab189] hover:file:bg-[#d0f0eb] disabled:bg-gray-100"
                 />
                 {formData.paymentProof && (
-                  <p className="mt-2 text-sm text-gray-600">
+                  <p className="mt-2 text-xs sm:text-sm text-gray-600 truncate">
                     चयन गरिएको: {formData.paymentProof.name}
                   </p>
                 )}
               </div>
             </div>
-            <div className="flex gap-3 mt-6 pt-6 border-t border-gray-200">
+            <div className="flex flex-col-reverse sm:flex-row gap-2 sm:gap-3 mt-4 sm:mt-6 pt-4 sm:pt-6 border-t border-gray-200">
               <button
                 type="button"
                 onClick={handleClose}
                 disabled={loading}
-                className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
+                className="w-full sm:flex-1 px-4 py-2 text-sm sm:text-base border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
               >
                 रद्द गर्नुहोस्
               </button>
               <button
                 type="submit"
                 disabled={loading}
-                className="flex-1 px-4 py-2 bg-[#1ab189] text-white rounded-lg hover:bg-[#158f6f] transition-colors disabled:opacity-50 flex items-center justify-center"
+                className="w-full sm:flex-1 px-4 py-2 text-sm sm:text-base bg-[#1ab189] text-white rounded-lg hover:bg-[#158f6f] transition-colors disabled:opacity-50 flex items-center justify-center"
               >
                 {loading && (
                   <svg

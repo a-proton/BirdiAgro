@@ -77,7 +77,7 @@ export default function ReportsPage() {
 
   const [batchConfig, setBatchConfig] = useState({
     selection: "All" as ReportType | "All",
-    batchName: "", // ← NEW: optional custom batch name
+    batchName: "",
     startDate: new Date(new Date().setDate(new Date().getDate() - 7))
       .toISOString()
       .split("T")[0],
@@ -100,7 +100,7 @@ export default function ReportsPage() {
           reportConfig.endDate
         )}`,
         status: "Completed",
-        batchName, // self-contained batch
+        batchName,
       };
       setReports([newReport, ...reports]);
       setIsGeneratingSingle(false);
@@ -183,28 +183,28 @@ export default function ReportsPage() {
   };
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6 p-4 sm:p-6">
       {/* पेज हेडर */}
       <div>
-        <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
+        <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">
           रिपोर्टहरू
         </h1>
-        <p className="text-gray-600 mt-1">
+        <p className="text-sm sm:text-base text-gray-600 mt-1">
           वित्तीय रिपोर्टहरू सिर्जना गर्नुहोस् र व्यवस्थापन गर्नुहोस्
         </p>
       </div>
 
       {/* ब्याच रिपोर्ट सिर्जना कार्ड */}
-      <div className="bg-white rounded-lg shadow-sm p-6">
+      <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6">
         <div className="flex items-center gap-2 mb-4">
           <Layers className="w-5 h-5 text-[#1ab189]" />
-          <h2 className="text-lg font-semibold text-gray-900">
+          <h2 className="text-base sm:text-lg font-semibold text-gray-900">
             ब्याच रिपोर्ट सिर्जना गर्नुहोस्
           </h2>
         </div>
 
         <form onSubmit={handleGenerateBatch} className="space-y-4">
-          <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-1">
                 ब्याच नाम
@@ -212,7 +212,7 @@ export default function ReportsPage() {
               <select
                 name="feedType"
                 required
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189] focus:border-transparent"
+                className="w-full px-3 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189] focus:border-transparent"
               >
                 <option value="">ब्याच चयन गर्नुहोस्</option>
                 <option value="B0">B0 - स्टार्टर</option>
@@ -232,7 +232,7 @@ export default function ReportsPage() {
                     selection: e.target.value as ReportType | "All",
                   })
                 }
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189]"
+                className="w-full px-3 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189]"
               >
                 {REPORT_TYPE_OPTIONS.map((opt) => (
                   <option key={opt.value} value={opt.value}>
@@ -255,9 +255,9 @@ export default function ReportsPage() {
                       startDate: e.target.value,
                     })
                   }
-                  className="w-full pl-10 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189]"
+                  className="w-full pl-10 px-3 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189]"
                 />
-                <Calendar className="absolute left-3 top-2.5 w-4 h-4 text-gray-400" />
+                <Calendar className="absolute left-3 top-2.5 w-4 h-4 text-gray-400 pointer-events-none" />
               </div>
             </div>
             <div>
@@ -274,128 +274,205 @@ export default function ReportsPage() {
                       endDate: e.target.value,
                     })
                   }
-                  className="w-full pl-10 px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189]"
+                  className="w-full pl-10 px-3 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189]"
                 />
-                <Calendar className="absolute left-3 top-2.5 w-4 h-4 text-gray-400" />
+                <Calendar className="absolute left-3 top-2.5 w-4 h-4 text-gray-400 pointer-events-none" />
               </div>
             </div>
           </div>
 
-          <button
-            type="submit"
-            disabled={isGeneratingBatch}
-            className="inline-flex items-center gap-2 px-4 py-2 bg-[#1ab189] text-white rounded-lg hover:bg-[#158f6f] transition-colors disabled:opacity-70"
-          >
-            {isGeneratingBatch ? (
-              <>
-                <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
-                ब्याच सिर्जना हुँदैछ...
-              </>
-            ) : (
-              <>
-                <Layers className="w-4 h-4" />
-                ब्याच रिपोर्ट सिर्जना गर्नुहोस्
-              </>
-            )}
-          </button>
+          <div className="flex justify-start">
+            <button
+              type="submit"
+              disabled={isGeneratingBatch}
+              className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2 text-sm sm:text-base bg-[#1ab189] text-white rounded-lg hover:bg-[#158f6f] transition-colors disabled:opacity-70 disabled:cursor-not-allowed"
+            >
+              {isGeneratingBatch ? (
+                <>
+                  <div className="w-4 h-4 border-2 border-white border-t-transparent rounded-full animate-spin" />
+                  ब्याच सिर्जना हुँदैछ...
+                </>
+              ) : (
+                <>
+                  <Layers className="w-4 h-4" />
+                  ब्याच रिपोर्ट सिर्जना गर्नुहोस्
+                </>
+              )}
+            </button>
+          </div>
         </form>
       </div>
 
       {/* सिर्जना भएका रिपोर्टहरू */}
       <div className="bg-white rounded-lg shadow-sm overflow-hidden">
-        <div className="px-6 py-4 border-b border-gray-200">
-          <h2 className="text-lg font-semibold text-gray-900">
+        <div className="px-4 sm:px-6 py-4 border-b border-gray-200">
+          <h2 className="text-base sm:text-lg font-semibold text-gray-900">
             सिर्जना भएका रिपोर्टहरू
           </h2>
         </div>
-        <div className="overflow-x-auto">
-          {reports.length === 0 ? (
-            <div className="px-6 py-12 text-center text-gray-500">
-              अहिलेसम्म कुनै रिपोर्ट सिर्जना भएको छैन।
-            </div>
-          ) : (
-            <table className="w-full">
-              <thead className="bg-gray-50">
-                <tr>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
-                    रिपोर्ट
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
-                    ब्याच
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
-                    अवधिः
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
-                    सिर्जना मिति
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
-                    स्थिति
-                  </th>
-                  <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
-                    क्रियाकलाप
-                  </th>
-                </tr>
-              </thead>
-              <tbody className="divide-y divide-gray-200">
-                {reports.map((report) => (
-                  <tr key={report.id} className="hover:bg-gray-50">
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <div className="font-medium text-gray-900">
-                        {report.title}
-                      </div>
-                      <div className="text-sm text-gray-500">
-                        {getTypeLabel(report.type)} रिपोर्ट
-                      </div>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                      {report.batchName.startsWith("batch-")
-                        ? report.batchName.replace("batch-", "").slice(0, 12) // shorten for display
-                        : "एकल"}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                      {report.period}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
-                      {new Date(report.generatedAt).toLocaleDateString("ne-NP")}
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap">
-                      <span
-                        className={`px-2 py-1 rounded-full text-xs ${
-                          report.status === "Completed"
-                            ? "bg-green-100 text-green-800"
-                            : "bg-yellow-100 text-yellow-800"
-                        }`}
-                      >
-                        {report.status === "Completed"
-                          ? "पूरा भयो"
-                          : "प्रक्रियामा"}
-                      </span>
-                    </td>
-                    <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
-                      <div className="flex items-center gap-2">
-                        <button
-                          onClick={() => handleDownload(report.id)}
-                          className="p-1.5 text-gray-500 hover:text-[#1ab189] rounded hover:bg-gray-100"
-                          title="डाउनलोड"
-                        >
-                          <Download className="w-4 h-4" />
-                        </button>
-                        <button
-                          onClick={() => handleDelete(report.id)}
-                          className="p-1.5 text-gray-500 hover:text-red-500 rounded hover:bg-gray-100"
-                          title="मेटाउन"
-                        >
-                          <Trash2 className="w-4 h-4" />
-                        </button>
-                      </div>
-                    </td>
+
+        {reports.length === 0 ? (
+          <div className="px-4 sm:px-6 py-12 text-center text-sm sm:text-base text-gray-500">
+            अहिलेसम्म कुनै रिपोर्ट सिर्जना भएको छैन।
+          </div>
+        ) : (
+          <>
+            {/* Desktop Table View */}
+            <div className="hidden lg:block overflow-x-auto">
+              <table className="w-full">
+                <thead className="bg-gray-50">
+                  <tr>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
+                      रिपोर्ट
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
+                      ब्याच
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
+                      अवधिः
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
+                      सिर्जना मिति
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
+                      स्थिति
+                    </th>
+                    <th className="px-6 py-3 text-left text-xs font-medium text-gray-600 uppercase tracking-wider">
+                      क्रियाकलाप
+                    </th>
                   </tr>
-                ))}
-              </tbody>
-            </table>
-          )}
-        </div>
+                </thead>
+                <tbody className="divide-y divide-gray-200">
+                  {reports.map((report) => (
+                    <tr key={report.id} className="hover:bg-gray-50">
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <div className="font-medium text-gray-900">
+                          {report.title}
+                        </div>
+                        <div className="text-sm text-gray-500">
+                          {getTypeLabel(report.type)} रिपोर्ट
+                        </div>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                        {report.batchName.startsWith("batch-")
+                          ? report.batchName.replace("batch-", "").slice(0, 12)
+                          : "एकल"}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                        {report.period}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-600">
+                        {new Date(report.generatedAt).toLocaleDateString(
+                          "ne-NP"
+                        )}
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap">
+                        <span
+                          className={`px-2 py-1 rounded-full text-xs ${
+                            report.status === "Completed"
+                              ? "bg-green-100 text-green-800"
+                              : "bg-yellow-100 text-yellow-800"
+                          }`}
+                        >
+                          {report.status === "Completed"
+                            ? "पूरा भयो"
+                            : "प्रक्रियामा"}
+                        </span>
+                      </td>
+                      <td className="px-6 py-4 whitespace-nowrap text-sm text-gray-500">
+                        <div className="flex items-center gap-2">
+                          <button
+                            onClick={() => handleDownload(report.id)}
+                            className="p-1.5 text-gray-500 hover:text-[#1ab189] rounded hover:bg-gray-100 transition-colors"
+                            title="डाउनलोड"
+                          >
+                            <Download className="w-4 h-4" />
+                          </button>
+                          <button
+                            onClick={() => handleDelete(report.id)}
+                            className="p-1.5 text-gray-500 hover:text-red-500 rounded hover:bg-gray-100 transition-colors"
+                            title="मेटाउन"
+                          >
+                            <Trash2 className="w-4 h-4" />
+                          </button>
+                        </div>
+                      </td>
+                    </tr>
+                  ))}
+                </tbody>
+              </table>
+            </div>
+
+            {/* Mobile/Tablet Card View */}
+            <div className="lg:hidden divide-y divide-gray-200">
+              {reports.map((report) => (
+                <div key={report.id} className="p-4 hover:bg-gray-50">
+                  <div className="flex justify-between items-start mb-3">
+                    <div className="flex-1 min-w-0">
+                      <h3 className="text-sm font-medium text-gray-900 mb-1">
+                        {report.title}
+                      </h3>
+                      <p className="text-xs text-gray-500">
+                        {getTypeLabel(report.type)} रिपोर्ट
+                      </p>
+                    </div>
+                    <span
+                      className={`ml-2 px-2 py-1 rounded-full text-xs whitespace-nowrap ${
+                        report.status === "Completed"
+                          ? "bg-green-100 text-green-800"
+                          : "bg-yellow-100 text-yellow-800"
+                      }`}
+                    >
+                      {report.status === "Completed"
+                        ? "पूरा भयो"
+                        : "प्रक्रियामा"}
+                    </span>
+                  </div>
+
+                  <div className="space-y-2 text-xs sm:text-sm text-gray-600 mb-3">
+                    <div className="flex justify-between">
+                      <span className="text-gray-500">ब्याच:</span>
+                      <span className="font-medium">
+                        {report.batchName.startsWith("batch-")
+                          ? report.batchName.replace("batch-", "").slice(0, 12)
+                          : "एकल"}
+                      </span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-500">अवधि:</span>
+                      <span className="font-medium">{report.period}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span className="text-gray-500">सिर्जना मिति:</span>
+                      <span className="font-medium">
+                        {new Date(report.generatedAt).toLocaleDateString(
+                          "ne-NP"
+                        )}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    <button
+                      onClick={() => handleDownload(report.id)}
+                      className="flex-1 inline-flex items-center justify-center gap-1 px-3 py-2 text-sm text-gray-700 bg-gray-100 hover:bg-gray-200 rounded-lg transition-colors"
+                    >
+                      <Download className="w-4 h-4" />
+                      डाउनलोड
+                    </button>
+                    <button
+                      onClick={() => handleDelete(report.id)}
+                      className="flex-1 inline-flex items-center justify-center gap-1 px-3 py-2 text-sm text-red-600 bg-red-50 hover:bg-red-100 rounded-lg transition-colors"
+                    >
+                      <Trash2 className="w-4 h-4" />
+                      मेटाउनुहोस्
+                    </button>
+                  </div>
+                </div>
+              ))}
+            </div>
+          </>
+        )}
       </div>
     </div>
   );

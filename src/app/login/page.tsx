@@ -1,7 +1,7 @@
 // src/app/login/page.tsx
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
 
@@ -13,80 +13,57 @@ export default function LoginPage() {
   const router = useRouter();
   const supabase = createClient();
 
+  // Check if already logged in
+  useEffect(() => {
+    const checkSession = async () => {
+      const {
+        data: { session },
+      } = await supabase.auth.getSession();
+
+      if (session) {
+        // Already logged in, redirect to dashboard
+        router.push("/dashboard");
+      }
+    };
+
+    checkSession();
+  }, [router, supabase]);
+
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setLoading(true);
     setError("");
 
-    try {
-      // First, check if user exists in users table
-      const { data: userData, error: userError } = await supabase
-        .from("users")
-        .select("id, name, email, role")
-        .eq("email", email)
-        .maybeSingle();
+    const {
+      data: { session },
+      error: authError,
+    } = await supabase.auth.signInWithPassword({
+      email,
+      password,
+    });
 
-      if (userError) {
-        console.error("User lookup error:", userError);
-        setError("डाटाबेस त्रुटि। कृपया पुन: प्रयास गर्नुहोस्।");
-        setLoading(false);
-        return;
-      }
-
-      if (!userData) {
-        setError("इमेल वा पासवर्ड गलत छ।");
-        setLoading(false);
-        return;
-      }
-
-      // Then authenticate with Supabase Auth
-      const {
-        data: { session },
-        error: authError,
-      } = await supabase.auth.signInWithPassword({
-        email,
-        password,
-      });
-
-      if (authError) {
-        console.error("Auth error:", authError);
-
-        if (authError.message.includes("Invalid login credentials")) {
-          setError("इमेल वा पासवर्ड गलत छ।");
-        } else if (authError.message.includes("Email not confirmed")) {
-          setError("इमेल पुष्टि गरिएको छैन।");
-        } else {
-          setError("लगइन गर्न असफल। कृपया पुन: प्रयास गर्नुहोस्।");
-        }
-        setLoading(false);
-        return;
-      }
-
-      if (!session) {
-        setError("सेशन सिर्जना गर्न असफल भयो।");
-        setLoading(false);
-        return;
-      }
-
-      // Verify the auth user ID matches the users table ID
-      if (session.user.id !== userData.id) {
-        console.error("ID mismatch:", {
-          authId: session.user.id,
-          dbId: userData.id,
-        });
-        setError("खाता बेमेल छ। कृपया व्यवस्थापकलाई सम्पर्क गर्नुहोस्।");
-        await supabase.auth.signOut();
-        setLoading(false);
-        return;
-      }
-
-      localStorage.setItem("user", JSON.stringify(userData));
-      router.push("/dashboard");
-    } catch (err) {
-      console.error("Unexpected login error:", err);
-      setError("अप्रत्याशित त्रुटि। कृपया पुन: प्रयास गर्नुहोस्।");
+    if (authError || !session) {
+      setError("इमेल वा पासवर्ड गलत छ।");
       setLoading(false);
+      return;
     }
+
+    // Fetch user by AUTH ID (not email!)
+    const { data: userData, error: userError } = await supabase
+      .from("users")
+      .select("id, name, email, role")
+      .eq("id", session.user.id)
+      .single();
+
+    if (userError || !userData) {
+      setError("प्रयोगकर्ता डाटाबेसमा फेला परेन।");
+      await supabase.auth.signOut();
+      setLoading(false);
+      return;
+    }
+
+    localStorage.setItem("user", JSON.stringify(userData));
+    router.push("/dashboard");
   };
 
   return (
