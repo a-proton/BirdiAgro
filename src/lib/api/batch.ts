@@ -26,7 +26,7 @@ export interface BatchWithDetails {
   totalDeaths?: number;
   totalSold?: number;
 }
-//changed func
+//changed function
 export const getRemainingChickens = async (batchId: string | number | null) => {
   try {
     // Get batch details (including number_of_chicks and batch_name)
