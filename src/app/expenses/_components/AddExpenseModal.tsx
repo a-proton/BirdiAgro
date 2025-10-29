@@ -1,6 +1,6 @@
 "use client";
 
-import { X } from "lucide-react";
+import { X, AlertCircle } from "lucide-react";
 import { useState, useEffect } from "react";
 import { getBatchNames } from "../../../lib/api/batch";
 import { createExpense } from "@/lib/api/expenses";
@@ -34,6 +34,7 @@ export default function AddExpenseModal({
   const [availableBatches, setAvailableBatches] = useState<string[]>([]);
   const [isLoadingBatches, setIsLoadingBatches] = useState(false);
   const [isSaving, setIsSaving] = useState(false);
+  const [error, setError] = useState<string | null>(null);
 
   const [kukhuraData, setKukhuraData] = useState({
     batch: "",
@@ -54,7 +55,6 @@ export default function AddExpenseModal({
     paymentProof: null as File | null,
   });
 
-  // Load batches when modal opens
   useEffect(() => {
     if (isOpen) {
       const timer = setTimeout(() => setShow(true), 10);
@@ -72,7 +72,7 @@ export default function AddExpenseModal({
       setAvailableBatches(batches);
     } catch (error) {
       console.error("Error loading batches:", error);
-      alert("ब्याच लोड गर्न सकिएन। पुन: प्रयास गर्नुहोस्।");
+      setError("ब्याच लोड गर्न सकिएन। पुन: प्रयास गर्नुहोस्।");
     } finally {
       setIsLoadingBatches(false);
     }
@@ -83,6 +83,7 @@ export default function AddExpenseModal({
     setTimeout(() => {
       onClose();
       setActiveTab("kukhura");
+      setError(null);
       setKukhuraData({
         batch: "",
         expenseTitle: "",
@@ -116,6 +117,7 @@ export default function AddExpenseModal({
     } else {
       setKukhuraData((prev) => ({ ...prev, [name]: value }));
     }
+    setError(null);
   };
 
   const handleOthersChange = (
@@ -131,11 +133,13 @@ export default function AddExpenseModal({
     } else {
       setOthersData((prev) => ({ ...prev, [name]: value }));
     }
+    setError(null);
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSaving(true);
+    setError(null);
 
     try {
       const expenseData = activeTab === "kukhura" ? kukhuraData : othersData;
@@ -160,7 +164,7 @@ export default function AddExpenseModal({
       handleClose();
     } catch (error) {
       console.error("Error saving expense:", error);
-      alert("खर्च सुरक्षित गर्न सकिएन। पुन: प्रयास गर्नुहोस्।");
+      setError("खर्च सुरक्षित गर्न सकिएन। पुन: प्रयास गर्नुहोस्।");
     } finally {
       setIsSaving(false);
     }
@@ -182,8 +186,8 @@ export default function AddExpenseModal({
         }`}
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between p-6 border-b border-gray-200">
-          <h2 className="text-xl font-semibold text-gray-900">
+        <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-200 sticky top-0 bg-white">
+          <h2 className="text-lg sm:text-xl font-semibold text-gray-900">
             नयाँ खर्च थप्नुहोस्
           </h2>
           <button
@@ -198,7 +202,7 @@ export default function AddExpenseModal({
         <div className="border-b border-gray-200">
           <div className="flex">
             <button
-              className={`px-6 py-3 font-medium text-sm ${
+              className={`flex-1 sm:flex-none sm:px-6 py-3 font-medium text-sm ${
                 activeTab === "kukhura"
                   ? "text-[#1ab189] border-b-2 border-[#1ab189]"
                   : "text-gray-500"
@@ -208,7 +212,7 @@ export default function AddExpenseModal({
               कुखुरा
             </button>
             <button
-              className={`px-6 py-3 font-medium text-sm ${
+              className={`flex-1 sm:flex-none sm:px-6 py-3 font-medium text-sm ${
                 activeTab === "others"
                   ? "text-[#1ab189] border-b-2 border-[#1ab189]"
                   : "text-gray-500"
@@ -220,7 +224,21 @@ export default function AddExpenseModal({
           </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6 space-y-4">
+        <form onSubmit={handleSubmit} className="p-4 sm:p-6 space-y-4">
+          {error && (
+            <div className="p-3 sm:p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-2 sm:gap-3">
+              <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
+              <div className="flex-1 min-w-0">
+                <p className="text-xs sm:text-sm font-medium text-red-800">
+                  त्रुटि
+                </p>
+                <p className="text-xs sm:text-sm text-red-700 mt-1 break-words">
+                  {error}
+                </p>
+              </div>
+            </div>
+          )}
+
           {activeTab === "kukhura" ? (
             <>
               <div>
@@ -233,7 +251,7 @@ export default function AddExpenseModal({
                   onChange={handleKukhuraChange}
                   required
                   disabled={isLoadingBatches}
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189] focus:border-transparent disabled:bg-gray-100"
+                  className="w-full px-3 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189] focus:border-transparent disabled:bg-gray-100"
                 >
                   <option value="">
                     {isLoadingBatches ? "लोड हुँदैछ..." : "ब्याच चयन गर्नुहोस्"}
@@ -245,7 +263,7 @@ export default function AddExpenseModal({
                   ))}
                 </select>
                 {!isLoadingBatches && availableBatches.length === 0 && (
-                  <p className="text-sm text-red-600 mt-1">
+                  <p className="text-xs text-red-600 mt-1">
                     कुनै ब्याच उपलब्ध छैन। पहिले ब्याच थप्नुहोस्।
                   </p>
                 )}
@@ -259,7 +277,7 @@ export default function AddExpenseModal({
                   type="text"
                   name="expenseTitle"
                   required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189]"
+                  className="w-full px-3 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189]"
                   placeholder="जस्तै: खानेपानी, औषधि"
                   value={kukhuraData.expenseTitle}
                   onChange={handleKukhuraChange}
@@ -276,7 +294,7 @@ export default function AddExpenseModal({
                   required
                   min="0"
                   step="0.01"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189]"
+                  className="w-full px-3 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189]"
                   value={kukhuraData.amount}
                   onChange={handleKukhuraChange}
                 />
@@ -290,7 +308,7 @@ export default function AddExpenseModal({
                   type="date"
                   name="date"
                   required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189]"
+                  className="w-full px-3 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189]"
                   value={kukhuraData.date}
                   onChange={handleKukhuraChange}
                 />
@@ -302,7 +320,7 @@ export default function AddExpenseModal({
                 </label>
                 <select
                   name="paymentMethod"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189]"
+                  className="w-full px-3 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189]"
                   value={kukhuraData.paymentMethod}
                   onChange={handleKukhuraChange}
                 >
@@ -334,7 +352,7 @@ export default function AddExpenseModal({
                   भुक्तानी प्रमाण (PDF/Image)
                 </label>
                 {kukhuraData.paymentProof && (
-                  <div className="mb-2 text-sm text-green-600">
+                  <div className="mb-2 text-xs sm:text-sm text-green-600 break-words">
                     चयन गरिएको: {kukhuraData.paymentProof.name}
                   </div>
                 )}
@@ -342,7 +360,7 @@ export default function AddExpenseModal({
                   type="file"
                   name="paymentProof"
                   accept=".pdf,.jpg,.jpeg,.png"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189] file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-[#e8f8f7] file:text-[#1ab189] hover:file:bg-[#d0f0eb]"
+                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189] file:mr-2 sm:file:mr-4 file:py-1.5 sm:file:py-2 file:px-3 sm:file:px-4 file:rounded-lg file:border-0 file:text-xs sm:file:text-sm file:font-semibold file:bg-[#e8f8f7] file:text-[#1ab189] hover:file:bg-[#d0f0eb]"
                   onChange={handleKukhuraChange}
                 />
               </div>
@@ -357,7 +375,7 @@ export default function AddExpenseModal({
                   type="text"
                   name="expenseTitle"
                   required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189]"
+                  className="w-full px-3 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189]"
                   placeholder="जस्तै: उपकरण, यातायात"
                   value={othersData.expenseTitle}
                   onChange={handleOthersChange}
@@ -374,7 +392,7 @@ export default function AddExpenseModal({
                   required
                   min="0"
                   step="0.01"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189]"
+                  className="w-full px-3 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189]"
                   value={othersData.amount}
                   onChange={handleOthersChange}
                 />
@@ -388,7 +406,7 @@ export default function AddExpenseModal({
                   type="date"
                   name="date"
                   required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189]"
+                  className="w-full px-3 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189]"
                   value={othersData.date}
                   onChange={handleOthersChange}
                 />
@@ -400,7 +418,7 @@ export default function AddExpenseModal({
                 </label>
                 <select
                   name="paymentMethod"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189]"
+                  className="w-full px-3 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189]"
                   value={othersData.paymentMethod}
                   onChange={handleOthersChange}
                 >
@@ -432,7 +450,7 @@ export default function AddExpenseModal({
                   भुक्तानी प्रमाण (PDF/Image)
                 </label>
                 {othersData.paymentProof && (
-                  <div className="mb-2 text-sm text-green-600">
+                  <div className="mb-2 text-xs sm:text-sm text-green-600 break-words">
                     चयन गरिएको: {othersData.paymentProof.name}
                   </div>
                 )}
@@ -440,26 +458,26 @@ export default function AddExpenseModal({
                   type="file"
                   name="paymentProof"
                   accept=".pdf,.jpg,.jpeg,.png"
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189] file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-[#e8f8f7] file:text-[#1ab189] hover:file:bg-[#d0f0eb]"
+                  className="w-full px-3 py-2 text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189] file:mr-2 sm:file:mr-4 file:py-1.5 sm:file:py-2 file:px-3 sm:file:px-4 file:rounded-lg file:border-0 file:text-xs sm:file:text-sm file:font-semibold file:bg-[#e8f8f7] file:text-[#1ab189] hover:file:bg-[#d0f0eb]"
                   onChange={handleOthersChange}
                 />
               </div>
             </>
           )}
 
-          <div className="flex gap-3 pt-6 border-t border-gray-200">
+          <div className="flex flex-col-reverse sm:flex-row gap-3 pt-6 border-t border-gray-200">
             <button
               type="button"
               onClick={handleClose}
               disabled={isSaving}
-              className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 disabled:opacity-50"
+              className="w-full sm:flex-1 px-4 py-2 text-sm sm:text-base border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 disabled:opacity-50"
             >
               रद्द गर्नुहोस्
             </button>
             <button
               type="submit"
               disabled={isSaving || isLoadingBatches}
-              className="flex-1 px-4 py-2 bg-[#1ab189] text-white rounded-lg hover:bg-[#158f6f] disabled:opacity-50 disabled:cursor-not-allowed"
+              className="w-full sm:flex-1 px-4 py-2 text-sm sm:text-base bg-[#1ab189] text-white rounded-lg hover:bg-[#158f6f] disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isSaving ? "सुरक्षित गर्दै..." : "खर्च सुरक्षित गर्नुहोस्"}
             </button>

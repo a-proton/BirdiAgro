@@ -15,7 +15,7 @@ interface Sale {
   totalPcs?: string;
   soldTo: string;
   amountReceived: boolean;
-  salesDate?: string; // 👈 make optional
+  salesDate?: string;
 }
 
 interface ViewSalesModalProps {
@@ -63,8 +63,10 @@ export default function ViewSalesModal({
         }`}
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between p-6 border-b border-gray-200">
-          <h2 className="text-xl font-semibold text-gray-900">बिक्री विवरण</h2>
+        <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-200 sticky top-0 bg-white">
+          <h2 className="text-lg sm:text-xl font-semibold text-gray-900">
+            बिक्री विवरण
+          </h2>
           <button
             onClick={handleClose}
             className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
@@ -74,7 +76,7 @@ export default function ViewSalesModal({
           </button>
         </div>
 
-        <div className="p-6 space-y-4">
+        <div className="p-4 sm:p-6 space-y-4">
           {data.type === "kukhura" ? (
             <>
               <div className="bg-[#e8f8f7] px-4 py-2 rounded-lg">
@@ -83,64 +85,78 @@ export default function ViewSalesModal({
                 </span>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="text-sm text-gray-600">ब्याच नाम</label>
-                  <p className="text-base font-medium text-gray-900">
+                  <label className="text-xs sm:text-sm text-gray-600">
+                    ब्याच नाम
+                  </label>
+                  <p className="text-sm sm:text-base font-medium text-gray-900 break-words">
                     {data.batchName}
                   </p>
                 </div>
                 <div>
-                  <label className="text-sm text-gray-600">बिक्री मिति</label>
-                  <p className="text-base font-medium text-gray-900">
+                  <label className="text-xs sm:text-sm text-gray-600">
+                    बिक्री मिति
+                  </label>
+                  <p className="text-sm sm:text-base font-medium text-gray-900">
                     {data.salesDate}
                   </p>
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="text-sm text-gray-600">कुखुरा संख्या</label>
-                  <p className="text-base font-medium text-gray-900">
+                  <label className="text-xs sm:text-sm text-gray-600">
+                    कुखुरा संख्या
+                  </label>
+                  <p className="text-sm sm:text-base font-medium text-gray-900">
                     {data.chickenCount} वटा
                   </p>
                 </div>
                 <div>
-                  <label className="text-sm text-gray-600">कुल किलोग्राम</label>
-                  <p className="text-base font-medium text-gray-900">
+                  <label className="text-xs sm:text-sm text-gray-600">
+                    कुल किलोग्राम
+                  </label>
+                  <p className="text-sm sm:text-base font-medium text-gray-900">
                     {data.totalKgs} कि.ग्रा
                   </p>
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="text-sm text-gray-600">
+                  <label className="text-xs sm:text-sm text-gray-600">
                     प्रति किग्रा मूल्य
                   </label>
-                  <p className="text-base font-medium text-gray-900">
+                  <p className="text-sm sm:text-base font-medium text-gray-900">
                     रु {data.pricePerKg}
                   </p>
                 </div>
                 <div>
-                  <label className="text-sm text-gray-600">कुल रकम</label>
-                  <p className="text-base font-medium text-gray-900">
+                  <label className="text-xs sm:text-sm text-gray-600">
+                    कुल रकम
+                  </label>
+                  <p className="text-sm sm:text-base font-medium text-gray-900">
                     रु {data.totalAmount}
                   </p>
                 </div>
               </div>
 
               <div>
-                <label className="text-sm text-gray-600">ग्राहकको नाम</label>
-                <p className="text-base font-medium text-gray-900">
+                <label className="text-xs sm:text-sm text-gray-600">
+                  ग्राहकको नाम
+                </label>
+                <p className="text-sm sm:text-base font-medium text-gray-900 break-words">
                   {data.soldTo}
                 </p>
               </div>
 
               <div>
-                <label className="text-sm text-gray-600">भुक्तानी स्थिति</label>
+                <label className="text-xs sm:text-sm text-gray-600">
+                  भुक्तानी स्थिति
+                </label>
                 <p
-                  className={`text-base font-medium ${
+                  className={`text-sm sm:text-base font-medium ${
                     data.amountReceived ? "text-green-600" : "text-orange-600"
                   }`}
                 >
@@ -157,45 +173,57 @@ export default function ViewSalesModal({
               </div>
 
               <div>
-                <label className="text-sm text-gray-600">उत्पादनको नाम</label>
-                <p className="text-base font-medium text-gray-900">
+                <label className="text-xs sm:text-sm text-gray-600">
+                  उत्पादनको नाम
+                </label>
+                <p className="text-sm sm:text-base font-medium text-gray-900 break-words">
                   {data.productName}
                 </p>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
-                  <label className="text-sm text-gray-600">कुल संख्या</label>
-                  <p className="text-base font-medium text-gray-900">
+                  <label className="text-xs sm:text-sm text-gray-600">
+                    कुल संख्या
+                  </label>
+                  <p className="text-sm sm:text-base font-medium text-gray-900">
                     {data.totalPcs} वटा
                   </p>
                 </div>
                 <div>
-                  <label className="text-sm text-gray-600">कुल किलोग्राम</label>
-                  <p className="text-base font-medium text-gray-900">
+                  <label className="text-xs sm:text-sm text-gray-600">
+                    कुल किलोग्राम
+                  </label>
+                  <p className="text-sm sm:text-base font-medium text-gray-900">
                     {data.totalKgs} कि.ग्रा
                   </p>
                 </div>
               </div>
 
               <div>
-                <label className="text-sm text-gray-600">कुल रकम</label>
-                <p className="text-base font-medium text-gray-900">
+                <label className="text-xs sm:text-sm text-gray-600">
+                  कुल रकम
+                </label>
+                <p className="text-sm sm:text-base font-medium text-gray-900">
                   रु {data.totalAmount}
                 </p>
               </div>
 
               <div>
-                <label className="text-sm text-gray-600">ग्राहकको नाम</label>
-                <p className="text-base font-medium text-gray-900">
+                <label className="text-xs sm:text-sm text-gray-600">
+                  ग्राहकको नाम
+                </label>
+                <p className="text-sm sm:text-base font-medium text-gray-900 break-words">
                   {data.soldTo}
                 </p>
               </div>
 
               <div>
-                <label className="text-sm text-gray-600">भुक्तानी स्थिति</label>
+                <label className="text-xs sm:text-sm text-gray-600">
+                  भुक्तानी स्थिति
+                </label>
                 <p
-                  className={`text-base font-medium ${
+                  className={`text-sm sm:text-base font-medium ${
                     data.amountReceived ? "text-green-600" : "text-orange-600"
                   }`}
                 >
@@ -206,10 +234,10 @@ export default function ViewSalesModal({
           )}
         </div>
 
-        <div className="p-6 pt-0">
+        <div className="p-4 sm:p-6 pt-0">
           <button
             onClick={handleClose}
-            className="w-full px-4 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+            className="w-full px-4 py-2 text-sm sm:text-base bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
           >
             बन्द गर्नुहोस्
           </button>

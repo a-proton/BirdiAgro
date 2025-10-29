@@ -75,8 +75,10 @@ export default function ViewExpenseModal({
         }`}
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between p-6 border-b border-gray-200">
-          <h2 className="text-xl font-semibold text-gray-900">खर्च विवरण</h2>
+        <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-200 sticky top-0 bg-white">
+          <h2 className="text-lg sm:text-xl font-semibold text-gray-900">
+            खर्च विवरण
+          </h2>
           <button
             onClick={handleClose}
             className="p-2 hover:bg-gray-100 rounded-lg transition-colors"
@@ -86,109 +88,119 @@ export default function ViewExpenseModal({
           </button>
         </div>
 
-        <div className="p-6 space-y-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <div className="p-4 sm:p-6 space-y-4 sm:space-y-6">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4 sm:gap-6">
             <div>
-              <label className="block text-sm font-medium text-gray-500 mb-1">
+              <label className="block text-xs sm:text-sm font-medium text-gray-500 mb-1">
                 वर्ग
               </label>
-              <p className="text-base text-gray-900">
+              <p className="text-sm sm:text-base text-gray-900">
                 {expense.category === "kukhura" ? "कुखुरा" : "अन्य"}
               </p>
             </div>
 
             {expense.category === "kukhura" && (
               <div>
-                <label className="block text-sm font-medium text-gray-500 mb-1">
+                <label className="block text-xs sm:text-sm font-medium text-gray-500 mb-1">
                   ब्याच
                 </label>
-                <p className="text-base text-gray-900">{expense.batch}</p>
+                <p className="text-sm sm:text-base text-gray-900 break-words">
+                  {expense.batch}
+                </p>
               </div>
             )}
 
-            <div>
-              <label className="block text-sm font-medium text-gray-500 mb-1">
+            <div
+              className={expense.category !== "kukhura" ? "sm:col-span-2" : ""}
+            >
+              <label className="block text-xs sm:text-sm font-medium text-gray-500 mb-1">
                 खर्चको शीर्षक
               </label>
-              <p className="text-base text-gray-900">{expense.title}</p>
+              <p className="text-sm sm:text-base text-gray-900 break-words">
+                {expense.title}
+              </p>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-500 mb-1">
+              <label className="block text-xs sm:text-sm font-medium text-gray-500 mb-1">
                 रकम
               </label>
-              <p className="text-base text-gray-900 font-semibold">
+              <p className="text-sm sm:text-base text-gray-900 font-semibold">
                 रु {expense.amount.toLocaleString()}
               </p>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-500 mb-1">
+              <label className="block text-xs sm:text-sm font-medium text-gray-500 mb-1">
                 मिति
               </label>
-              <p className="text-base text-gray-900">{expense.date}</p>
+              <p className="text-sm sm:text-base text-gray-900">
+                {expense.date}
+              </p>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-500 mb-1">
+              <label className="block text-xs sm:text-sm font-medium text-gray-500 mb-1">
                 भुक्तानी विधि
               </label>
-              <p className="text-base text-gray-900">{expense.method}</p>
+              <p className="text-sm sm:text-base text-gray-900">
+                {expense.method}
+              </p>
             </div>
 
             <div>
-              <label className="block text-sm font-medium text-gray-500 mb-1">
+              <label className="block text-xs sm:text-sm font-medium text-gray-500 mb-1">
                 भुक्तानी स्थिति
               </label>
               <div className="flex items-center gap-2">
                 {expense.isPaid ? (
-                  <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-green-100 text-green-800">
+                  <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs sm:text-sm font-medium bg-green-100 text-green-800">
                     भुक्तानी भएको
                   </span>
                 ) : (
-                  <span className="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium bg-red-100 text-red-800">
+                  <span className="inline-flex items-center px-2.5 py-1 rounded-full text-xs sm:text-sm font-medium bg-red-100 text-red-800">
                     बाँकी
                   </span>
                 )}
               </div>
             </div>
 
-            <div className="md:col-span-2">
-              <label className="block text-sm font-medium text-gray-500 mb-1">
+            <div className="sm:col-span-2">
+              <label className="block text-xs sm:text-sm font-medium text-gray-500 mb-1">
                 भुक्तानी प्रमाण
               </label>
               {expense.paymentProofName && expense.paymentProofPath ? (
-                <div className="flex items-center gap-3">
-                  <div className="flex items-center gap-2 px-4 py-2 bg-blue-50 rounded-lg flex-1">
+                <div className="flex flex-col sm:flex-row items-start sm:items-center gap-3">
+                  <div className="flex items-center gap-2 px-3 sm:px-4 py-2 bg-blue-50 rounded-lg flex-1 w-full sm:w-auto min-w-0">
                     {fileType === "pdf" ? (
-                      <FileText className="w-5 h-5 text-blue-600" />
+                      <FileText className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 flex-shrink-0" />
                     ) : (
-                      <ImageIcon className="w-5 h-5 text-blue-600" />
+                      <ImageIcon className="w-4 h-4 sm:w-5 sm:h-5 text-blue-600 flex-shrink-0" />
                     )}
-                    <span className="text-sm text-gray-700 truncate">
+                    <span className="text-xs sm:text-sm text-gray-700 truncate">
                       {expense.paymentProofName}
                     </span>
                   </div>
                   <button
                     onClick={handleViewFile}
-                    className="inline-flex items-center gap-2 px-4 py-2 bg-[#1ab189] text-white rounded-lg hover:bg-[#158f6f] transition-colors"
+                    className="w-full sm:w-auto inline-flex items-center justify-center gap-2 px-4 py-2 bg-[#1ab189] text-white text-xs sm:text-sm rounded-lg hover:bg-[#158f6f] transition-colors"
                   >
-                    <ExternalLink className="w-4 h-4" />
+                    <ExternalLink className="w-3 h-3 sm:w-4 sm:h-4" />
                     हेर्नुहोस्
                   </button>
                 </div>
               ) : (
-                <p className="text-base text-gray-400">उपलब्ध छैन</p>
+                <p className="text-sm sm:text-base text-gray-400">उपलब्ध छैन</p>
               )}
             </div>
           </div>
         </div>
 
-        <div className="flex justify-end gap-3 p-6 pt-0 border-t border-gray-200">
+        <div className="flex justify-end gap-3 p-4 sm:p-6 pt-0 border-t border-gray-200">
           <button
             type="button"
             onClick={handleClose}
-            className="px-6 py-2 bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
+            className="w-full sm:w-auto px-6 py-2 text-sm sm:text-base bg-gray-100 text-gray-700 rounded-lg hover:bg-gray-200 transition-colors"
           >
             बन्द गर्नुहोस्
           </button>

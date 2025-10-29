@@ -26,7 +26,7 @@ function StatIcon({ src, alt }: StatIconProps) {
       alt={alt}
       height={20}
       width={20}
-      className="w-6 h-6 object-contain"
+      className="w-5 h-5 sm:w-6 sm:h-6 object-contain"
     />
   );
 }
@@ -40,7 +40,6 @@ export default function ExpensesPage() {
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
-  // Fetch expenses on component mount
   useEffect(() => {
     loadExpenses();
   }, []);
@@ -85,7 +84,6 @@ export default function ExpensesPage() {
     .reduce((sum, e) => sum + e.amount, 0);
 
   const handleAddExpense = (expense: Expense) => {
-    // Add to local state immediately for better UX
     setExpenses([expense, ...expenses]);
   };
 
@@ -106,7 +104,6 @@ export default function ExpensesPage() {
     try {
       await updateExpense(id, data);
 
-      // Update locally instead of reloading - prevents table jumping
       setExpenses((prevExpenses) =>
         prevExpenses.map((exp) => {
           if (exp.id === id) {
@@ -121,20 +118,18 @@ export default function ExpensesPage() {
                 method: data.paymentMethod,
               }),
               ...(data.isPaid !== undefined && { isPaid: data.isPaid }),
-              // File updates will be handled on next full reload if needed
             };
           }
           return exp;
         })
       );
 
-      // Close modal immediately
       setIsEditModalOpen(false);
       setSelectedExpense(null);
     } catch (err) {
       console.error("Error updating expense:", err);
       alert("खर्च अपडेट गर्न सकिएन। पुन: प्रयास गर्नुहोस्।");
-      throw err; // Re-throw so modal knows update failed
+      throw err;
     }
   };
 
@@ -162,12 +157,21 @@ export default function ExpensesPage() {
     setIsEditModalOpen(true);
   };
 
+  const formatCurrency = (amount: number) => {
+    if (amount >= 100000) {
+      return `रु ${(amount / 100000).toFixed(2)} लाख`;
+    }
+    return `रु ${amount.toLocaleString("ne-NP")}`;
+  };
+
   if (isLoading) {
     return (
       <div className="flex items-center justify-center min-h-screen">
         <div className="text-center">
           <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-[#1ab189] mx-auto"></div>
-          <p className="mt-4 text-gray-600">लोड हुँदैछ...</p>
+          <p className="mt-4 text-sm sm:text-base text-gray-600">
+            लोड हुँदैछ...
+          </p>
         </div>
       </div>
     );
@@ -175,12 +179,12 @@ export default function ExpensesPage() {
 
   if (error) {
     return (
-      <div className="flex items-center justify-center min-h-screen">
+      <div className="flex items-center justify-center min-h-screen p-4">
         <div className="text-center">
-          <p className="text-red-600 mb-4">{error}</p>
+          <p className="text-sm sm:text-base text-red-600 mb-4">{error}</p>
           <button
             onClick={loadExpenses}
-            className="px-4 py-2 bg-[#1ab189] text-white rounded-lg hover:bg-[#158f6f]"
+            className="px-4 py-2 text-sm sm:text-base bg-[#1ab189] text-white rounded-lg hover:bg-[#158f6f]"
           >
             पुन: प्रयास गर्नुहोस्
           </button>
@@ -190,20 +194,20 @@ export default function ExpensesPage() {
   }
 
   return (
-    <div className="space-y-6">
+    <div className="space-y-4 sm:space-y-6 p-4 sm:p-6 max-w-7xl mx-auto">
       {/* Page Header */}
-      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-4">
+      <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 sm:gap-4">
         <div>
-          <h1 className="text-2xl md:text-3xl font-bold text-gray-900">
+          <h1 className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900">
             खर्च व्यवस्थापन
           </h1>
-          <p className="text-gray-600 mt-1">
+          <p className="text-sm sm:text-base text-gray-600 mt-1">
             आफ्नो खर्च ट्र्याक र व्यवस्थापन गर्नुहोस्
           </p>
         </div>
         <button
           onClick={() => setIsAddModalOpen(true)}
-          className="inline-flex items-center gap-2 px-4 py-2 bg-[#1ab189] text-white rounded-lg hover:bg-[#158f6f] transition-colors self-start sm:self-auto"
+          className="inline-flex items-center justify-center gap-2 px-4 py-2 bg-[#1ab189] text-white text-sm sm:text-base rounded-lg hover:bg-[#158f6f] transition-colors self-start sm:self-auto"
         >
           <Plus className="w-4 h-4" />
           नयाँ खर्च थप्नुहोस्
@@ -211,22 +215,22 @@ export default function ExpensesPage() {
       </div>
 
       {/* Stats Grid */}
-      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4 md:gap-6">
+      <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
         {/* Today's Expense */}
-        <div className="bg-white rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow">
-          <div className="flex items-center justify-between mb-4">
-            <span className="text-sm font-medium text-gray-600 uppercase tracking-wide">
+        <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6 hover:shadow-md transition-shadow">
+          <div className="flex items-center justify-between mb-3 sm:mb-4">
+            <span className="text-xs sm:text-sm font-medium text-gray-600 uppercase tracking-wide">
               आजको खर्च
             </span>
-            <div className="w-10 h-10 bg-red-50 text-red-600 rounded-lg flex items-center justify-center">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-red-50 text-red-600 rounded-lg flex items-center justify-center">
               <StatIcon src="/icons/expenses.png" alt="Expense Icon" />
             </div>
           </div>
-          <div className="text-3xl font-bold text-gray-900 mb-2">
-            रु {todayExpense.toLocaleString()}
+          <div className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 mb-2 break-words">
+            {formatCurrency(todayExpense)}
           </div>
-          <div className="flex items-center gap-1 text-sm text-red-600">
-            <TrendingUp className="w-4 h-4 rotate-180" />
+          <div className="flex items-center gap-1 text-xs sm:text-sm text-red-600">
+            <TrendingUp className="w-3 h-3 sm:w-4 sm:h-4 rotate-180" />
             <span>
               {todayExpense > 0 ? "हिजोभन्दा बढी" : "हालसम्म खर्च छैन"}
             </span>
@@ -234,20 +238,20 @@ export default function ExpensesPage() {
         </div>
 
         {/* This Month */}
-        <div className="bg-white rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow">
-          <div className="flex items-center justify-between mb-4">
-            <span className="text-sm font-medium text-gray-600 uppercase tracking-wide">
+        <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6 hover:shadow-md transition-shadow">
+          <div className="flex items-center justify-between mb-3 sm:mb-4">
+            <span className="text-xs sm:text-sm font-medium text-gray-600 uppercase tracking-wide">
               यस महिना
             </span>
-            <div className="w-10 h-10 bg-orange-50 text-orange-600 rounded-lg flex items-center justify-center">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-orange-50 text-orange-600 rounded-lg flex items-center justify-center">
               <StatIcon src="/icons/trending-down.png" alt="Chart Down Icon" />
             </div>
           </div>
-          <div className="text-3xl font-bold text-gray-900 mb-2">
-            रु {monthExpense.toLocaleString()}
+          <div className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 mb-2 break-words">
+            {formatCurrency(monthExpense)}
           </div>
-          <div className="flex items-center gap-1 text-sm text-red-600">
-            <TrendingUp className="w-4 h-4 rotate-180" />
+          <div className="flex items-center gap-1 text-xs sm:text-sm text-red-600">
+            <TrendingUp className="w-3 h-3 sm:w-4 sm:h-4 rotate-180" />
             <span>
               {monthExpense > 0 ? "अघिल्लो महिनाभन्दा बढी" : "खर्च छैन"}
             </span>
@@ -255,39 +259,39 @@ export default function ExpensesPage() {
         </div>
 
         {/* Paid Expense */}
-        <div className="bg-white rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow">
-          <div className="flex items-center justify-between mb-4">
-            <span className="text-sm font-medium text-gray-600 uppercase tracking-wide">
+        <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6 hover:shadow-md transition-shadow">
+          <div className="flex items-center justify-between mb-3 sm:mb-4">
+            <span className="text-xs sm:text-sm font-medium text-gray-600 uppercase tracking-wide">
               भुक्तानी भएको
             </span>
-            <div className="w-10 h-10 bg-green-50 text-green-600 rounded-lg flex items-center justify-center">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-green-50 text-green-600 rounded-lg flex items-center justify-center">
               <StatIcon src="/icons/total-sales.png" alt="Paid Icon" />
             </div>
           </div>
-          <div className="text-3xl font-bold text-gray-900 mb-2">
-            रु {paidExpense.toLocaleString()}
+          <div className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 mb-2 break-words">
+            {formatCurrency(paidExpense)}
           </div>
-          <div className="flex items-center gap-1 text-sm text-green-600">
-            <TrendingUp className="w-4 h-4" />
+          <div className="flex items-center gap-1 text-xs sm:text-sm text-green-600">
+            <TrendingUp className="w-3 h-3 sm:w-4 sm:h-4" />
             <span>{expenses.filter((e) => e.isPaid).length} खर्च</span>
           </div>
         </div>
 
         {/* Unpaid Expense */}
-        <div className="bg-white rounded-lg shadow-sm p-6 hover:shadow-md transition-shadow">
-          <div className="flex items-center justify-between mb-4">
-            <span className="text-sm font-medium text-gray-600 uppercase tracking-wide">
+        <div className="bg-white rounded-lg shadow-sm p-4 sm:p-6 hover:shadow-md transition-shadow sm:col-span-2 lg:col-span-1">
+          <div className="flex items-center justify-between mb-3 sm:mb-4">
+            <span className="text-xs sm:text-sm font-medium text-gray-600 uppercase tracking-wide">
               बाँकी
             </span>
-            <div className="w-10 h-10 bg-purple-50 text-purple-600 rounded-lg flex items-center justify-center">
+            <div className="w-8 h-8 sm:w-10 sm:h-10 bg-purple-50 text-purple-600 rounded-lg flex items-center justify-center">
               <StatIcon src="/icons/expenses.png" alt="Unpaid Icon" />
             </div>
           </div>
-          <div className="text-3xl font-bold text-gray-900 mb-2">
-            रु {unpaidExpense.toLocaleString()}
+          <div className="text-xl sm:text-2xl md:text-3xl font-bold text-gray-900 mb-2 break-words">
+            {formatCurrency(unpaidExpense)}
           </div>
-          <div className="flex items-center gap-1 text-sm text-purple-600">
-            <TrendingUp className="w-4 h-4" />
+          <div className="flex items-center gap-1 text-xs sm:text-sm text-purple-600">
+            <TrendingUp className="w-3 h-3 sm:w-4 sm:h-4" />
             <span>{expenses.filter((e) => !e.isPaid).length} खर्च</span>
           </div>
         </div>

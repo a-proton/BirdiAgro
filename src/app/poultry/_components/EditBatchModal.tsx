@@ -50,7 +50,6 @@ export default function EditBatchModal({
     paymentProof: null as File | null,
   });
 
-  // Load existing batch data into form
   useEffect(() => {
     if (batchData) {
       setFormData({
@@ -64,7 +63,6 @@ export default function EditBatchModal({
     }
   }, [batchData]);
 
-  // Handle modal open/close animation
   useEffect(() => {
     if (isOpen) {
       const timer = setTimeout(() => setShow(true), 10);
@@ -74,7 +72,6 @@ export default function EditBatchModal({
     }
   }, [isOpen]);
 
-  // Save data
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
@@ -130,9 +127,8 @@ export default function EditBatchModal({
         }`}
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Header */}
-        <div className="flex items-center justify-between p-6 border-b border-gray-200">
-          <h2 className="text-xl font-semibold text-gray-900">
+        <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-200">
+          <h2 className="text-lg sm:text-xl font-semibold text-gray-900">
             ब्याच सम्पादन गर्नुहोस्
           </h2>
           <button
@@ -144,10 +140,8 @@ export default function EditBatchModal({
           </button>
         </div>
 
-        {/* Form */}
-        <form onSubmit={handleSubmit} className="p-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
-            {/* Batch Name */}
+        <form onSubmit={handleSubmit} className="p-4 sm:p-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 ब्याचको नाम <span className="text-red-500">*</span>
@@ -158,14 +152,13 @@ export default function EditBatchModal({
                 onChange={(e) =>
                   setFormData({ ...formData, batchName: e.target.value })
                 }
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189] focus:border-transparent"
+                className="w-full px-3 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189] focus:border-transparent"
                 placeholder="उदाहरण: ब्याच-००१"
                 required
                 disabled={isSaving}
               />
             </div>
 
-            {/* Date of Arrival */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 आगमन मिति <span className="text-red-500">*</span>
@@ -176,13 +169,12 @@ export default function EditBatchModal({
                 onChange={(e) =>
                   setFormData({ ...formData, dateOfArrival: e.target.value })
                 }
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189] focus:border-transparent"
+                className="w-full px-3 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189] focus:border-transparent"
                 required
                 disabled={isSaving}
               />
             </div>
 
-            {/* Number of Chicks */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 कुखुराको संख्या
@@ -194,13 +186,12 @@ export default function EditBatchModal({
                 onChange={(e) =>
                   setFormData({ ...formData, numberOfChicks: e.target.value })
                 }
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189] focus:border-transparent"
+                className="w-full px-3 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189] focus:border-transparent"
                 placeholder="उदाहरण: ५००"
                 disabled={isSaving}
               />
             </div>
 
-            {/* Price */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 मूल्य (रु)
@@ -213,13 +204,12 @@ export default function EditBatchModal({
                 onChange={(e) =>
                   setFormData({ ...formData, price: e.target.value })
                 }
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189] focus:border-transparent"
+                className="w-full px-3 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189] focus:border-transparent"
                 placeholder="उदाहरण: ५०,०००"
                 disabled={isSaving}
               />
             </div>
 
-            {/* Supplier */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 आपूर्तिकर्ता
@@ -230,24 +220,23 @@ export default function EditBatchModal({
                 onChange={(e) =>
                   setFormData({ ...formData, supplier: e.target.value })
                 }
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189] focus:border-transparent"
+                className="w-full px-3 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189] focus:border-transparent"
                 placeholder="उदाहरण: नेपाल ह्याचरी प्रा. लि."
                 disabled={isSaving}
               />
             </div>
 
-            {/* Payment Proof */}
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 भुक्तानी प्रमाण (PDF/Image)
               </label>
               {batchData.paymentProofName && !formData.paymentProof && (
-                <div className="mb-2 text-sm text-gray-600 bg-blue-50 p-2 rounded">
+                <div className="mb-2 text-xs sm:text-sm text-gray-600 bg-blue-50 p-2 rounded">
                   वर्तमान फाइल: <strong>{batchData.paymentProofName}</strong>
                 </div>
               )}
               {formData.paymentProof && (
-                <div className="mb-2 text-sm text-green-600 bg-green-50 p-2 rounded">
+                <div className="mb-2 text-xs sm:text-sm text-green-600 bg-green-50 p-2 rounded">
                   नयाँ फाइल चयन गरिएको:{" "}
                   <strong>{formData.paymentProof.name}</strong>
                 </div>
@@ -255,7 +244,7 @@ export default function EditBatchModal({
               <input
                 type="file"
                 accept=".pdf,.jpg,.jpeg,.png"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189] focus:border-transparent file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-sm file:font-semibold file:bg-[#e8f8f7] file:text-[#1ab189] hover:file:bg-[#d0f0eb]"
+                className="w-full px-3 py-2 text-xs sm:text-sm border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189] focus:border-transparent file:mr-4 file:py-2 file:px-4 file:rounded-lg file:border-0 file:text-xs sm:file:text-sm file:font-semibold file:bg-[#e8f8f7] file:text-[#1ab189] hover:file:bg-[#d0f0eb]"
                 onChange={(e) =>
                   setFormData({
                     ...formData,
@@ -272,28 +261,26 @@ export default function EditBatchModal({
             </div>
           </div>
 
-          {/* Note */}
-          <div className="mt-6 p-4 bg-blue-50 border border-blue-200 rounded-lg">
-            <p className="text-sm text-blue-800">
+          <div className="mt-4 sm:mt-6 p-3 sm:p-4 bg-blue-50 border border-blue-200 rounded-lg">
+            <p className="text-xs sm:text-sm text-blue-800">
               <strong>नोट:</strong> खोप र औषधिको विवरण सम्पादन गर्न सकिदैन।
               तिनीहरूलाई छुट्टै थप्नुहोस् वा हटाउनुहोस्।
             </p>
           </div>
 
-          {/* Buttons */}
-          <div className="flex gap-3 mt-6 pt-6 border-t border-gray-200">
+          <div className="flex flex-col-reverse sm:flex-row gap-2 sm:gap-3 mt-4 sm:mt-6 pt-4 sm:pt-6 border-t border-gray-200">
             <button
               type="button"
               onClick={handleClose}
               disabled={isSaving}
-              className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
+              className="flex-1 px-4 py-2 text-sm sm:text-base border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
             >
               रद्द गर्नुहोस्
             </button>
             <button
               type="submit"
               disabled={isSaving}
-              className="flex-1 px-4 py-2 bg-[#1ab189] text-white rounded-lg hover:bg-[#158f6f] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex-1 px-4 py-2 text-sm sm:text-base bg-[#1ab189] text-white rounded-lg hover:bg-[#158f6f] transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isSaving ? "सेभ गर्दै..." : "सेभ गर्नुहोस्"}
             </button>

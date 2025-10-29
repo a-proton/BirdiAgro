@@ -121,8 +121,8 @@ export default function AddDeathModal({
         }`}
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between p-6 border-b border-gray-200">
-          <h2 className="text-xl font-semibold text-gray-900">
+        <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-200">
+          <h2 className="text-lg sm:text-xl font-semibold text-gray-900">
             मृत्यु रेकर्ड गर्नुहोस्
           </h2>
           <button
@@ -134,8 +134,8 @@ export default function AddDeathModal({
           </button>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6">
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+        <form onSubmit={handleSubmit} className="p-4 sm:p-6">
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-4 sm:gap-6">
             <div>
               <label className="block text-sm font-medium text-gray-700 mb-2">
                 ब्याच छान्नुहोस्
@@ -143,7 +143,7 @@ export default function AddDeathModal({
               <select
                 required
                 disabled={isLoadingBatches}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189] focus:border-transparent disabled:bg-gray-100"
+                className="w-full px-3 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189] focus:border-transparent disabled:bg-gray-100"
                 value={formData.batch}
                 onChange={(e) =>
                   setFormData({ ...formData, batch: e.target.value })
@@ -159,7 +159,7 @@ export default function AddDeathModal({
                 ))}
               </select>
               {!isLoadingBatches && availableBatches.length === 0 && (
-                <p className="text-sm text-red-600 mt-1">
+                <p className="text-xs sm:text-sm text-red-600 mt-1">
                   कुनै ब्याच उपलब्ध छैन। पहिले ब्याच थप्नुहोस्।
                 </p>
               )}
@@ -172,7 +172,7 @@ export default function AddDeathModal({
               <input
                 type="date"
                 required
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189] focus:border-transparent"
+                className="w-full px-3 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189] focus:border-transparent"
                 value={formData.dateOfDeath}
                 onChange={(e) =>
                   setFormData({ ...formData, dateOfDeath: e.target.value })
@@ -188,7 +188,7 @@ export default function AddDeathModal({
                 type="number"
                 required
                 min="1"
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189] focus:border-transparent"
+                className="w-full px-3 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189] focus:border-transparent"
                 placeholder="उदाहरण: ५"
                 value={formData.numberOfDeaths}
                 onChange={(e) =>
@@ -203,7 +203,7 @@ export default function AddDeathModal({
               </label>
               <select
                 required
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189] focus:border-transparent"
+                className="w-full px-3 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189] focus:border-transparent"
                 value={formData.cause}
                 onChange={(e) =>
                   setFormData({ ...formData, cause: e.target.value })
@@ -224,7 +224,7 @@ export default function AddDeathModal({
               </label>
               <textarea
                 rows={3}
-                className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189] focus:border-transparent"
+                className="w-full px-3 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189] focus:border-transparent"
                 placeholder="थप विवरण लेख्नुहोस्..."
                 value={formData.notes}
                 onChange={(e) =>
@@ -234,12 +234,12 @@ export default function AddDeathModal({
             </div>
           </div>
 
-          <div className="flex gap-3 mt-6 pt-6 border-t border-gray-200">
+          <div className="flex flex-col-reverse sm:flex-row gap-2 sm:gap-3 mt-4 sm:mt-6 pt-4 sm:pt-6 border-t border-gray-200">
             <button
               type="button"
               onClick={handleClose}
               disabled={isSaving}
-              className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
+              className="flex-1 px-4 py-2 text-sm sm:text-base border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 transition-colors disabled:opacity-50"
             >
               रद्द गर्नुहोस्
             </button>
@@ -248,7 +248,7 @@ export default function AddDeathModal({
               disabled={
                 isSaving || isLoadingBatches || availableBatches.length === 0
               }
-              className="flex-1 px-4 py-2 bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
+              className="flex-1 px-4 py-2 text-sm sm:text-base bg-red-600 text-white rounded-lg hover:bg-red-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed"
             >
               {isSaving ? "रेकर्ड गर्दै..." : "मृत्यु रेकर्ड गर्नुहोस्"}
             </button>

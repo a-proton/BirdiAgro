@@ -160,8 +160,8 @@ export default function AddSalesModal({
         }`}
         onClick={(e) => e.stopPropagation()}
       >
-        <div className="flex items-center justify-between p-6 border-b border-gray-200">
-          <h2 className="text-xl font-semibold text-gray-900">
+        <div className="flex items-center justify-between p-4 sm:p-6 border-b border-gray-200 sticky top-0 bg-white">
+          <h2 className="text-lg sm:text-xl font-semibold text-gray-900">
             नयाँ बिक्री थप्नुहोस्
           </h2>
           <button
@@ -176,7 +176,7 @@ export default function AddSalesModal({
         <div className="border-b border-gray-200">
           <div className="flex">
             <button
-              className={`px-6 py-3 font-medium text-sm ${
+              className={`flex-1 sm:flex-none sm:px-6 py-3 font-medium text-sm ${
                 activeTab === "kukhura"
                   ? "text-[#1ab189] border-b-2 border-[#1ab189]"
                   : "text-gray-500"
@@ -187,7 +187,7 @@ export default function AddSalesModal({
               कुखुरा
             </button>
             <button
-              className={`px-6 py-3 font-medium text-sm ${
+              className={`flex-1 sm:flex-none sm:px-6 py-3 font-medium text-sm ${
                 activeTab === "others"
                   ? "text-[#1ab189] border-b-2 border-[#1ab189]"
                   : "text-gray-500"
@@ -200,13 +200,17 @@ export default function AddSalesModal({
           </div>
         </div>
 
-        <form onSubmit={handleSubmit} className="p-6">
+        <form onSubmit={handleSubmit} className="p-4 sm:p-6">
           {error && (
-            <div className="mb-4 p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-3">
+            <div className="mb-4 p-3 sm:p-4 bg-red-50 border border-red-200 rounded-lg flex items-start gap-2 sm:gap-3">
               <AlertCircle className="w-5 h-5 text-red-600 flex-shrink-0 mt-0.5" />
-              <div className="flex-1">
-                <p className="text-sm font-medium text-red-800">त्रुटि</p>
-                <p className="text-sm text-red-700 mt-1">{error}</p>
+              <div className="flex-1 min-w-0">
+                <p className="text-xs sm:text-sm font-medium text-red-800">
+                  त्रुटि
+                </p>
+                <p className="text-xs sm:text-sm text-red-700 mt-1 break-words">
+                  {error}
+                </p>
               </div>
             </div>
           )}
@@ -220,7 +224,7 @@ export default function AddSalesModal({
                 <select
                   name="batchName"
                   required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189]"
+                  className="w-full px-3 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189]"
                   value={kukhuraData.batchName}
                   onChange={handleKukhuraChange}
                 >
@@ -238,7 +242,7 @@ export default function AddSalesModal({
                 )}
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     बिक्री मिति
@@ -247,7 +251,7 @@ export default function AddSalesModal({
                     type="date"
                     name="salesDate"
                     required
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189]"
+                    className="w-full px-3 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189]"
                     value={kukhuraData.salesDate}
                     onChange={handleKukhuraChange}
                   />
@@ -260,7 +264,7 @@ export default function AddSalesModal({
                     type="number"
                     name="chickenCount"
                     required
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189]"
+                    className="w-full px-3 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189]"
                     value={kukhuraData.chickenCount}
                     onChange={handleKukhuraChange}
                     min="1"
@@ -268,7 +272,7 @@ export default function AddSalesModal({
                 </div>
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     कुल किलोग्राम
@@ -278,7 +282,7 @@ export default function AddSalesModal({
                     name="totalKgs"
                     step="0.01"
                     required
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189]"
+                    className="w-full px-3 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189]"
                     value={kukhuraData.totalKgs}
                     onChange={handleKukhuraChange}
                   />
@@ -292,7 +296,7 @@ export default function AddSalesModal({
                     name="pricePerKg"
                     step="0.01"
                     required
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189]"
+                    className="w-full px-3 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189]"
                     value={kukhuraData.pricePerKg}
                     onChange={handleKukhuraChange}
                   />
@@ -314,7 +318,7 @@ export default function AddSalesModal({
                   type="text"
                   name="soldTo"
                   required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189]"
+                  className="w-full px-3 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189]"
                   placeholder="ग्राहकको नाम"
                   value={kukhuraData.soldTo}
                   onChange={handleKukhuraChange}
@@ -348,14 +352,14 @@ export default function AddSalesModal({
                   type="text"
                   name="productName"
                   required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189]"
+                  className="w-full px-3 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189]"
                   placeholder="जस्तै: ताजा अण्डा"
                   value={othersData.productName}
                   onChange={handleOthersChange}
                 />
               </div>
 
-              <div className="grid grid-cols-2 gap-4">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
                 <div>
                   <label className="block text-sm font-medium text-gray-700 mb-1">
                     कुल संख्या
@@ -364,7 +368,7 @@ export default function AddSalesModal({
                     type="number"
                     name="totalPcs"
                     required
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189]"
+                    className="w-full px-3 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189]"
                     value={othersData.totalPcs}
                     onChange={handleOthersChange}
                   />
@@ -378,7 +382,7 @@ export default function AddSalesModal({
                     name="totalKgs"
                     step="0.01"
                     required
-                    className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189]"
+                    className="w-full px-3 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189]"
                     value={othersData.totalKgs}
                     onChange={handleOthersChange}
                   />
@@ -394,7 +398,7 @@ export default function AddSalesModal({
                   name="totalAmount"
                   step="0.01"
                   required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189]"
+                  className="w-full px-3 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189]"
                   value={othersData.totalAmount}
                   onChange={handleOthersChange}
                 />
@@ -408,7 +412,7 @@ export default function AddSalesModal({
                   type="text"
                   name="soldTo"
                   required
-                  className="w-full px-3 py-2 border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189]"
+                  className="w-full px-3 py-2 text-sm sm:text-base border border-gray-300 rounded-lg focus:outline-none focus:ring-2 focus:ring-[#1ab189]"
                   placeholder="ग्राहकको नाम"
                   value={othersData.soldTo}
                   onChange={handleOthersChange}
@@ -434,12 +438,12 @@ export default function AddSalesModal({
             </div>
           )}
 
-          <div className="flex gap-3 mt-6 pt-6 border-t border-gray-200">
+          <div className="flex flex-col-reverse sm:flex-row gap-3 mt-6 pt-6 border-t border-gray-200">
             <button
               type="button"
               onClick={handleClose}
               disabled={loading}
-              className="flex-1 px-4 py-2 border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 disabled:opacity-50 transition-colors"
+              className="w-full sm:flex-1 px-4 py-2 text-sm sm:text-base border border-gray-300 text-gray-700 rounded-lg hover:bg-gray-50 disabled:opacity-50 transition-colors"
             >
               रद्द गर्नुहोस्
             </button>
@@ -448,7 +452,7 @@ export default function AddSalesModal({
               disabled={
                 loading || (activeTab === "kukhura" && batchNames.length === 0)
               }
-              className="flex-1 px-4 py-2 bg-[#1ab189] text-white rounded-lg hover:bg-[#158f6f] disabled:opacity-50 transition-colors"
+              className="w-full sm:flex-1 px-4 py-2 text-sm sm:text-base bg-[#1ab189] text-white rounded-lg hover:bg-[#158f6f] disabled:opacity-50 transition-colors"
             >
               {loading ? "सेभ गर्दै..." : "बिक्री सुरक्षित गर्नुहोस्"}
             </button>
