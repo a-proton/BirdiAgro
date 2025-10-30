@@ -1,5 +1,5 @@
 // lib/api/expenses.ts
-import { supabase } from "../supabase";
+import { createClient } from "../supabase/client";
 import { uploadExpenseProof, updateExpenseProof } from "./storage";
 
 export interface Expense {
@@ -14,7 +14,7 @@ export interface Expense {
   paymentProofPath: string | null;
   batch: string;
 }
-
+const supabase = createClient();
 // Get all expenses
 export async function getAllExpenses(): Promise<Expense[]> {
   try {

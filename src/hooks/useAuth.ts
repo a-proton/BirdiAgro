@@ -4,6 +4,7 @@
 import { useEffect, useState } from "react";
 import { useRouter, usePathname } from "next/navigation";
 import { createClient } from "@/lib/supabase/client";
+import { AuthChangeEvent, Session } from "@supabase/supabase-js";
 
 export function useAuth(requireAuth = true) {
   const router = useRouter();
@@ -54,26 +55,28 @@ export function useAuth(requireAuth = true) {
     // Listen for auth state changes
     const {
       data: { subscription },
-    } = supabase.auth.onAuthStateChange(async (event, session) => {
-      if (event === "SIGNED_OUT") {
-        localStorage.removeItem("user");
-        setUser(null);
-        if (requireAuth) {
-          router.push("/login");
-        }
-      } else if (event === "SIGNED_IN" && session) {
-        const { data: userData } = await supabase
-          .from("users")
-          .select("id, name, email, role")
-          .eq("id", session.user.id)
-          .single();
+    } = supabase.auth.onAuthStateChange(
+      async (event: AuthChangeEvent, session: Session | null) => {
+        if (event === "SIGNED_OUT") {
+          localStorage.removeItem("user");
+          setUser(null);
+          if (requireAuth) {
+            router.push("/login");
+          }
+        } else if (event === "SIGNED_IN" && session) {
+          const { data: userData } = await supabase
+            .from("users")
+            .select("id, name, email, role")
+            .eq("id", session.user.id)
+            .single();
 
-        if (userData) {
-          localStorage.setItem("user", JSON.stringify(userData));
-          setUser(userData);
+          if (userData) {
+            localStorage.setItem("user", JSON.stringify(userData));
+            setUser(userData);
+          }
         }
       }
-    });
+    );
 
     return () => {
       subscription.unsubscribe();

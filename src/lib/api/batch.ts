@@ -1,5 +1,5 @@
 // lib/api/batch.ts
-import { supabase } from "../supabase";
+import { createClient } from "../supabase/client";
 import {
   uploadPoultryProof,
   updatePoultryProof,
@@ -26,6 +26,7 @@ export interface BatchWithDetails {
   totalDeaths?: number;
   totalSold?: number;
 }
+const supabase = createClient();
 //changed function
 export const getRemainingChickens = async (batchId: string | number | null) => {
   try {
@@ -49,7 +50,8 @@ export const getRemainingChickens = async (batchId: string | number | null) => {
     if (deathsError) throw deathsError;
 
     const totalDeaths = (deaths || []).reduce(
-      (sum, d) => sum + d.number_of_deaths,
+      (sum: number, d: { number_of_deaths: number }) =>
+        sum + d.number_of_deaths,
       0
     );
 

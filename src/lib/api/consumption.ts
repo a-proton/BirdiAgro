@@ -1,6 +1,5 @@
 // lib/api/consumption.ts
-import { supabase } from "../supabase";
-
+import { createClient } from "../supabase/client";
 export interface ConsumptionRecord {
   id: number;
   batch: string;
@@ -10,6 +9,7 @@ export interface ConsumptionRecord {
   unit: string;
   consumptionDate: string;
 }
+const supabase = createClient();
 
 export interface FeedStockSummary {
   id: number;
@@ -312,7 +312,7 @@ export async function adjustFeedStockQuantity(
 
       // Calculate average based on actual number of days with consumption
       const daysWithConsumption = Object.keys(consumptionByDate).length;
-      const totalKg = Object.values(consumptionByDate).reduce(
+      const totalKg = (Object.values(consumptionByDate) as number[]).reduce(
         (sum, kg) => sum + kg,
         0
       );

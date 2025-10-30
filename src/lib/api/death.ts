@@ -1,5 +1,5 @@
 // lib/api/deaths.ts
-import { supabase } from "../supabase";
+import { createClient } from "../supabase/client";
 import { getRemainingChickens } from "./batch";
 
 export interface Death {
@@ -10,6 +10,7 @@ export interface Death {
   cause?: string;
   notes?: string;
 }
+const supabase = createClient();
 
 // Validate death count against available chickens
 async function validateDeathCount(

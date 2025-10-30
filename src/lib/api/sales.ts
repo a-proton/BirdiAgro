@@ -1,5 +1,5 @@
 // lib/api/sales.ts
-import { supabase } from "../supabase";
+import { createClient } from "../supabase/client";
 import { getBatchIdByName, getRemainingChickens } from "./batch";
 
 export interface Sale {
@@ -25,7 +25,7 @@ export interface SaleStats {
   monthGrowth: number;
   yearGrowth: number;
 }
-
+const supabase = createClient();
 export const validateSaleQuantity = async (
   batchName: string,
   chickenCount: number,

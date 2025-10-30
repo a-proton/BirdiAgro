@@ -1,5 +1,5 @@
 // lib/api/storage.ts
-import { supabase } from "../supabase";
+import { createClient } from "../supabase/client";
 
 const EXPENSE_BUCKET = "expense_proof";
 const POULTRY_BUCKET = "poultry_proof";
@@ -12,6 +12,7 @@ const PAYMENT_PROOF_BUCKET = "payment_proof"; // New bucket for feed payment pro
  * @param folder - Optional folder path (e.g., 'kukhura', 'others')
  * @returns The file path in storage
  */
+const supabase = createClient();
 export async function uploadExpenseProof(
   file: File,
   folder?: string

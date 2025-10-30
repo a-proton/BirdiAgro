@@ -1,5 +1,5 @@
 // lib/api/feed.ts
-import { supabase } from "../supabase";
+import { createClient } from "../supabase/client";
 import {
   uploadPaymentProof,
   updatePaymentProof,
@@ -19,6 +19,7 @@ export interface FeedRecord {
   paymentProofName: string;
   paymentProofPath: string;
 }
+const supabase = createClient();
 
 export async function getAllFeedRecords(): Promise<FeedRecord[]> {
   try {

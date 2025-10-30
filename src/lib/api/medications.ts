@@ -1,5 +1,6 @@
 // lib/api/medications.ts
-import { supabase } from "../supabase";
+import { createClient } from "../supabase/client";
+
 import { uploadMedicationImage } from "./storage";
 
 export interface Vaccination {
@@ -9,7 +10,7 @@ export interface Vaccination {
   vaccinationDate: string;
   week?: string;
 }
-
+const supabase = createClient();
 // Create a new vaccination
 export async function createVaccination(vaccinationData: {
   batchId: number;
