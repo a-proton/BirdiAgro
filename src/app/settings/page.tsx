@@ -48,7 +48,7 @@ export default function SettingsPage() {
   // Fetch users
   useEffect(() => {
     fetchUsers();
-  });
+  }, []);
 
   const fetchUsers = async () => {
     setLoading(true);
