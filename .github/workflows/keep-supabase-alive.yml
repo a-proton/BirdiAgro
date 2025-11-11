@@ -1,1 +1,24 @@
+name: Keep Supabase Alive
+
+on:
+  schedule:
+    - cron: '0 */6 * * *'  # Run every 6 hours
+  workflow_dispatch:        # Allow manual trigger
+
+jobs:
+  ping:
+    runs-on: ubuntu-latest
+
+    env:
+      SUPABASE_ANON_KEY: ${{ secrets.SUPABASE_ANON_KEY }}
+
+    steps:
+      - name: Ping Supabase REST endpoint
+        run: |
+          echo "Pinging Supabase..."
+          RESPONSE=$(curl -s -o /dev/null -w "%{http_code}" "https://qwvswodhxsgjljlnfrpt.supabase.co/rest/v1/" -H "apikey: $SUPABASE_ANON_KEY")
+          echo "Response code: $RESPONSE"
+          if [ "$RESPONSE" -ne 200 ]; then
+            echo "Warning: Supabase did not return 200 OK"
+          fi
 
